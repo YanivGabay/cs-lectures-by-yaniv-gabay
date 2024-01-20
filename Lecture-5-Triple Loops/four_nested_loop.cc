@@ -17,9 +17,9 @@ int main() {
     int maxShoes = 2; // Circle, Square
    // int maxWatch = 2; // Smooth, Rough
 
-    for (int color = 1; color <= maxPants; color++) {
-        for (int size = 1; size <= maxSuit; size++) {
-            for (int shape = 1; shape <= maxShoes; shape++) {
+    for (int pants = 1; pants <= maxPants; pants++) {
+        for (int suit = 1; suit <= maxSuit; suit++) {
+            for (int shoe = 1; shoe <= maxShoes; shoe++) {
                 /*
                 //after we understand the triple, i suddenly
                 remembered that i have a 2 more watches to add to
@@ -32,9 +32,9 @@ int main() {
                 }
                 */
 
-                std::cout << "Combination: Pants " << color
-                              << ", Suit " << size
-                              << ", Shoes " << shape << std::endl;
+                std::cout << "Combination: Pants " << pants
+                              << ", Suit " << suit
+                              << ", Shoes " << shoe << std::endl;
             }
         }
     }
