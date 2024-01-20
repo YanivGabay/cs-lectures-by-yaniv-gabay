@@ -8,6 +8,10 @@
     but still its much more readbly.
 */
 
+// its reccomended to change the values of length,width,and height
+// to see how the box changes.
+
+
 // include section
 #include <iostream>
 
