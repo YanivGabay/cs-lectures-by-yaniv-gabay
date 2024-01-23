@@ -2,6 +2,7 @@
 
 /* 
     we will just show basic capabilities of arrays, and how to use them.
+    basic fill and print
 */
 
 
