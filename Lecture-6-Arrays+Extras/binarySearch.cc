@@ -21,8 +21,7 @@ const int MIN_GRADE = 0;
 // main section
 int main()
 {
-    // find highest grade
-    int max = -1; // why -1?????? everyone got 0
+   
     int students_id[CLASS_SIZE];
     int wanted_id = 0;
     int stud = 0;

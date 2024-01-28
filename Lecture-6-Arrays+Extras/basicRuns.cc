@@ -1,4 +1,7 @@
 ///////------//lecture 6 - basicRuns on arrays//------///////
+//prefrences -> terminal -> custom terminal command
+/* xterm -font '*-fixed-*-*-*-20-*' -geometry 100x30 -e "/bin/sh %c"
+// enlarge the geany terminal runner
 
 /*
     basic runs on loops
@@ -25,7 +28,7 @@ int main()
     // read in the grades
     // we make sure for each student, that the grade is between 0 and 100,if not
     // we take another cin for that exact same cell
-    for (stud = 0; stud < 40; stud++)
+    for (stud = 0; stud < CLASS_SIZE; stud++)
     {
         do
         {
