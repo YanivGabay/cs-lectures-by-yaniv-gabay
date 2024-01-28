@@ -1,5 +1,5 @@
 
-///////------//lecture 6 - basicRuns on arrays//------///////
+///////------//lecture 6 - bubblesort visualisation on arrays//------///////
 
 /*
   bubble sort

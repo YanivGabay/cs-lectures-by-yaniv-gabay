@@ -1,7 +1,5 @@
-///////------//lecture 6 - basicRuns on arrays//------///////
-//prefrences -> terminal -> custom terminal command
-/* xterm -font '*-fixed-*-*-*-20-*' -geometry 100x30 -e "/bin/sh %c"
-// enlarge the geany terminal runner
+///////------//lecture 6 - runningBackwards on arrays//------///////
+
 
 /*
    

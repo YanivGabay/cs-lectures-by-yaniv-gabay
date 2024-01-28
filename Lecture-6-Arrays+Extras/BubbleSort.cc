@@ -1,7 +1,8 @@
-///////------//lecture 6 - basicRuns on arrays//------///////
+///////------//lecture 6 - bubbleSort on arrays//------///////
 
 /*
   bubble sort
+  from yoram notebook
 
 */
 

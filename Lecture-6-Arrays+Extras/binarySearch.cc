@@ -1,4 +1,4 @@
-///////------//lecture 6 - basicRuns on arrays//------///////
+///////------//lecture 6 - binarySearch on arrays//------///////
 
 /*
    complex run with two arrays
