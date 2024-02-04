@@ -6,6 +6,7 @@
   # void without return value or modify value inside function
   #  int with return value
    # void with modify value inside function
+   // but this time, its calculting the avg of an array
 */
 // its very important to understand this concept, as it will be used in the next lectures
 
@@ -18,9 +19,9 @@ using ::std::endl;
 // const section
 const int SIZE = 5; // Constant for the array size
 // prototypes section
-double calculateAverageReturn(int arr[]);
-void calculateAveragePrint(int arr[]);
-void calculateAverageReference(int arr[], double &avg);
+double calculateAverageReturn(double arr[]);
+void calculateAveragePrint(double arr[]);
+void calculateAverageReference(double arr[], double &avg);
 // using section
 using ::std::cin;
 using ::std::cout;
