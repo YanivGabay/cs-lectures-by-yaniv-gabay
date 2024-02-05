@@ -19,6 +19,7 @@ using ::std::endl;
 // const section
  const int TOTAL_QUESTIONS = 5;
 // prototypes section
+void startQuiz();
 void generateQuestion(int &num1, int &num2, char &operation);
 void presentQuestion(int num1, int num2, char operation);
 int getUserAnswer();
