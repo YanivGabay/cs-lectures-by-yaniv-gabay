@@ -61,7 +61,7 @@ int main()
         
     }
 
-     std::cout << "Printing the 2D array with id:" << std::endl;
+     std::cout << "Printing the 2D array with ids only:" << std::endl;
       for (int id = 0; id < IDS; id++)
     {
         for (int course = 0; course < NUM_OF_COURSES; course++)
