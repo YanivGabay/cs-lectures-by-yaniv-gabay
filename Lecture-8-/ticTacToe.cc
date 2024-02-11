@@ -17,13 +17,13 @@ using ::std::endl;
 // const section
 const int SIZE_OF_BOARD = 3;
 // prototypes section
-void displayBoard(char board[SIZE_OF_BOARD][SIZE_OF_BOARD]);
+void displayBoard(char board[][SIZE_OF_BOARD]);
 
-void playerMove(char player,char board[SIZE_OF_BOARD][SIZE_OF_BOARD]);
+void playerMove(char player,char board[][SIZE_OF_BOARD]);
 
-bool isWinner(char player,char board[SIZE_OF_BOARD][SIZE_OF_BOARD]);
+bool isWinner(char player,char board[][SIZE_OF_BOARD]);
 
-bool isDraw(char board[SIZE_OF_BOARD][SIZE_OF_BOARD]);
+bool isDraw(char board[][SIZE_OF_BOARD]);
 
 
 
@@ -63,7 +63,7 @@ int main()
     return 0;
 }
 
-void displayBoard(char board[SIZE_OF_BOARD][SIZE_OF_BOARD])
+void displayBoard(char board[][SIZE_OF_BOARD])
 {
     for (int row = 0; row < SIZE_OF_BOARD; row++)
     {
@@ -78,7 +78,7 @@ void displayBoard(char board[SIZE_OF_BOARD][SIZE_OF_BOARD])
     }
     std::cout << std::endl;
 }
-void playerMove(char player,char board[SIZE_OF_BOARD][SIZE_OF_BOARD])
+void playerMove(char player,char board[][SIZE_OF_BOARD])
 {
     int row, col;
     do
@@ -91,7 +91,7 @@ void playerMove(char player,char board[SIZE_OF_BOARD][SIZE_OF_BOARD])
 
     board[row][col] = player;
 }
-bool isWinner(char player,char board[SIZE_OF_BOARD][SIZE_OF_BOARD])
+bool isWinner(char player,char board[][SIZE_OF_BOARD])
 {
     // Check rows and columns
     for (int i = 0; i < SIZE_OF_BOARD; i++)
@@ -111,7 +111,7 @@ bool isWinner(char player,char board[SIZE_OF_BOARD][SIZE_OF_BOARD])
     return false;
 }
 
-bool isDraw(char board[SIZE_OF_BOARD][SIZE_OF_BOARD])
+bool isDraw(char board[][SIZE_OF_BOARD])
 {
     for (int row = 0; row < SIZE_OF_BOARD; row++)
     {
