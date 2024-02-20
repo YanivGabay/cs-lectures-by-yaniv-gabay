@@ -9,10 +9,10 @@ void printArray(int arr[], int size);
 //we will manually show what is happening in the recursion
 
 //how would we print this array reversed using recursion??????
-
+const int size = 5;
 int main() {
     int arr[] = {1, 2, 3, 4, 5};
-    int size = sizeof(arr) / sizeof(arr[0]);
+    
 
     std::cout << "Array elements: ";
     printArray(arr, size);
