@@ -19,7 +19,7 @@ int main() {
 
     // Search for an element
     int key = 14;
-    if (search(arr, SIZE, key))
+    if (search(arr, 0, key))
         std::cout << key << " found in the array." << std::endl;
     else
         std::cout << key << " not found in the array." << std::endl;
@@ -44,11 +44,11 @@ int arraySum(int arr[], int size) {
 }
 
 // Function to search for an element in an array recursively
-bool search(int arr[], int size, int key) {
-    if (size == 0)
+bool search(int arr[], int index, int key) {
+    if (index == SIZE)
         return false;
-    if (arr[size - 1] == key)
+    if (arr[index] == key)
         return true;
     else
-        return search(arr, size - 1, key);
+        return search(arr, index + 1, key);
 }
