@@ -1,5 +1,7 @@
 #include <iostream>
-using namespace std;
+using std::cout;
+using std::endl;
+using std::cin;
 
 //basic question
 //but what is the running time.
@@ -11,6 +13,9 @@ using namespace std;
 //we havnt found , so we start with the second cell, and check n-2 cells
 //and so on until we start with the n-1 cell and check 1 cell
 
+
+//WE CAN IMPROVE THIS CODE SPECIFICLY FOR YORAM TEST
+//WHAT YOU WILL CHANGE??????????
 bool find_sum(int arr[], int N, int sum, int &index1, int &index2) ;
 const int N = 10;
 
