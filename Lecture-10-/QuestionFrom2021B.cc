@@ -59,7 +59,10 @@ int countRowsWithCommonValues(int arr[][COLS], int rows, int cols) {
                 break; // One value from the row not found in all rows
             }
         }
-        if (allValuesInAllRows) ++count; // All values in the row found in all other rows
+        if (allValuesInAllRows) {
+            ++count; // All values in the row found in all other rows
+            std::cout << "found row " << i << " with all values in all other rows\n ";
+        }
     }
     return count;
 }
