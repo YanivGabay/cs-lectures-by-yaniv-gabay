@@ -49,6 +49,8 @@ int main() {
     // open the file
     input_fd.open(file_name);
     
+    //we could also directly do input_fd.open("file.txt");
+
     //important concept through the course
     //when doing file operations, we always need to check if the file is open
     //simillar operations you will learn in the future will always
@@ -75,6 +77,11 @@ int main() {
         input_fd >> number;
         cout << number << endl;
     }
+
+
+    // important, before we finish what we OPEN
+    // we need to close it
+    input_fd.close();
 
     return 0;
 }
