@@ -1,7 +1,7 @@
 /********************************************************************
  * Course: Modolar Programming in C++
  * Lecture: 1 - Files
- * File: Files.cc
+ * File: ReadFromFiles.cc
  * 
  * Author: Yaniv Gabay
  * Date: 2024-03-24
