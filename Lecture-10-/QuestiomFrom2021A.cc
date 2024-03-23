@@ -16,6 +16,10 @@ using std::cin;
 
 //WE CAN IMPROVE THIS CODE SPECIFICLY FOR YORAM TEST
 //WHAT YOU WILL CHANGE??????????
+
+
+// next year with Eran London you will learn how to do this with O(n) time
+//using hash table
 bool find_sum(int arr[], int N, int sum, int &index1, int &index2) ;
 const int N = 10;
 
