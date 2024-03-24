@@ -3,7 +3,7 @@
  * Lecture: 1 - Chars
  * File: Chars.cc
  * 
- * Author: Yaniv Gabay
+ * Author: Yaniv Gabay 
  * Date: 2024-03-24
  * 
  * Overview:
@@ -11,6 +11,7 @@
  * 
  * Notes:
  * We will understand ascii and how to use chars in C++.
+
  *******************************************************************/
 
 // ---------- Include Section ----------

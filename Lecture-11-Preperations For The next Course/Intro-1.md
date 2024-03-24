@@ -3,9 +3,8 @@
 As we embark on our journey with **Modular Programming in C++**, it's essential to know where to find the resources and lectures for this course. They are available on [Yoram Biberman - Intro to cs](https://sites.google.com/view/yoramb-intro2cs/home), starting from episode 10 onwards.
 
 ## Personal Note
-
-This course is a labor of love that I provide without financial compensation. Therefore, it will not be recorded. However, you can still access the code files on my GitHub repository.
-
+I just rewrote some of Yorams examples, with commenting through the code written. 
+this was also a Zoom Live lesson, which wasnt recorded.
 ## Course Approach
 
 Our focus will be on **understanding the core concepts** rather than delving deep into specific topics. This means we'll briefly explore some syntax, experiment with it, and swiftly move on to the next subject. It's about grasping the general idea behind each topic.
