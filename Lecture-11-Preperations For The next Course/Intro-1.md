@@ -16,8 +16,8 @@ Remember, all the information and resources you need are consolidated in the [pr
 We aim to cover some critical areas that will bolster your understanding of C++:
 
 1. **Strings/chars**: Revisiting what might have been missed last semester.
-2. **Working with files**: The intricacies of reading from and writing to files.
-3. **Dynamic allocation**: Discussing the 'why', 'how', and 'when'.
+2. **Working with files**: The intricacies of reading from and writing to files and reading from files.
+3. **Basic Pointers**
 4. **Structs**: Diving into what structs are with practical discussions and examples.
 
 Should time permit, we may venture into the realm of **Linked lists**, although that remains an optimistic goal.

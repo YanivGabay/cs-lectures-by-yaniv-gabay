@@ -38,13 +38,14 @@ int main() {
     // Main function code
     char string[LENGTH] = {'H', 'e', 'l', 'l', 'o'};
     char input[LENGTH];
-
+    
     int i = 0;
     do
     {
         cin >> input[i++];
     } while (!isspace(input[i-1]) && i < LENGTH);
-    
+
+    cout << input << endl;
 
     for (int  i = 0; i < LENGTH; i++)
     {
@@ -53,6 +54,7 @@ int main() {
     cout << endl;
     //now we will do something different
     char input2[LENGTH];
+    
     cin >> input2;
 
     for (int  i = 0; i < LENGTH; i++)

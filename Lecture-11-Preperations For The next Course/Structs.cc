@@ -13,6 +13,10 @@
  * 
  *******************************************************************/
 
+
+
+
+
 // ---------- Include Section ----------
 #include <iostream>
 // Add more #include directives as needed
@@ -27,6 +31,7 @@ const int MAX_SIZE = 100;
 // Add more constants as needed
 
 // ---------- Structs ----------
+
 struct Point {
     double _x;
     double _y;
@@ -36,6 +41,7 @@ struct Circle {
     Point _center;
     double _radius;
 };
+
 // Add more structs as needed
 
 // ---------- Function Prototypes ----------
@@ -44,10 +50,16 @@ void insert_values(struct Point& point);
 
 // ---------- Main Function ----------
 int main() {
-
+    struct Point mypoint;
+    
     struct Point p1 = {1,2};
     struct Point p2 = {3,4};
     struct Circle c1 = {p1,5};
+
+    c1._center._x = 10;
+
+    cout << "p1 x:" << p1._x << endl;
+    
 
     cout << "p1: (" << p1._x << "," << p1._y << ")" << endl;
     cout << "p2: (" << p2._x << "," << p2._y << ")" << endl;

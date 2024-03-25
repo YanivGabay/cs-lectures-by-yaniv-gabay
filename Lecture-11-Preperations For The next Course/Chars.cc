@@ -62,12 +62,12 @@ int main() {
     
     // very important to know this ascii values:
     // 0 = \0
-    // 10 = \n
+    // 10 = \n  
     // there is also \t for tab
     // \n \t etc are called escape characters or 
     // white space characters
     //we will return to them later! 
-
+    
     // we can use the cctype library to check if the char is digit or letter
     if(isdigit(input)) {
         cout << "Digit" << endl;

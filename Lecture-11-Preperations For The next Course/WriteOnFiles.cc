@@ -49,16 +49,17 @@ int main() {
     //1.
         //can also use from input 
         // char file_name[MAX_LENGTH];
-        //cin >> std::setw(MAX_LENGTH) >> file_name;
-        //output_fd.open(file_name);
+       // cin >> std::setw(MAX_LENGTH) >> file_name;
+       // output_fd.open(file_name);
     //or             
     output_fd.open("output.txt");
+   
     //will create that file if its doesnt exists
-
+    //output_fd.open("output.txt",std::ios::app);
     //2. after we run the first time, we will change to this:
 
     //we use this: so we can append to the end of the file
-    //output_fd.open("output.txt",std::ios::app);
+    //
     //lets say its exists, but we want to write on exists
     // so if the file has: "1  2   3"
     // and we will write "4 5 6"
@@ -72,11 +73,14 @@ int main() {
         return EXIT_FAILURE;
     }
 
+    // ifstream for reading file
+    // cin >> number || input_fd >> number
 
+    // ofstream for writing to file
 
     //now we will write to the file
     // by using the same syntax as cout
-    output_fd << "Hello World" << endl;
+    output_fd << "Hello World" << endl; // cout << "Hello World" << endl;
     output_fd << "This is a test from main" << endl;
     output_fd << "Goodbye" << endl;
 

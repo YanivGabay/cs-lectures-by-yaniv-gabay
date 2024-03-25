@@ -40,17 +40,19 @@ void exampleFunction(int parameter);
 int main() {
     // Main function code
     
-    std::ifstream input_fd;
     
-    char file_name[MAX_LENGTH];
+    std::ifstream input_fd;//reading from files
+    std::ofstream output_fd;//writing to files
+
+    //char file_name[MAX_LENGTH];
     // get the file name from the user
-    cin >> std::setw(MAX_LENGTH) >> file_name;
-
-    // open the file
-    input_fd.open(file_name);
+    //cin >> std::setw(MAX_LENGTH) >> file_name;
     
-    //we could also directly do input_fd.open("file.txt");
-
+    // open the file
+    //input_fd.open(file_name);
+    
+    //we could also directly do 
+    input_fd.open("test.txt");
     //important concept through the course
     //when doing file operations, we always need to check if the file is open
     //simillar operations you will learn in the future will always
@@ -64,7 +66,7 @@ int main() {
         std::cerr << "Error opening file" << endl;
         return EXIT_FAILURE;
     }
-
+    
     // read the file
     int number;
     // read the file until the end
@@ -73,14 +75,16 @@ int main() {
     // input_fd.bad() 
     // input_fd.fail()
     // input_fd.eof()
+    // end of file 
     while(!input_fd.eof()) {
-        input_fd >> number;
+        input_fd >> number; // cin >> number
         cout << number << endl;
     }
 
 
     // important, before we finish what we OPEN
     // we need to close it
+   
     input_fd.close();
 
     return 0;

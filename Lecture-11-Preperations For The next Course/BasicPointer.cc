@@ -40,6 +40,7 @@ int main() {
     // we can also use it to change the value in that memory address
     // we can also use it to create dynamic memory allocation
     // we will learn about that in the next course
+ 
 
     int *first_pointer; // the type is int* , which means it holds a memory address of an int
     //the name is first_pointer
@@ -51,11 +52,14 @@ int main() {
     first_pointer = &number;
     //now first_pointer is pointing to the memory address of number
     //we can access the value in that memory address by using * operator
+    cout << "first pointer value is" << endl;
+    cout << first_pointer << endl;
     cout << "printing the value in the memory address that first_pointer is pointing to:----->>>>>" << endl;
     cout << (*first_pointer) << endl;
     cout << "printing the value of number:" << endl;
     cout << number << endl;
-
+    cout << "printing the adress of number:" << endl;
+    cout << &number << endl;
    
     (*first_pointer)+=5; // same as number += 5;
     cout << "after adding += 5 to *first_pointer" << endl;
@@ -64,12 +68,13 @@ int main() {
     //we can also change the value in that memory address
     *first_pointer = 25;
     cout << "printing number after *first_pointer = 25" << endl;
-    cout << number << endl;
+    cout << *first_pointer << endl;
      cout << "printing the value of number:" << endl;
     cout << number << endl;
     ///// think why is this good?? why is it bad????
     // we can send pointers to functions
     
+
     modifyValue(first_pointer,555);
       cout << "printing the value of number after modifyValue(555):" << endl;
     cout << number << endl;
@@ -79,8 +84,14 @@ int main() {
     modifyValue(&number,255);
       cout <<"printing the value of number after modifyValue(255):" << endl;
     cout << number << endl;
+    modifyValue(first_pointer,555);
+      cout << "printing the value of number after modifyValue(555):" << endl;
+      cout << number << endl;
 
-
+      
+    first_pointer+=5;
+    cout << first_pointer << endl;
+    cout << *first_pointer << endl;
     //we can also create a pointer to a pointer
     //we will not go over it
     
