@@ -29,7 +29,7 @@ const int MAX_SIZE = 100;
 // ---------- Structs ----------
 
 // ---------- Function Prototypes ----------
-void exampleFunction(int parameter);
+void modifyValue(int *pointer,int value);
 // Add more function prototypes as needed
 
 // ---------- Main Function ----------
@@ -69,8 +69,16 @@ int main() {
     cout << number << endl;
     ///// think why is this good?? why is it bad????
     // we can send pointers to functions
-    //
-
+    
+    modifyValue(first_pointer,555);
+      cout << "printing the value of number after modifyValue(555):" << endl;
+    cout << number << endl;
+    //modify value can also get the &number
+    //cause it takes a regular value, and give us the adress
+    //which a pointer can point to 
+    modifyValue(&number,255);
+      cout <<"printing the value of number after modifyValue(255):" << endl;
+    cout << number << endl;
 
 
     //we can also create a pointer to a pointer
@@ -81,8 +89,7 @@ int main() {
 }
 
 // ---------- Functions ----------
-void exampleFunction(int parameter) {
-    // Example function implementation
-    cout << "Parameter value: " << parameter << endl;
+void modifyValue(int *pointer,int value) {
+    *pointer = value;
 }
 // Add more functions as needed
