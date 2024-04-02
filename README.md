@@ -1,6 +1,6 @@
-# Introduction to Computer Science by Yaniv
+# Lessons we went through over the year By Yaniv Gabay
 
-This repository contains lecture notes and coding files used by Yaniv Gabay for the Introduction to Computer Science course at HAC.
+This repository contains lecture notes and coding files used by Yaniv Gabay for both the Introduction to Computer Science course at HAC and the Modular Programming Course.
 
 ## Content Overview
 
