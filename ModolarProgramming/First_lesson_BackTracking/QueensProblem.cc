@@ -1,9 +1,9 @@
 /********************************************************************
- * Course: Course Name
+ * Course: Modolar Programming
  * Lecture: Lecture 1 - BackTracking
  * File: QueensProblem.cc
  * 
- * Author: Your Name
+ * Author: Yaniv Gabay
  * Date: 2024-04-CURRENT_DAY
  * 
  * Overview:
