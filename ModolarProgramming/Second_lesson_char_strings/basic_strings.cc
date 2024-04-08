@@ -7,8 +7,9 @@
  * Date: 2024-04-08
  * 
  * Overview:
- * 
- * 
+ * some basics about null terminated strings
+ * using the setw to prevent a bad situation
+ * char array can be printed as an array or just as a string
  * Notes:
  * 
  *******************************************************************/
