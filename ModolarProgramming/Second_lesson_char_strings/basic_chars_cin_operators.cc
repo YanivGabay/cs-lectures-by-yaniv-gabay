@@ -33,7 +33,8 @@
 
 // ---------- Include Section ----------
 #include <iostream>
-// Add more #include directives as needed
+#include <cctype>
+
 
 // ---------- Using Section ----------
 using std::cout;
@@ -46,7 +47,8 @@ const int MAX_SIZE = 100;
 
 // ---------- Function Prototypes ----------
 double getAverage() ;
-
+bool isLetter(char c);
+void printAverage(int index, double average);
 // ---------- Main Function ----------
 int main() {
 
@@ -110,6 +112,8 @@ double getAverage() {
         {
             return double(sum / num);
         }
+        if(!isLetter(single_char))
+            continue;
         //if we reach here, we got a char that isnt new line
         // and isnt space, so we can convert it to int
         std::cout << "The char is: " << single_char << std::endl;
@@ -122,4 +126,20 @@ double getAverage() {
     
 
 
+}
+bool isLetter(char c)
+{
+    if(!isalpha(c))
+    {
+        std::cout << "The char " << c <<" is not a letter" << std::endl;
+           return false;
+    }
+     
+    /*    
+    if(c >= 'a' && c <= 'z')
+        return true;
+    if(c >= 'A' && c <= 'Z')
+        return true;
+        */
+    return true;
 }
