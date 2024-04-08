@@ -30,10 +30,15 @@ using std::endl;
 const int MAX_STRING_SIZE = 100;
 const int MAX_STRINGS_ALLOWED = 20;
 
-
+enum class WordType {
+    Smallest,
+    Biggest
+};
 // ---------- Function Prototypes ----------
 void printContent(const char dict[][MAX_STRING_SIZE], int size);
 int take_input(char dict[][MAX_STRING_SIZE]);
+void wordFinder(const char dict[][MAX_STRING_SIZE], const int size,WordType type);
+void infoContent(const char dict[][MAX_STRING_SIZE],const int size, WordType type);
 // ---------- Main Function ----------
 int main() {
 
@@ -55,8 +60,10 @@ int main() {
     cout << "enter strings, end with 'end'" << endl;
 
     int size = take_input(array);
+    cout << "====================" << endl;
     cout << "printing after input" << endl;
     cout << "took " << size << " strings" << endl;
+    cout << "====================" << endl;
     cout << "printing the content" << endl;
     printContent(array, size);
 
@@ -64,7 +71,8 @@ int main() {
     // till he will enter the word "end"
     // or untill we will reach the end of the array
 
-
+    infoContent(array, size, WordType::Smallest);
+    infoContent(array, size, WordType::Biggest);
 
     return 0;
 
@@ -72,6 +80,39 @@ int main() {
 }
 
 // ---------- Functions ----------
+void infoContent(const char dict[][MAX_STRING_SIZE],const int size, WordType type) {
+    cout << "====================" << endl;
+    cout << "printing info" << endl;
+    
+    wordFinder(dict, size, type);
+
+    
+    cout << "====================" << endl;
+
+}
+
+void wordFinder(const char dict[][MAX_STRING_SIZE], const int size, WordType type) {
+    if (size == 0) return; // Handle empty array
+    
+    int index = 0; // Index of the currently smallest or largest word
+
+    for (int i = 1; i < size; i++) { // Start from the second element
+        int compare = strcmp(dict[i], dict[index]);
+
+        if (type == WordType::Smallest && compare < 0) {
+            index = i; // Found a smaller word
+        } else if (type == WordType::Biggest && compare > 0) {
+            index = i; // Found a bigger word
+        }
+    }
+
+    // Print the result after finding the smallest or biggest word
+    if (type == WordType::Smallest) {
+        std::cout << "The smallest word is: " << dict[index] << std::endl;
+    } else { // WordType::Biggest
+        std::cout << "The biggest word is: " << dict[index] << std::endl;
+    }
+}
 
 void printContent(const char dict[][MAX_STRING_SIZE], int size) {
     for(int i = 0; i < size; i++) {
