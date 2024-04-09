@@ -1,13 +1,14 @@
 /********************************************************************
  * Course: Modolar Programming in C++
- * Lecture: 2 - basic string
- * File: basic_string_c_bonus.cc
+ * Lecture: 2 - basic chars
+ * File: stringsLastExample.cc
  *
  * Author: Yaniv Gabay
  * Date: 2024-04-08
  *
  * Overview:
-
+ * this is actually a char example, cus we dont use any strings function etc.
+ * we will delete comments from a given cpp code, which is given in a single char array
  *
  * Notes:
  *
