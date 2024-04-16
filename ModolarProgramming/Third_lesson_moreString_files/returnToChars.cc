@@ -29,12 +29,16 @@ using std::endl;
 // ---------- Constants ----------
 const int MAX_SIZE = 100;
 
+enum {SEPERATE_WORDS,DONT_SEPERATE_WORDS};
 
 // ---------- Function Prototypes ----------
 void deleteCharFromString(char str[], char c);
 void printStringArray(const char array[]);
 void multiplyChars(char str[],int times);
 void multiplyChars(int new_string_index,int original_index,int times, char str[],char result[]);
+void trimwithoutSeperateWords(char str[]);
+void trimWithSeperateWords(char str[]);
+void stringTrimmer(char str[],int seperate_words);
 // ---------- Main Function ----------
 int main() {
     int value = 5;
@@ -57,12 +61,71 @@ int main() {
     cout << "string before the doubling functioin" << array2 << endl;
 
     multiplyChars(array2,3);
+    cout << "======================" << endl;
+    char space_seperated_string[] = "my name is yaniv gabay";
+    stringTrimmer(space_seperated_string,SEPERATE_WORDS);
     
 
     return 0;
 }
 // ---------- Functions ----------
 // =================================================================
+void stringTrimmer(char str[],int seperate_words){
+   if (seperate_words == SEPERATE_WORDS)
+   {
+        trimWithSeperateWords(str);
+   }
+   else 
+   {
+         trimwithoutSeperateWords(str);
+   }
+}
+// =================================================================    
+void trimwithoutSeperateWords(char str[]){
+    int index = 0;
+    int new_index = 0;
+    while(str[index] != '\0'){
+        if(str[index] != ' '){
+            str[new_index] = str[index];
+            new_index++;
+        }
+        index++;
+    }
+    str[new_index] = '\0';
+    cout << "result of the trim function:" << str << endl;
+    printStringArray(str);
+}
+// =================================================================
+void trimWithSeperateWords(char str[]){
+   char array[][MAX_SIZE] = {0};
+    int index = 0;
+    int word_index = 0;
+    int word_length = 0;
+
+    while(str[index] != '\0'){
+       if(str[index] != ' '){
+           array[word_index][word_length] = str[index];
+           word_length++;
+       }
+       else
+       {
+        array[word_index][word_length] = '\0'; // make sure the string ends with \0
+        word_length = 0;
+           
+        word_index++;
+       }
+       index++;
+    }
+
+    cout << "result of the trim function:" << str << endl;
+   for (int i = 0; i < word_index; i++)
+   {
+    cout << "word[" << i << "] = " << array[i] << endl;
+   }
+   
+}
+// =================================================================
+
 //we want to multiply each char in the string
 //and make sure it has \0 at the end
 void multiplyChars(char str[],int times){
