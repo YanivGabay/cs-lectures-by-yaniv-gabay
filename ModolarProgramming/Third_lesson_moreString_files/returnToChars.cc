@@ -32,13 +32,15 @@ const int MAX_SIZE = 100;
 
 // ---------- Function Prototypes ----------
 void deleteCharFromString(char str[], char c);
+void printStringArray(const char array[]);
+void multiplyChars(char str[],int times);
 // ---------- Main Function ----------
 int main() {
     int value = 5;
     char c = (char)(value+'0');
     cout << c << endl;
 
-    char array[] = "Hell";
+    char array[] = "Hellllaaallllaaall";
     char array2[15] = "Hello";
     //strcat(array,c); //this dont work? what we should do?
     //str cat only accept STRINGs, which are chars arrays with \0 at the end
@@ -51,10 +53,45 @@ int main() {
     cout << "string before the deletechar function:" << array << endl;
     deleteCharFromString(array,'l');
 
+    cout << "string before the doubling functioin" << array2 << endl;
+
+    multiplyChars(array2,3);
+    
+
     return 0;
 }
 // ---------- Functions ----------
 // =================================================================
+//we want to multiply each char in the string
+//and make sure it has \0 at the end
+void multiplyChars(char str[],int times){
+
+    int original_index = 0;
+    int new_string_index = 0;
+
+    char remains[MAX_SIZE] = {0};
+
+    strcpy(remains,str); // save the original string
+    char result[MAX_SIZE] = {0};
+
+    while(remains[original_index] != '\0'){
+
+        for (int i = 0; i < times; i++)
+        {
+            result[new_string_index+i] = remains[original_index];
+        }
+        
+        result[new_string_index+times] = '\0'; // make sure the string ends with \0
+
+        original_index++;
+        new_string_index += times;
+        
+    }
+    result[new_string_index] = '\0'; // make sure the string ends with \0
+
+    cout << "result of the double function:" << result << endl;
+    printStringArray(result);
+}
 //unique way to delete a char from a string
 
 // [hel] [l]
@@ -89,4 +126,15 @@ void deleteCharFromString(char str[], char char_to_delete){
     }
     str[to_delete] = '\0';
     cout << "result of the delte function:" << str << endl;
+    printStringArray(str);
+}
+// =================================================================
+void printStringArray(const char array[]){
+    int index = 0;
+    while(array[index] != '\0'){
+        cout << "array[" << index << "] = ";
+        cout << array[index] << endl;
+        index++;
+    }
+    cout << endl;
 }
