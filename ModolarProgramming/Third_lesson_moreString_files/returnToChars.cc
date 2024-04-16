@@ -39,6 +39,8 @@ void multiplyChars(int new_string_index,int original_index,int times, char str[]
 void trimwithoutSeperateWords(char str[]);
 void trimWithSeperateWords(char str[]);
 void stringTrimmer(char str[],int seperate_words);
+void copyToDifferentArray(char str[],int index,int word_length,char array[][MAX_SIZE],int word_index);
+int searchForLastSeqChar(char str[],int index);
 // ---------- Main Function ----------
 int main() {
     int value = 5;
@@ -62,7 +64,7 @@ int main() {
 
     multiplyChars(array2,3);
     cout << "======================" << endl;
-    char space_seperated_string[] = "my name is yaniv gabay";
+    char space_seperated_string[] = "my name     is     yaniv gabay  ";
     stringTrimmer(space_seperated_string,SEPERATE_WORDS);
     
 
@@ -103,26 +105,33 @@ void trimWithSeperateWords(char str[]){
     int word_length = 0;
 
     while(str[index] != '\0'){
-       if(str[index] != ' '){
-           array[word_index][word_length] = str[index];
-           word_length++;
-       }
-       else
-       {
-        array[word_index][word_length] = '\0'; // make sure the string ends with \0
-        word_length = 0;
-           
+        if(str[index] == ' '){
+            index++;
+            continue;
+        }
+        int nextCharIndex = searchForLastSeqChar(str,index);
+        int word_length = nextCharIndex - index;
+
+        copyToDifferentArray(str,index,word_length,array,word_index);
         word_index++;
-       }
-       index++;
+
+        index = nextCharIndex;
     }
 
-    cout << "result of the trim function:" << str << endl;
-   for (int i = 0; i < word_index; i++)
-   {
-    cout << "word[" << i << "] = " << array[i] << endl;
-   }
-   
+}
+void copyToDifferentArray(char str[],int index,int word_length,char array[][MAX_SIZE],int word_index){
+    for(int i = 0; i < word_length; i++){
+        array[word_index][i] = str[index+i];
+    }
+    array[word_index][word_length] = '\0';
+    cout << "word[" << word_index << "] = " << array[word_index] << endl;
+}
+int searchForLastSeqChar(char str[],int index){
+    int temp = index;
+    while(str[temp] != ' ' && str[temp] != '\0'){
+        temp++;
+    }
+    return temp;
 }
 // =================================================================
 
