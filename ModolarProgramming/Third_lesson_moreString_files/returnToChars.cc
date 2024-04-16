@@ -34,6 +34,7 @@ const int MAX_SIZE = 100;
 void deleteCharFromString(char str[], char c);
 void printStringArray(const char array[]);
 void multiplyChars(char str[],int times);
+void multiplyChars(int new_string_index,int original_index,int times, char str[],char result[]);
 // ---------- Main Function ----------
 int main() {
     int value = 5;
@@ -76,21 +77,24 @@ void multiplyChars(char str[],int times){
 
     while(remains[original_index] != '\0'){
 
-        for (int i = 0; i < times; i++)
-        {
-            result[new_string_index+i] = remains[original_index];
-        }
-        
+       
+        multiplyChars(new_string_index,original_index,times,remains,result);
         result[new_string_index+times] = '\0'; // make sure the string ends with \0
 
         original_index++;
         new_string_index += times;
         
     }
-    result[new_string_index] = '\0'; // make sure the string ends with \0
-
+   
     cout << "result of the double function:" << result << endl;
     printStringArray(result);
+}
+void multiplyChars(int new_string_index,int original_index,int times, char str[],char result[])
+{
+     for (int i = 0; i < times; i++)
+        {
+            result[new_string_index+i] = str[original_index];
+        }
 }
 //unique way to delete a char from a string
 
