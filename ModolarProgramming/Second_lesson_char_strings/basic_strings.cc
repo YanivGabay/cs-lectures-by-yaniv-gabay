@@ -34,6 +34,7 @@ int main() {
     // here nothing prevent us from enetering more chars than needed
     // depend on os, it can still print the whole thing, but it is sure not wanted behaviour
     char string[MAX_SIZE];
+    
     cin >> string;
     cout << string << endl;
     // as you have been told, in order for our string to work with external functions like
