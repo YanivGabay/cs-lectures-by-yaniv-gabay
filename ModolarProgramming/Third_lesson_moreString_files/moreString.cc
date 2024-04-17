@@ -109,6 +109,9 @@ void wordCounter(const char input[])
     cout << "The number of words in the string is: " << words << endl;
 }
 // =================================================================
+// you will learn, after learning pointers, and functions pointers
+// how to write all those counters in a single function, where each time
+// we will send another function as an arguemtn
 void letterCounter(const char input[])
 {
     int letters = 0;
