@@ -40,7 +40,7 @@ void trimwithoutSeperateWords(char str[]);
 void trimWithSeperateWords(char str[]);
 void stringTrimmer(char str[],int seperate_words);
 void copyToDifferentArray(char str[],int index,int word_length,char array[][MAX_SIZE],int word_index);
-int searchForLastSeqChar(char str[],int index);
+int searchForLastSeqChar(char str[],const int index);
 // ---------- Main Function ----------
 int main() {
     int value = 5;
@@ -98,41 +98,64 @@ void trimwithoutSeperateWords(char str[]){
     printStringArray(str);
 }
 // =================================================================
+
+//   The line `char space_seperated_string[] = "my name     is     yaniv gabay  ";` is declaring a character array named `space_seperated_string` and initializing it with the string "my name     is     yaniv gabay  ". This string contains multiple spaces between words, and the goal of the program seems to be to trim these extra spaces based on the specified trimming mode (with or without separating words).
+char space_seperated_string[] = "my name     is     yaniv gabay  ";
 void trimWithSeperateWords(char str[]){
-   char array[][MAX_SIZE] = {0};
+   
+    char array[100][MAX_SIZE] = {0}; // Assume there are 100 words maximum
     int index = 0;
     int word_index = 0;
-    int word_length = 0;
 
     while(str[index] != '\0'){
-        if(str[index] == ' '){
+        // Move index to the first non-space character
+        while(str[index] == ' ' && str[index] != '\0') {
             index++;
-            continue;
         }
-        int nextCharIndex = searchForLastSeqChar(str,index);
-        int word_length = nextCharIndex - index;
 
-        copyToDifferentArray(str,index,word_length,array,word_index);
+        if (str[index] == '\0') break; // Check if it's the end of the string after skipping spaces
+
+        //cout << "index before searchlastseq" << index << endl;
+        int nextCharIndex = searchForLastSeqChar(str, index);
+       // cout << "index after searchlastseq" << index << endl;
+        int word_length = nextCharIndex - index;
+       // cout << "word_length = " << word_length << endl;
+       // cout << "nextCharIndex = " << nextCharIndex << endl;
+
+        copyToDifferentArray(str, index, word_length, array, word_index);
         word_index++;
 
-        index = nextCharIndex;
-    }
+       // cout << "nextCharIndex" << nextCharIndex << endl;
+        index = nextCharIndex; // Move to the next character after the word ends
 
-}
-void copyToDifferentArray(char str[],int index,int word_length,char array[][MAX_SIZE],int word_index){
-    for(int i = 0; i < word_length; i++){
-        array[word_index][i] = str[index+i];
+        // Ensure no spaces are included at the start of the next word search
+        while(str[index] == ' ' && str[index] != '\0') {
+            index++;
+        }
+
+       // cout << "index = " << index << endl;
+        if (str[index] != '\0') {
+            cout << "next char to check = " << str[index] << endl;
+        }
     }
-    array[word_index][word_length] = '\0';
+}
+
+void copyToDifferentArray(char str[], int index, int word_length, char array[][MAX_SIZE], int word_index){
+    for(int i = 0; i < word_length; i++){
+        array[word_index][i] = str[index + i];
+    }
+    array[word_index][word_length] = '\0'; // Null terminate the word
     cout << "word[" << word_index << "] = " << array[word_index] << endl;
 }
-int searchForLastSeqChar(char str[],int index){
+
+int searchForLastSeqChar(char str[], const int index){
     int temp = index;
     while(str[temp] != ' ' && str[temp] != '\0'){
         temp++;
     }
-    return temp;
+    return temp; // Return the index just after the last character of the word
 }
+
 // =================================================================
 
 //we want to multiply each char in the string
