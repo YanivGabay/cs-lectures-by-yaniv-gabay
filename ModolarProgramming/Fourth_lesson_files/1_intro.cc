@@ -47,6 +47,8 @@ int main() {
     // cus the cin.fail() is still "on"
     // so we need to clear it.
     cin.clear();
+    //withotu clear, we will fail the next cin
+
     cleanBuffer();
     //to eat the '\n' from the buffer
     alternateInput();
