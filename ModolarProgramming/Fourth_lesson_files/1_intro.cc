@@ -78,7 +78,7 @@ void basicInput()
     int num = 0;
     int counter = 0;
     cin >> num;
-    while (cin.fail() == false) // !cin.eof()
+    while (cin.fail() == false )
     {
         counter++;
         cout << "Number " << counter << ": " << num << endl;
@@ -91,10 +91,13 @@ void basicInput()
 }
 void cleanBuffer()
 {
-    //to eat the '\n' from the buffer
+    //eat all characters from the buffer
     char temp = cin.get();
     while(temp != '\n' && temp != EOF)
     {
+        cout << "Eating char: " << char(temp) << "int value: " << temp << endl;
         temp = cin.get();
     }
+   cout << "Buffer is clean\n"; 
+   
 }
