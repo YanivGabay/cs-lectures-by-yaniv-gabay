@@ -39,7 +39,7 @@ using std::endl;
 int main() {
     int number = 10; // Declare an integer variable
     int* ptr = &number; // Declare a pointer and initialize it with the address of number
-
+    int another_number = 5; // Declare another integer variable
     std::cout << "Value of number: " << number << std::endl;
     std::cout << "Address of number: " << &number << std::endl;
     std::cout << "Value of ptr (address of number): " << ptr << std::endl;
@@ -49,9 +49,31 @@ int main() {
     *ptr = 20;
 
     std::cout << "New value of number: " << number << std::endl;
+    std::cout << "=========================" << std::endl;
+    // Change the address stored in ptr
+    ptr = &another_number;
 
+    std::cout << "Value of number: " << another_number << std::endl;
+    std::cout << "Address of number: " << &another_number << std::endl;
+    std::cout << "Value of ptr (address of number): " << ptr << std::endl;
+    std::cout << "Value pointed to by ptr: " << *ptr << std::endl;
+
+    int *ptr2 = nullptr; // Declare a pointer and initialize it with nullptr
+    if (ptr2 == nullptr) {
+        std::cout << "ptr2 is a null pointer" << std::endl;
+    }
+    ptr2 = &number; // Assign the address of number to ptr2
+    // we can make as many pointers as we want to the value
+
+    // Dynamic memory allocation
+    int* dynamicPtr = new (std::nothrow) int(30);
+    if (dynamicPtr != nullptr) {
+        std::cout << "Value of dynamicPtr: " << *dynamicPtr << std::endl;
     
-
+    } else {
+        std::cout << "Memory allocation failed" << std::endl;
+    }
+      delete dynamicPtr; // Free the memory allocated for dynamicPtr
     return EXIT_SUCCESS;
 }
 
