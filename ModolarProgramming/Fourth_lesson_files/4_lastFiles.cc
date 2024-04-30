@@ -43,6 +43,8 @@ const char FILE_NAME[] = "third_example.txt";
 // Add more constants as needed
 
 const int NUM_FILES = 5;
+
+//two dimensional array of files
 const char* filenames[NUM_FILES] = {"read1.txt", "read2.txt", "read3.txt", "read4", "read5.txt"};
 // ---------- Function Prototypes ----------
 bool checkOpen(std::fstream& file,const int index);
