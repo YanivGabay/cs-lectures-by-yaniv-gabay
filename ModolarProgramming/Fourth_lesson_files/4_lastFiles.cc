@@ -8,7 +8,14 @@
  *
  * Overview:
 
-
+ * just a small example, we can open multiple files
+ * and close them in a loop
+ * just to remember we can array everything we want
+ * and use loops to iterate over them
+ * this is also is a nice example, cus if we failed reading one of the files
+ * we will close all the files that we opened before
+ * and return false
+ * 
  * https://en.cppreference.com/w/cpp/io/basic_istream
 
  * Notes:
