@@ -103,9 +103,10 @@ bool check_eof_files(std::ifstream &file1, std::ifstream &file2)
 }
 char read_next_char(std::ifstream &file1, std::ifstream &file2, const bool turn)
 {
-    // this is tricky
     char ch = 0;
-
+    
+    // this is tricky
+    //we create a temp file to hold the selected file
     std::ifstream &selected_file = turn ? file1 : file2;
 
     selected_file.get(ch);
