@@ -60,7 +60,7 @@ int main()
     {
         // here we can do more actions
         // if needed , you will see this in the future
-        cout << "Exiting the program cause of an error. \n";
+        std::cerr << "Exiting the program cause of an error. \n";
 
         return EXIT_FAILURE;
     }
