@@ -48,7 +48,8 @@ int main()
 
     char user_input[MAX_SIZE] = {0};
     char user_input2[MAX_SIZE] = {0};
-
+    cout << "enter two files names" << endl;
+    cout << "hint for this example: x.txt and z.txt" << endl;
     cin >> std::setw(MAX_SIZE) >> user_input;
     cin >> std::setw(MAX_SIZE) >> user_input2;
 
