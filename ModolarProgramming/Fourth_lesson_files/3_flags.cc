@@ -72,8 +72,9 @@ int main()
     //ftell - returns the current value of the file position indicator for the stream
 
     expirement_tell(file);
+    cout << "------------------------------------" << endl;
     expirement_seek(file);
-    
+     cout << "------------------------------------" << endl;
     more_seek(file);
 
 
@@ -90,12 +91,15 @@ void more_seek(std::fstream& file)
     char word1, word2, word3, word4;
     
     file.seekg(0, std::ios_base::beg); // <- seek from beginning
+    cout << "position of the pointer after seekg(0, std::ios_base::beg) is: " << file.tellg() << endl;
     file.get(word1);
     // get make seekg move to +1
     // so we are currently at the second char b
-
+    cout << "The position of the pointer after get is: " << file.tellg() << endl;
     file.seekg(1, std::ios_base::cur); // -> seek from cur pos toward the end
+    cout << "The position of the pointer seekg(1, std::ios_base::cur) is: " << file.tellg() << endl;
     file.get(word2);
+    cout << "The position of the pointer after the second  get is: " << file.tellg() << endl;
     //we currently on d
    
     file.seekg(-1, std::ios_base::cur); // <- seek from cur pos (end) toward
@@ -120,7 +124,7 @@ void more_seek(std::fstream& file)
 void expirement_seek(std::fstream& file)
 {
     //seekg - sets the file position indicator for the input stream
-    //because we know the last position is -1 
+    //because we know the last position is -1  (end of the file)
     // cause we used tellg
     // we know we need to return to the beginning of the file
     // so we will use std::ios::beg
@@ -143,9 +147,11 @@ void expirement_seek(std::fstream& file)
             char c = file.get();
             cout << c;
         }
+      
         file.clear();
         file.seekg(0, std::ios::beg);
         cout << endl;
+          cout << "--------------next iteration of the file print--------------------" << endl;
     }
     
 }
