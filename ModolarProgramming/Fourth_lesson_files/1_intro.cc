@@ -60,7 +60,7 @@ void alternateInput()
 {
      //cin will fail, when we try to 
     // read a char instead of int
-    cout << "enter new set of numbers:" << endl;
+    cout << "enter new set of numbers finish when entering a char" << endl;
     int num = 0;
     int counter = 0;
     cin >> num;
