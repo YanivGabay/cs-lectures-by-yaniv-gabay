@@ -56,7 +56,7 @@ int main()
     file.open(FILE_NAME, std::ios::in | std::ios::out);
     if(!file)
     {
-        std::cerr << "Error opening file\n";
+        std::cerr << "Error opening file " << FILE_NAME << endl;
         return EXIT_FAILURE;
     }
     //this will open the file for input and output
