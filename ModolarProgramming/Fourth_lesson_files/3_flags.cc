@@ -157,12 +157,22 @@ void expirement_tell(std::fstream& file)
     //in the output stream
   
     //this will return the position of the get pointer
-    while(!file.eof())
-    {
-          int position = file.tellg();
-    cout << "The position of the tellg pointer is: " << position << endl;
-    char c = file.get();
+    std::cout << "Initial position: " << file.tellg() << std::endl;
+
+
+    // IMPORTANT
+    // UTF FILES HAVE THREE BYTE ENCODING
+    //BASICLY ARE INVISICIBLE CHARS STARTING
+    // SO IF I RUN THIS ON A WINDOWS UTF TEXT FILE
+    // THE FIRST CHAR POSITION IS ACTUALLY 3 in term
+    // OF TELLG
+   char c;
+    while (file.get(c)) {  // read one character and check the stream state in one go
+        int position = file.tellg();  // get the current position
+        std::cout << "The position of the tellg pointer is: " << position << std::endl;
+        std::cout << "the char read is: " << c << std::endl;
     }
+
     int position = file.tellg();
     file.clear();
     cout << "The last position of the tellg pointer is: " << position << endl;
