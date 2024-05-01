@@ -104,12 +104,13 @@ void more_seek(std::fstream& file)
    
     file.seekg(-1, std::ios_base::cur); // <- seek from cur pos (end) toward
     //if we extend outside we will get -1
-    cout << "The position of the pointer seekg(-6, std::ios_base::cur) is: " << file.tellg() << endl;
+    cout << "The position of the pointer seekg(-1, std::ios_base::cur) is: " << file.tellg() << endl;
      file.get(word3); 
 
 
     //if we want the 6th char from the end
     file.seekg(0, std::ios_base::end); // <- seek from end toward
+    cout << "The position of the pointer seekg(0, std::ios_base::end) is: " << file.tellg() << endl;
     file.seekg(-1, std::ios_base::end); // <- seek from end toward 
     cout << "The position of the pointer seekg(-6, std::ios_base::end) is: " << file.tellg() << endl;
         file.get(word4);
