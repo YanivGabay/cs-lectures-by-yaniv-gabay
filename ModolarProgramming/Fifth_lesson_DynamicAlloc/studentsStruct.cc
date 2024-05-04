@@ -1,5 +1,5 @@
 /********************************************************************
- * Course: Modolar Programming
+ * Course: Modular Programming
  * Lecture: 5 - Dynamic Allocation
  * File: 1_basicAlloc.cc
  * 
@@ -15,9 +15,9 @@
 
 // ---------- Include Section ----------
 #include <iostream>
-// Add more #include directives as needed
-#include <iomanip> 
+#include <iomanip>
 #include <cstring>
+
 // ---------- Using Section ----------
 using std::cout;
 using std::cin;
@@ -34,64 +34,62 @@ struct Student {
     double grade;
 };
 
+struct Courses {
+    Student* students;
+    int students_num;
+    char course_name[MAX_SIZE];
+};
+
 struct Dynamic2DArray {
-    Student** data;
+    Courses* data;
     int courses;
-    int* lines_length;
 };
 
 // ---------- Function Prototypes ----------
 
 void initializeStudent(Student& student, int id, const char* name, double grade);
-void printAllStudents(const Dynamic2DArray& data) ;
+void printAllStudents(const Dynamic2DArray& data);
 void printStudent(const Student& student);
 void initCourse(Dynamic2DArray& data, int course_num);
-void initCourseStudents(Dynamic2DArray& data, int course_num) ;
+void initCourseStudents(Dynamic2DArray& data, int course_num);
+void cleanUp(Dynamic2DArray& data);
+
 // ---------- Main Function ----------
 
-
-
 int main() {
-    int courses, studentsPerCourse;
+    int courses;
     std::cout << "Enter the number of courses: ";
     std::cin >> courses;
 
-
     Dynamic2DArray data;
     data.courses = courses;
-    data.data = new Student*[courses];
+    data.data = new Courses[courses];
     if (data.data == nullptr) {
         std::cerr << "Memory allocation failed" << std::endl;
         return 1;
     }
 
-
-    for (int course_num = 0; course_num < courses; course_num++)
-    {
-         initCourse(data, course_num);
+    for (int course_num = 0; course_num < courses; ++course_num) {
+        initCourse(data, course_num);
     }
-    
-   printAllStudents(data);
- 
+
+    printAllStudents(data);
+    cleanUp(data);
+
     return 0;
-
-
 }
-
 
 // ---------- Functions ----------
 void printAllStudents(const Dynamic2DArray& data) {
-    for (int course_num = 0; course_num < data.courses; course_num++)
-    {
-        std::cout << "Course " << course_num << " details:" << std::endl;
-        for (int student_num = 0; student_num < data.lines_length[course_num]; student_num++)
-        {   
+    for (int course_num = 0; course_num < data.courses; ++course_num) {
+        std::cout << "Course " << course_num+1 << " " << data.data->course_name << " details:" << std::endl;
+        for (int student_num = 0; student_num < data.data[course_num].students_num; ++student_num) {
             std::cout << "-----------------------------------\n";
-            printStudent(data.data[course_num][student_num]);
-            
+            printStudent(data.data[course_num].students[student_num]);
         }
     }
 }
+
 void printStudent(const Student& student) {
     std::cout << "Student details:" << std::endl;
     std::cout << "Student id: " << student.id << std::endl;
@@ -99,38 +97,49 @@ void printStudent(const Student& student) {
     std::cout << "Student grade: " << student.grade << std::endl;
     std::cout << std::endl;
 }
-void initCourse(Dynamic2DArray& data, int course_num) {
-    std::cout << "Enter the number of students in course " << course_num+1 << ": ";
-    std::cin >> data.lines_length[course_num];
-    data.data[course_num] = new Student[data.lines_length[course_num]];
 
-    if (data.data[course_num] == nullptr) {
+void initCourse(Dynamic2DArray& data, int course_num) {
+    std::cout << "Enter the number of students in course " << course_num + 1 << ": ";
+    std::cin >> data.data[course_num].students_num;
+    std::cin.ignore(); // ignore the newline character left in the buffer by std::cin >> data.data[course_num].students_num
+    std::cout << "Enter the name of course " << course_num + 1 << ": ";
+    std::cin.getline(data.data[course_num].course_name, MAX_SIZE);
+    data.data[course_num].students = new Student[data.data[course_num].students_num];
+
+    if (data.data[course_num].students == nullptr) {
         std::cerr << "Memory allocation failed" << std::endl;
         exit(1);
     }
 
     initCourseStudents(data, course_num);
-    
 }
+
 void initCourseStudents(Dynamic2DArray& data, int course_num) {
-  for (int student_num = 0; student_num < data.lines_length[course_num]; student_num++)
-    {
+    for (int student_num = 0; student_num < data.data[course_num].students_num; ++student_num) {
         int id;
         char name[MAX_SIZE];
         double grade;
-        std::cout << "Enter student " << student_num+1 << " id: ";
+        std::cout << "Enter student " << student_num + 1 << " id: ";
         std::cin >> id;
-        std::cout << "Enter student " << student_num+1 << " name: ";
-        std::cin.ignore(); // ignore the newline character left in the buffer by std::cin >> id;
-        // (or use std::cin.get() instead of std::cin.ignore())
+        std::cout << "Enter student " << student_num + 1 << " name: ";
+        std::cin.ignore(); // ignore the newline character left in the buffer by std::cin >> id
         std::cin.getline(name, MAX_SIZE);
-        std::cout << "Enter student " << student_num+1 << " grade: ";
+        std::cout << "Enter student " << student_num + 1 << " grade: ";
         std::cin >> grade;
-        initializeStudent(data.data[course_num][student_num], id, name, grade);
+        initializeStudent(data.data[course_num].students[student_num], id, name, grade);
     }
 }
+
 void initializeStudent(Student& student, int id, const char* name, double grade) {
     student.id = id;
-    strcpy(student.name, name);
+    strncpy(student.name, name, MAX_SIZE - 1);
+    student.name[MAX_SIZE - 1] = '\0'; // Ensure null termination
     student.grade = grade;
+}
+
+void cleanUp(Dynamic2DArray& data) {
+    for (int course_num = 0; course_num < data.courses; ++course_num) {
+        delete[] data.data[course_num].students;
+    }
+    delete[] data.data;
 }
