@@ -32,7 +32,7 @@ using std::endl;
 // ---------- Constants ----------
 
 // ---------- Function Prototypes ----------
-
+void printArray(int* arr, int size);
 // ---------- Main Function ----------
 #include <iostream>
 
@@ -74,8 +74,31 @@ int main() {
         std::cout << "Memory allocation failed" << std::endl;
     }
       delete dynamicPtr; // Free the memory allocated for dynamicPtr
+
+
+    
+    // Pointer to pointer (double pointer)
+    int** doublePtr = &ptr2;
+    cout << "Value pointed to by doublePtr: " << **doublePtr << endl;
+
+    // Dynamic array allocation
+    int* dynamicArray = new (std::nothrow) int[5] {1, 2, 3, 4, 5};
+    if (dynamicArray) {
+        printArray(dynamicArray, 5);
+        delete[] dynamicArray; // Free the memory allocated for dynamicArray
+    } else {
+        cout << "Memory allocation for dynamicArray failed" << endl;
+    }
+
+  ;
     return EXIT_SUCCESS;
 }
 
 
 // ---------- Functions ----------
+void printArray(int* arr, int size) {
+    for (int i = 0; i < size; i++) {
+        std::cout << arr[i] << " ";
+    }
+    std::cout << std::endl;
+}

@@ -38,7 +38,7 @@ void cleanBuffer();
 // ---------- Main Function ----------
 int main() {
     
-
+    cout << "Please enter numbers, if you enter chars i will eat them alive" << endl;
     basicInput();
     cout << "-------------------\n";
 
@@ -60,7 +60,7 @@ void alternateInput()
 {
      //cin will fail, when we try to 
     // read a char instead of int
-    
+    cout << "enter new set of numbers finish when entering a char" << endl;
     int num = 0;
     int counter = 0;
     cin >> num;
@@ -97,7 +97,7 @@ void cleanBuffer()
     char temp = cin.get();
     while(temp != '\n' && temp != EOF)
     {
-        cout << "Eating char: " << char(temp) << "int value: " << temp << endl;
+        cout << "Eating char: " << char(temp) << " int value: " << temp << endl;
         temp = cin.get();
     }
    cout << "Buffer is clean\n"; 

@@ -56,7 +56,7 @@ int main()
     file.open(FILE_NAME, std::ios::in | std::ios::out);
     if(!file)
     {
-        std::cerr << "Error opening file\n";
+        std::cerr << "Error opening file " << FILE_NAME << endl;
         return EXIT_FAILURE;
     }
     //this will open the file for input and output
@@ -72,8 +72,9 @@ int main()
     //ftell - returns the current value of the file position indicator for the stream
 
     expirement_tell(file);
+    cout << "------------------------------------" << endl;
     expirement_seek(file);
-    
+     cout << "------------------------------------" << endl;
     more_seek(file);
 
 
@@ -90,22 +91,26 @@ void more_seek(std::fstream& file)
     char word1, word2, word3, word4;
     
     file.seekg(0, std::ios_base::beg); // <- seek from beginning
+    cout << "position of the pointer after seekg(0, std::ios_base::beg) is: " << file.tellg() << endl;
     file.get(word1);
     // get make seekg move to +1
     // so we are currently at the second char b
-
+    cout << "The position of the pointer after get is: " << file.tellg() << endl;
     file.seekg(1, std::ios_base::cur); // -> seek from cur pos toward the end
+    cout << "The position of the pointer seekg(1, std::ios_base::cur) is: " << file.tellg() << endl;
     file.get(word2);
+    cout << "The position of the pointer after the second  get is: " << file.tellg() << endl;
     //we currently on d
    
     file.seekg(-1, std::ios_base::cur); // <- seek from cur pos (end) toward
     //if we extend outside we will get -1
-    cout << "The position of the pointer seekg(-6, std::ios_base::cur) is: " << file.tellg() << endl;
+    cout << "The position of the pointer seekg(-1, std::ios_base::cur) is: " << file.tellg() << endl;
      file.get(word3); 
 
 
     //if we want the 6th char from the end
     file.seekg(0, std::ios_base::end); // <- seek from end toward
+    cout << "The position of the pointer seekg(0, std::ios_base::end) is: " << file.tellg() << endl;
     file.seekg(-1, std::ios_base::end); // <- seek from end toward 
     cout << "The position of the pointer seekg(-6, std::ios_base::end) is: " << file.tellg() << endl;
         file.get(word4);
@@ -120,7 +125,7 @@ void more_seek(std::fstream& file)
 void expirement_seek(std::fstream& file)
 {
     //seekg - sets the file position indicator for the input stream
-    //because we know the last position is -1 
+    //because we know the last position is -1  (end of the file)
     // cause we used tellg
     // we know we need to return to the beginning of the file
     // so we will use std::ios::beg
@@ -143,9 +148,11 @@ void expirement_seek(std::fstream& file)
             char c = file.get();
             cout << c;
         }
+      
         file.clear();
         file.seekg(0, std::ios::beg);
         cout << endl;
+          cout << "--------------next iteration of the file print--------------------" << endl;
     }
     
 }
@@ -157,12 +164,22 @@ void expirement_tell(std::fstream& file)
     //in the output stream
   
     //this will return the position of the get pointer
-    while(!file.eof())
-    {
-          int position = file.tellg();
-    cout << "The position of the tellg pointer is: " << position << endl;
-    char c = file.get();
+    std::cout << "Initial position: " << file.tellg() << std::endl;
+
+
+    // IMPORTANT
+    // UTF FILES HAVE THREE BYTE ENCODING
+    //BASICLY ARE INVISICIBLE CHARS STARTING
+    // SO IF I RUN THIS ON A WINDOWS UTF TEXT FILE
+    // THE FIRST CHAR POSITION IS ACTUALLY 3 in term
+    // OF TELLG
+   char c;
+    while (file.get(c)) {  // read one character and check the stream state in one go
+        int position = file.tellg();  // get the current position
+        std::cout << "The position of the tellg pointer is: " << position << std::endl;
+        std::cout << "the char read is: " << c << std::endl;
     }
+
     int position = file.tellg();
     file.clear();
     cout << "The last position of the tellg pointer is: " << position << endl;

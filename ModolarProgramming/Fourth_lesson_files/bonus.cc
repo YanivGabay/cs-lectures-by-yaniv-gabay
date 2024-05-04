@@ -9,11 +9,10 @@
  * Date: 2024-04-26
  *
  * Overview:
- * we show some basic cin operations,like cin.eof(),
- * it will work with files as well.
- * after that some basic files operations.
- * https://en.cppreference.com/w/cpp/io/basic_istream
- * to see the operations available for cin.
+ * just some out of the box stuff
+ * like const of chars
+ * const of a two dimension array of chars
+ * a function for checking if files opened proprley
  * Notes:
 
  *******************************************************************/

@@ -48,7 +48,8 @@ int main()
 
     char user_input[MAX_SIZE] = {0};
     char user_input2[MAX_SIZE] = {0};
-
+    cout << "enter two files names" << endl;
+    cout << "hint for this example: x.txt and z.txt" << endl;
     cin >> std::setw(MAX_SIZE) >> user_input;
     cin >> std::setw(MAX_SIZE) >> user_input2;
 
@@ -59,7 +60,7 @@ int main()
     {
         // here we can do more actions
         // if needed , you will see this in the future
-        cout << "Exiting the program cause of an error. \n";
+        std::cerr << "Exiting the program cause of an error. \n";
 
         return EXIT_FAILURE;
     }
