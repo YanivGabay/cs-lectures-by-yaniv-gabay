@@ -47,7 +47,8 @@ int main() {
 
     int** array = new int*[rows];
     for (int row = 0; row < rows; ++row) {
-        allocRow(array, cols, row);
+        if(!allocRow(array, cols, row))
+            return EXIT_FAILURE;
        
     }
 
