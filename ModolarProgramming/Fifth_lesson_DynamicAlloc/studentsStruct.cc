@@ -46,6 +46,7 @@ void initializeStudent(Student& student, int id, const char* name, double grade)
 void printAllStudents(const Dynamic2DArray& data) ;
 void printStudent(const Student& student);
 void initCourse(Dynamic2DArray& data, int course_num);
+void initCourseStudents(Dynamic2DArray& data, int course_num) ;
 // ---------- Main Function ----------
 
 
@@ -108,7 +109,11 @@ void initCourse(Dynamic2DArray& data, int course_num) {
         exit(1);
     }
 
-    for (int student_num = 0; student_num < data.lines_length[course_num]; student_num++)
+    initCourseStudents(data, course_num);
+    
+}
+void initCourseStudents(Dynamic2DArray& data, int course_num) {
+  for (int student_num = 0; student_num < data.lines_length[course_num]; student_num++)
     {
         int id;
         char name[MAX_SIZE];
@@ -124,7 +129,6 @@ void initCourse(Dynamic2DArray& data, int course_num) {
         initializeStudent(data.data[course_num][student_num], id, name, grade);
     }
 }
-
 void initializeStudent(Student& student, int id, const char* name, double grade) {
     student.id = id;
     strcpy(student.name, name);
