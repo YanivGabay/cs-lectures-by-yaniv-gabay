@@ -99,7 +99,7 @@ void printStudent(const Student& student) {
     std::cout << std::endl;
 }
 void initCourse(Dynamic2DArray& data, int course_num) {
-    std::cout << "Enter the number of students in course " << course_num << ": ";
+    std::cout << "Enter the number of students in course " << course_num+1 << ": ";
     std::cin >> data.lines_length[course_num];
     data.data[course_num] = new Student[data.lines_length[course_num]];
 
@@ -113,11 +113,13 @@ void initCourse(Dynamic2DArray& data, int course_num) {
         int id;
         char name[MAX_SIZE];
         double grade;
-        std::cout << "Enter student " << student_num << " id: ";
+        std::cout << "Enter student " << student_num+1 << " id: ";
         std::cin >> id;
-        std::cout << "Enter student " << student_num << " name: ";
-        std::cin >> std::setw(MAX_SIZE) >> name;
-        std::cout << "Enter student " << student_num << " grade: ";
+        std::cout << "Enter student " << student_num+1 << " name: ";
+        std::cin.ignore(); // ignore the newline character left in the buffer by std::cin >> id;
+        // (or use std::cin.get() instead of std::cin.ignore())
+        std::cin.getline(name, MAX_SIZE);
+        std::cout << "Enter student " << student_num+1 << " grade: ";
         std::cin >> grade;
         initializeStudent(data.data[course_num][student_num], id, name, grade);
     }
