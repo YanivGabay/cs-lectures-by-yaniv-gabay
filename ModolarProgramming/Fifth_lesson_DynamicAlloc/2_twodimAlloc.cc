@@ -45,9 +45,14 @@ int main() {
     std::cout << "Enter the number of rows and columns: ";
     std::cin >> rows >> cols;
 
+
+    //two dimension array
     int** array = new int*[rows];
+    if(array == nullptr) // first alloc failed
+        return EXIT_FAILURE;
+
     for (int row = 0; row < rows; ++row) {
-        if(!allocRow(array, cols, row))
+        if(!allocRow(array, cols, row)) //this alloc and check if it failed
             return EXIT_FAILURE;
        
     }
