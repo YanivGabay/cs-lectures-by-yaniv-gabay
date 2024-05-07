@@ -35,6 +35,9 @@ void read_into_array_fixed(int* &array, int size);
 // ---------- Main Function ----------
 
 int main() {
+    // example from Yoram book
+    // what happends when we allocate memory in a function
+    // but dont return the pointer properly
     std::cout << "Enter the size of the array: ";
     int size;
     
