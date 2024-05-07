@@ -17,9 +17,9 @@ graph TD;
 
 ```mermaid
 graph TD;
-    constIntPtrArray("const int** || ptr_to_const_int") --> constPtr1("const int* const_ptr1")
-    constIntPtrArray --> constPtr2("const int* const_ptr2")
-    constIntPtrArray --> constPtr3("const int* const_ptr3")
+    constIntPtrArray("const int** || ptr_to_const_int") --modifable-->  constPtr1("const int* const_ptr1")
+    constIntPtrArray --modifable--> constPtr2("const int* const_ptr2")
+    constIntPtrArray --modifable-->  constPtr3("const int* const_ptr3")
     constPtr1 --> int1("[const int] 1")
     constPtr1 --> int2("[const int] 2")
     constPtr2 --> int3("[const int] 3")
@@ -32,9 +32,9 @@ graph TD;
 
 ```mermaid
 graph TD;
-    constPtrToConstInt("const int* const* const_ptr_to_const_int") --> constPtr1("const int* const_ptr1")
-    constPtrToConstInt --> constPtr2("const int* const_ptr2")
-    constPtrToConstInt --> constPtr3("const int* const_ptr3")
+    constPtrToConstInt("const int* const* const_ptr_to_const_int") --unmodifable--> constPtr1("const int* const_ptr1")
+    constPtrToConstInt --unmodifable--> constPtr2("const int* const_ptr2")
+    constPtrToConstInt--unmodifable-->constPtr3("const int* const_ptr3")
     constPtr1 --> constInt1("[const int] 1")
     constPtr1 --> constInt2("[const int] 2")
     constPtr2 --> constInt3("[const int] 3")
