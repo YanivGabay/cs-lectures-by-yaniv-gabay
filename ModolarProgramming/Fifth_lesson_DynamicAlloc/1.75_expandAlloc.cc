@@ -44,7 +44,7 @@ int main()
     // we can use the array as a normal array
     // we can also use the array as a pointer
     array[0] = 5;
-    *(array + 1) = 10;
+    *(array + 1) = 10;// what is happening here? we tell the content of the address array+1 to be 10
     cout << array[0] << " " << array[1] << endl;
     int size = MAX_SIZE;
     array = expandArray(array,size);

@@ -63,6 +63,7 @@ int main() {
 
     //have to delete the array to free the memory
     delete[] array;
+    array = nullptr;
     return 0;
 }
 

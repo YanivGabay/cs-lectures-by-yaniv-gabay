@@ -45,18 +45,20 @@ int main() {
     // Allocate memory for the array
     //std::nothrow will not throw an exception if the allocation fails
     int* array = nullptr;
-    //this will turn into a zombie, we cannot reach it
+    //this will turn into a zombie, we cannot reach it!!!!
+    //why???????
     read_into_array(array, size);
     
 
     std::cout << "The elements are: ";
-
+    //here we print the elements, but if the array is null, we will print ARRAY IS null 
+    //which 100% will happend
     if(array == nullptr) {
         cout << "Array is null" << endl;
     }
 
     read_into_array_fixed(array,size);
-    if(array)
+    if(array) //only if the pointer is okay, we print
     for (int i = 0; i < size; ++i) {
         std::cout << array[i] << " ";
     }
