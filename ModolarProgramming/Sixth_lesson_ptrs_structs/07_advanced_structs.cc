@@ -11,6 +11,11 @@
  *
  * Notes:
 
+
+
+This example is a simple employee management system.
+It demonstrates how to use structs and pointers to structs in a more advanced way.
+although this DONT use dynamic memory allocation, it is a good example of how to use structs and pointers to structs in a more advanced way.
  *******************************************************************/
 
 // ---------- Include Section ----------
