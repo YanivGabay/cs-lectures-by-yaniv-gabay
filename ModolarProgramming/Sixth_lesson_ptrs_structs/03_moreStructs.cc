@@ -1,5 +1,5 @@
 /********************************************************************
- * Course: Modolar Programming in C++   
+ * Course: Modular Programming in C++   
  * Lecture: 06 - Ptrs and Structs
  * File: 02_structs.cc
  * 
@@ -7,15 +7,18 @@
  * Date: 2024-05-13
  * 
  * Overview:
-
+ * This file demonstrates the use of structs and pointers in C++ by defining a
+ * simple struct `Point`, initializing an array of points, and performing 
+ * various operations on them.
  * 
  * Notes:
-
+ * - Structs are user-defined types that group variables.
+ * - Arrays of structs can be used to store multiple instances.
+ * - Pointers can be used to access array elements.
  *******************************************************************/
 
 // ---------- Include Section ----------
 #include <iostream>
-
 
 // ---------- Using Section ----------
 using std::cout;
@@ -35,44 +38,55 @@ struct Point {
 // Add more structs as needed
 
 // ---------- Function Prototypes ----------
-
+void printPoint(const Point& p); // Prototype for the print function
 
 // ---------- Main Function ----------
 int main() {
-    //we can create an array of points
+    // We can create an array of points
     Point points[MAX_SIZE];
-    //initialize the array
+    // Initialize the array
     for (int i = 0; i < MAX_SIZE; i++) {
         points[i]._x = i;
         points[i]._y = i;
     }
 
-    //print the array
+    // Print the array
     for (int i = 0; i < MAX_SIZE; i++) {
-        cout << "points[" << i << "]: " << "x:"  <<points[i]._x << ", " << "y:" <<points[i]._y << endl;
+        printPoint(points[i]);
     }
 
-    //reach the last element
+    // Reach the last element
     cout << "print the last element:" << endl;
-    cout << "points[" << MAX_SIZE-1 << "]: " << "x:"  <<points[MAX_SIZE-1]._x << ", " << "y:" <<points[MAX_SIZE-1]._y << endl;
+    printPoint(points[MAX_SIZE - 1]);
 
-    //create a pointer to a point
+    // Create a pointer to a point
     Point* p = points;
-    //print the first element
-    cout << "print the first element using a pointer:" << endl;
-    cout << "p: " << "x:"  <<p->_x << ", " << "y:" <<p->_y << endl;
-    //print the second element
-     cout << "print the second element using a pointer:" << endl;
-    cout << "p+1: " << "x:"  <<(p+1)->_x << ", " << "y:" <<(p+1)->_y << endl;
-    //print the third element
-     cout << "print the third element using a pointer:" << endl;
-    cout << "p+2: " << "x:"  <<(p+2)->_x << ", " << "y:" <<(p+2)->_y << endl;
-    //print the last element
-     cout << "print the last element using a pointer:" << endl;
-    cout << "p+MAX_SIZE-1: " << "x:"  <<(p+MAX_SIZE-1)->_x << ", " << "y:" <<(p+MAX_SIZE-1)->_y << endl;
 
-    
+
+
+    //what this will print???
+    //cout << p->_x << endl; 
+
+    // Print the first element
+    cout << "print the first element using a pointer:" << endl;
+    //content of p is the address of the first element
+    //which is a point struct
+    printPoint(*p);
+    // Print the second element
+    cout << "print the second element using a pointer:" << endl;
+    printPoint(*(p + 1));
+    // Print the third element
+    cout << "print the third element using a pointer:" << endl;
+    printPoint(*(p + 2));
+    // Print the last element
+    cout << "print the last element using a pointer:" << endl;
+    printPoint(*(p + MAX_SIZE - 1));
+
     return 0;
 }
 
 // ---------- Functions ----------
+// Function to print point details
+void printPoint(const Point& p) {
+    cout << "Point: " << "x:" << p._x << ", " << "y:" << p._y << endl;
+}

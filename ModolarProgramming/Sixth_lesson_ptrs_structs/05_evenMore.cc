@@ -1,21 +1,23 @@
 /********************************************************************
- * Course: Modolar Programming in C++   
+ * Course: Modular Programming in C++   
  * Lecture: 06 - Ptrs and Structs
- * File: 02_structs.cc
+ * File: 05_evenMore.cc
  * 
  * Author: Yaniv Gabay
  * Date: 2024-05-13
  * 
  * Overview:
-
+ * This file demonstrates the use of structs in C++ by defining 
+ * simple structs `Point`, `Circle`, and `Rectangle` and performing 
+ * basic operations on them.
  * 
  * Notes:
-
+ * - Structs are user-defined types that group variables.
+ * - Structs can be nested within other structs.
  *******************************************************************/
 
 // ---------- Include Section ----------
 #include <iostream>
-
 
 // ---------- Using Section ----------
 using std::cout;
@@ -26,6 +28,7 @@ using std::endl;
 const int MAX_SIZE = 5;
 // Add more constants as needed
 const int RADIUS = 5;
+
 // ---------- Structs ----------
 struct Point {
     int _x;
@@ -42,44 +45,43 @@ struct Rectangle {
 // Add more structs as needed
 
 // ---------- Function Prototypes ----------
-
+void printCircle(const Circle& c);       // Prototype for printCircle function
 
 // ---------- Main Function ----------
 int main() {
-    //create an array of circles
+    // Create an array of circles
     Circle circles[MAX_SIZE];
 
-    //initialize the array
-
+    // Initialize the array
     for (int i = 0; i < MAX_SIZE; i++) {
         circles[i]._center._x = i;
         circles[i]._center._y = i;
-        circles[i]._radius = i+RADIUS;
+        circles[i]._radius = i + RADIUS;
     }
 
-    //print the array
+    // Print the array
     for (int i = 0; i < MAX_SIZE; i++) {
-        cout << "circles[" << i << "]: " << "center: " << "x:"  <<circles[i]._center._x << ", " << "y:" <<circles[i]._center._y << ", radius:" << circles[i]._radius << endl;
+        printCircle(circles[i]);
     }
 
-    //reach the last element
+    // Reach the last element
     cout << "print the last element:" << endl;
-    cout << "circles[" << MAX_SIZE-1 << "]: " << "center: " << "x:"  <<circles[MAX_SIZE-1]._center._x << ", " << "y:" <<circles[MAX_SIZE-1]._center._y << ", radius:" << circles[MAX_SIZE-1]._radius << endl;
+    printCircle(circles[MAX_SIZE - 1]);
 
-    //create a pointer to a circle
+    // Create a pointer to a circle
     Circle* c = circles;
-    //print the first element
+    // Print the first element
     cout << "print the first element using a pointer:" << endl;
-    cout << "c: " << "center: " << "x:"  <<c->_center._x << ", " << "y:" <<c->_center._y << ", radius:" << c->_radius << endl;
-    //we could have also used c._center._x, c._center._y, c._radius
-    //print the second element
-     cout << "print the second element using a pointer:" << endl;
-    cout << "c+1: " << "center: " << "x:"  <<(c+1)->_center._x << ", " << "y:" <<(c+1)->_center._y << ", radius:" << (c+1)->_radius << endl;
-
-   
-
+    printCircle(*c);
+    // Print the second element
+    cout << "print the second element using a pointer:" << endl;
+    printCircle(*(c + 1));
 
     return 0;
 }
 
 // ---------- Functions ----------
+// Function to print circle details
+void printCircle(const Circle& c) {
+    cout << "Circle: center: x:" << c._center._x << ", y:" << c._center._y << ", radius:" << c._radius << endl;
+}
