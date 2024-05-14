@@ -33,7 +33,15 @@ struct String {
     int getLength() {
         return _length;
     }
-
+    String() { // constructor // you will learn about constructors in the next year
+        _length = 5;
+        _str[0] = '\0';
+    }
+    //can create a constructor with parameters
+    String(const char* str) {
+        strcpy(_str, str);
+        _length = strlen(str);
+    }
 };
 
 
@@ -44,6 +52,7 @@ struct String {
 int main() {
     
     String str;
+    cout << "length: " << str._length << endl; // 0
     strcpy(str._str, "Hello");
     str._length = 5;
     str.print();
@@ -51,6 +60,10 @@ int main() {
 
     int length = str.getLength();
     cout << "Length: " << length << endl;
+
+    //example of a constructor with parameters
+    String str2("World");
+    str2.print();
     return 0;
 }
 
