@@ -6,3 +6,5 @@ input.txt
 output.txt
 *.txt.txt
 *.txt
+*.o
+*.out
