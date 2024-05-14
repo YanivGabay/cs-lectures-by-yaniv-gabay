@@ -8,3 +8,5 @@ output.txt
 *.txt
 *.o
 *.out
+build/Debug/
+build/
