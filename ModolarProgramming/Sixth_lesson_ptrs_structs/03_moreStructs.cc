@@ -59,7 +59,7 @@ int main() {
     cout << "print the last element:" << endl;
     printPoint(points[MAX_SIZE - 1]);
 
-    // Create a pointer to a point
+    // Create a pointer to a point (will point to the first element in the array)
     Point* p = points;
 
 
