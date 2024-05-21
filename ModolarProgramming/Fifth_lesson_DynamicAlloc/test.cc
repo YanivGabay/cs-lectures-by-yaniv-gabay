@@ -29,20 +29,30 @@ const int MAX_SIZE = 100;
 // ---------- Structs ----------
 
 
-// ---------- Function Prototypes ----------
-void read_into_array(int* array, int size);
-void read_into_array_fixed(int* &array, int size);
+
 // ---------- Main Function ----------
 
 int main() {
-    // example from Yoram book
-    // what happends when we allocate memory in a function
-    // but dont return the pointer properly
-    std::cout << "Enter the size of the array: ";
-    int size;
+  
+    //
+    const int ROW = 2;
+    const int COL = 2;
+    int array[row][col] = {{1,2},{3,4}};
+    //1  2
+    //3  4
+
+    //print matrix from end to start
     
-   int array[size];
-   
+    for (int row = row-1; row > row; row--)
+    {
+        for (int col = col-1; col > col; col--)
+        {
+            cout << array[row][col] << " ";
+        }
+        
+    }
+    
+
    
     return 0;
 }

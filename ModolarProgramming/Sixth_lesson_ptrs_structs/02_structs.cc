@@ -68,3 +68,4 @@ int main() {
 void printPoint(const Point& p) {
     cout << "p: " << "x:" << p._x << ", " << "y:" << p._y << endl;
 }
+
