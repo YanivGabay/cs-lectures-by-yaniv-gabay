@@ -41,7 +41,7 @@ using std::endl;
 struct Node {
     int data;
     Node* next;
-    Node* prev;
+   
 };
 
 
@@ -190,8 +190,7 @@ void append(Node*& head, int data) {
 void insertNodeAtStart(Node*& head, Node* newNode) {
     
     newNode->next = head;
-    //before we change the head, we need to update the prev pointer of the current head
-    head->prev = newNode;
+
     head = newNode;
 }
 void printList(const Node* ptr,Ptr_Type type) {
@@ -203,10 +202,7 @@ void printList(const Node* ptr,Ptr_Type type) {
         {
             current = current->next;
         }
-        else
-        {
-            current = current->prev;
-        }
+      
        
     }
     cout << endl;
