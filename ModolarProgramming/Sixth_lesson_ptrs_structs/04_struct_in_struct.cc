@@ -43,6 +43,11 @@ struct Rectangle {
 };
 // Add more structs as needed
 
+
+
+
+
+
 // ---------- Function Prototypes ----------
 void printPoint(const Point& p);         // Prototype for printPoint function
 void printCircle(const Circle& c);       // Prototype for printCircle function
@@ -50,6 +55,13 @@ void printRectangle(const Rectangle& r); // Prototype for printRectangle functio
 
 // ---------- Main Function ----------
 int main() {
+
+ 
+
+
+
+    ptr[5]._center._x = 5;
+
     // Create a circle
     Circle c = {{1, 2}, 3}; // this works.
     cout << "printing c:" << endl;
