@@ -44,10 +44,16 @@ struct Node {
     Node* prev;
 };
 
+
+enum Ptr_Type {
+    HEAD,
+    TAIL
+};
+
 // ---------- Function Prototypes ----------
 Node* createNode(int data);
 void append(Node*& head, int data, Node*& tail);
-void printList(const Node* head);
+void printList(const Node* head,Ptr_Type type);
 void deleteList(Node*& head);
 void enterDataLoop(Node*& head, Node*& tail);
 void insertNodeAtStart(Node*& head, Node* newNode);
@@ -60,9 +66,14 @@ int main() {
     enterData(head, tail);
     cout << "enterting data with loop\n";
     enterDataLoop(head, tail);
-    cout << "Linked List: ";
-    printList(head);
 
+
+    cout << "Linked List given head (->next): ";
+    printList(head,HEAD);
+     cout << "Linked List given tail (->prev): ";
+    printList(tail,TAIL);
+
+    cout << "last Node data: " << tail->data << endl;
     deleteList(head);
     return 0;
 }
@@ -127,11 +138,20 @@ void insertNodeAtStart(Node*& head, Node* newNode) {
     head->prev = newNode;
     head = newNode;
 }
-void printList(const Node* head) {
-    const Node* current = head;
+void printList(const Node* ptr,Ptr_Type type) {
+    const Node* current = ptr;
     while (current != nullptr) {
         cout << current->data << " ";
-        current = current->next;
+
+        if (type == HEAD)
+        {
+            current = current->next;
+        }
+        else
+        {
+            current = current->prev;
+        }
+       
     }
     cout << endl;
 }
