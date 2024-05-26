@@ -6,11 +6,14 @@
  * Author: Yaniv Gabay
  * Date: 2024-05-26
  *
- * Overview:
- * This example demonstrates the basic implementation of a singly linked list
- * in C++. The linked list allows adding elements and printing the list.
+
  *******************************************************************/
 
+/*
+how to insert data into a linked list with recursion and with a loop
+from the user
+
+*/
 // ---------- Include Section ----------
 #include <iostream>
 

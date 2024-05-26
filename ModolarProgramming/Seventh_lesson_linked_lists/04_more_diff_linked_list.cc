@@ -13,17 +13,8 @@
 
 /*
 
-We will see here, that our division into functions, make the code very very simple.
-i really recommended to divide your linked list code into functions, it will make your code much more readable and maintainable.
-We can already write the actions  we need:
-
-1. create a head pointer = nullptr
-2. some read of data into the nodes
-3. dyanmic allocation of a node and values to it (keep the pointer!!!)
-4. location of the node (if head is nullptr, then the head is the new node, 
-                    else we need to decide our logic (start,end,sorted, etc..) )
-5. back to step 2 until we want to stop
-6. dont forget to delete all allocated memory
+now we have _prev pointer in the node struct aswell as the _next pointer
+and we will also have a tail pointer to the last node in the list
 
 
 */
