@@ -57,9 +57,9 @@ void printList(const Node* head,Ptr_Type type);
 void deleteList(Node*& head);
 void enterDataLoop(Node*& head,const int* numbers, int arrSize);
 void insertNodeAtStart(Node*& head, Node* newNode);
-int findMax(const Node* head);
-void reverseList(Node** head_ref);
-bool findTwoNegatives(const Node* head);
+
+bool checkForHead(Node*& head, int value);
+bool deleteNodeByValue(Node*& head, int value);
 // ---------- Main Function ----------
 int main() {
     Node* head = nullptr; // Initialize the head of the list to nullptr
