@@ -94,7 +94,9 @@ int main() {
 // ---------- Functions ----------
 
 bool deleteNodeByValue(Node*& head, int value)
-{
+{   //we get a not sorted linked list
+    //or sorted linked list
+
     Node* front;
     Node* back;// also called rear
     Node* temp;
@@ -105,15 +107,29 @@ bool deleteNodeByValue(Node*& head, int value)
         return false;
     }
     //if the head is the value we want to delete
-    bool result = checkForHead(head,value);
-    if(result)
+  
+    if(checkForHead(head,value))
     {
         return true;
     }
 
 
     //if the value is not in the head
-    
+    back = head;
+    front = head->next;
+    while(front!=nullptr)
+    {
+        if(front->data == value)
+        {
+            
+            temp = front;
+            back->next = front->next;
+            delete temp;
+            return true;
+        }
+        back = front;
+        front = front->next;
+    }
 
 }
 bool checkForHead(Node*& head, int value)
