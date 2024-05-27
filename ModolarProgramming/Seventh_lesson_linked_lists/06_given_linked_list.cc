@@ -70,32 +70,21 @@ int main() {
     cout << "Linked List: ";
     printList(head,HEAD);
     
-    //now lets ask ourselves questions:
-   
-    //1. find the max value in the list
-    //2. search for two negative numbers in a row
-    //3. how can we print the list from the end to the start?
-
-    //question 1:
-    cout << "Max value in the list: " << findMax(head) << endl;
-
-    //question 2:
-  
-    if (findTwoNegatives(head)) {
-        cout << "Two negative numbers in a row were found" << endl;
-    } else {
-        cout << "Two negative numbers in a row were not found" << endl;
-    }
-
-    //question 3:
     
-    cout << "Linked List from the end: ";
-    reverseList(&head);
-    printList(head,HEAD);
-    //two ways to do it:
-    //a. we can go through the list and save the last node
-    //b. we 
+    //given this linked list
+    //build a function that
+    // deletes a specific node data
+    // k = 225
 
+    if(deleteNodeByValue(head, 225))
+    {
+        cout << "Linked List after deleting 225: ";
+        printList(head,HEAD);
+    }
+    else
+    {
+        cout << "225 not found in the list\n";
+    }
   
    
     deleteList(head);
@@ -103,55 +92,41 @@ int main() {
 }
 
 // ---------- Functions ----------
-//question 2:
-bool findTwoNegatives(const Node* head) {
-    const Node* current = head;
-    while (current != nullptr) {
-        if (current->data < 0 && current->next != nullptr && current->next->data < 0) {
-            cout << "Two negative numbers in a row: " << current->data << " " << current->next->data << endl;
-            return true;
-        }
-        current = current->next;
+
+bool deleteNodeByValue(Node*& head, int value)
+{
+    Node* front;
+    Node* back;// also called rear
+    Node* temp;
+
+    //you should always check if the list is empty
+    if(head == nullptr)
+    {
+        return false;
+    }
+    //if the head is the value we want to delete
+    bool result = checkForHead(head,value);
+    if(result)
+    {
+        return true;
+    }
+
+
+    //if the value is not in the head
+    
+
+}
+bool checkForHead(Node*& head, int value)
+{
+    if(head->data == value)
+    {
+        Node* temp = head;
+        head = head->next;
+        delete temp;
+        return true;
     }
     return false;
 }
-//question 1:
-int findMax(const Node* head) {
-    //VERY IMPROTANT
-    //functions that get a pointer to a struct, should always check if the pointer is nullptr
-    if (head == nullptr) {
-        return -1;
-    }
-    int max = head->data;
-    const Node* current = head;
-    while (current != nullptr) {
-        if (current->data > max) {
-            max = current->data;
-        }
-        current = current->next;
-    }
-    return max;
-}
-
-
-//question 3:
-//we will just reverse the list and print it
-// 3 ptrs: previous, current, next
-void reverseList(Node** head_ref) {
-    Node* previous = nullptr;      // To keep track of the previous element, initially null
-    Node* current = *head_ref;     // Start with the head of the list
-    Node* next = nullptr;          // To store the next node
-
-    while (current != nullptr) {   // Traverse the list
-        next = current->next;      // Store next node
-        current->next = previous;  // Reverse current node's pointer
-        previous = current;        // Move pointers one position ahead.
-        current = next;
-    }
-    *head_ref = previous;          // Update the head pointer to the last element
-}
-
-
 
 void enterDataLoop(Node*& head,const int* numbers, int arrSize) {
    
