@@ -13,11 +13,24 @@
 
 /*
 
-Given a linked list, create a function that will remove a single node given a specific value.
+Given a linked list, create a function that will remove all duplicates from the list.
 for example:
-Linked List: 10 20 225 30 -5 -8 53 6 111 -9 0 1 1245153 1 535435 4535 1 -1 2 4 5 4
-deleteNodeByValue(225)
-Linked List after deleting 225: 10 20 30 -5 -8 53 6 111 -9 0 1 1245153 1 535435 4535 1 -1 2 4 5 4
+Linked List: 
+10 20 225 30 -5 -8 53 6 111 -9 0 1 1245153 1 535435 4535 1 -1 2 4 5 4
+Linked List after removing duplicates: 
+10 20 225 30 -5 -8 53 6 111 -9 0 1 1245153 535435 4535 -1 2 4 5
+
+// so the function should remove all the duplicates from the linked list
+// the "fastest" way to do this is to use a hash table
+// but you have not learned about hash tables yet (or stls)
+// so you will have to do this the "slow" way
+// by comparing each node to all the other nodes in the list
+// and removing the duplicates
+// you can do this by using a nested loop
+// the outer loop will iterate over each node in the list
+// the inner loop will iterate over each node in the list
+
+
 
 */
 
@@ -51,82 +64,53 @@ void deleteList(Node*& head);
 void enterDataLoop(Node*& head,const int* numbers, int arrSize);
 void insertNodeAtStart(Node*& head, Node* newNode);
 
+
+void removeDuplicates(Node*& head);
 bool checkForHead(Node*& head, int value);
-bool deleteNodeByValue(Node*& head, int value);
+
 // ---------- Main Function ----------
 int main() {
     Node* head = nullptr; // Initialize the head of the list to nullptr
-    const int numbers[] = { 10, 20, 225, 30 ,-5,-8,53,6,111,-9,0,1,1245153,1,535435, 4535,1,-1,2,4,5,4 };
+    const int numbers[] = { 10,10,10,10, 20, 225, 30 ,-5,-8,53,6,111,-9,0,1,1245153,1,535435, 4535,1,-1,2,4,5,4 };
     cout << "enterting data recursion\n";
     int arrSize = sizeof(numbers) / sizeof(numbers[0]);
     enterDataLoop(head, numbers,arrSize);
     cout << "Linked List: ";
     printList(head,HEAD);
+    removeDuplicates(head);
+    cout << "Linked List after removing duplicates: ";
+    printList(head,HEAD);
     
-    
-    //given this linked list
-    //build a function that
-    // deletes a specific node data
-    // k = 225
+ 
 
-    if(deleteNodeByValue(head, 225))
-    {
-        cout << "Linked List after deleting 225: ";
-        printList(head,HEAD);
-    }
-    else
-    {
-        cout << "225 not found in the list\n";
-    }
-  
+   
    
     deleteList(head);
     return 0;
 }
 
 // ---------- Functions ----------
-
-bool deleteNodeByValue(Node*& head, int value)
-{   //we get a not sorted linked list
-    //or sorted linked list
-
-      //you should always check if the list is empty
-    if(head == nullptr)
+void removeDuplicates(Node*& head)
+{
+    Node* current = head;
+    while(current != nullptr)
     {
-        return false;
-    }
-
-
-    Node* front;
-    Node* back;// also called rear
-    Node* temp;
-
-  
-    //if the head is the value we want to delete
-  
-    if(checkForHead(head,value))
-    {
-        return true;
-    }
-
-
-    //if the value is not in the head
-    back = head;
-    front = head->next;
-    while(front!=nullptr)
-    {
-        if(front->data == value)
+        Node* temp = current;
+        while(temp->next != nullptr)
         {
-            
-            temp = front;
-            back->next = front->next;
-            delete temp;
-            return true;
+            if(current->data == temp->next->data)
+            {
+                Node* duplicate = temp->next;
+                temp->next = temp->next->next;
+                delete duplicate;
+            }
+            else
+            {
+                temp = temp->next;
+            }
         }
-        back = front;
-        front = front->next;
+        current = current->next;
     }
-
 }
 bool checkForHead(Node*& head, int value)
 {
