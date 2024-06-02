@@ -19,9 +19,7 @@
 #include <cstring>
 
 // ---------- Using Section ----------
-using std::cout;
-using std::cin;
-using std::endl;
+
 
 // ---------- Constants ----------
 const int MAX_SIZE = 50;

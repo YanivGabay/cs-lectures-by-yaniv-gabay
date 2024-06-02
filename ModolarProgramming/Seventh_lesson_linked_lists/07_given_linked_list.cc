@@ -112,6 +112,7 @@ void removeDuplicates(Node*& head)
         current = current->next;
     }
 }
+//this is a function
 bool checkForHead(Node*& head, int value)
 {
     if(head->data == value)
