@@ -14,6 +14,8 @@ how to insert data into a linked list with recursion and with a loop
 from the user
 
 */
+
+// this program will show how to insert data into a linked list with recursion and with a loop
 // ---------- Include Section ----------
 #include <iostream>
 
@@ -50,6 +52,7 @@ int main() {
 }
 
 // ---------- Functions ----------
+
 void enterData(Node*& head) {
     int data;
     cout << "Enter a number (-1 to stop): ";
