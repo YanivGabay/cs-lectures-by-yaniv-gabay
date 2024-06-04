@@ -65,6 +65,7 @@ void delete_tree(Node*& root) {
     delete_tree(root->left);
     delete_tree(root->right);
     delete root;
+    //some like this, some not, but it is a good practice in my opinion
     root = nullptr;
 }
 
