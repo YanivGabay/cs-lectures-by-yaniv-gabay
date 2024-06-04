@@ -10,6 +10,12 @@
 
  *******************************************************************/
 
+
+
+// GREAT page on traversal of trees:
+//https://en.wikipedia.org/wiki/Tree_traversal
+// we will go over it.
+
 // ---------- Include Section ----------
 #include <iostream>
 
@@ -27,7 +33,14 @@ struct Node {
 
 // ---------- Function Prototypes ----------
 void insert_into_tree(Node*& root, int data);
-void display(const Node* root);
+
+int countNodes(const Node* root);
+void inorder(const Node* root);
+int sumNodes(const Node* root) ;
+void preorder(const Node* root);
+
+void postorder(const Node* root);
+
 // ---------- Main Function ----------
 int main() {
     Node* root = nullptr; // Initialize the head of the list to nullptr
@@ -36,13 +49,14 @@ int main() {
     insert_into_tree(root, 30);
     insert_into_tree(root, 5);
     insert_into_tree(root, -15);
-    cout << "Binary Tree: ";
-    display(root);
-    delete_tree(root);
+
+    // return the sum of the nodes in the binary tree
+    cout << "Sum of nodes: " << sumNodes(root) << endl;
+    
+
     return 0;
 }
 
-// ---------- Functions ----------
 // ---------- Functions ----------
 void delete_tree(Node*& root) {
     if (root == nullptr) {
@@ -54,14 +68,14 @@ void delete_tree(Node*& root) {
     root = nullptr;
 }
 
-void display(const Node* root) {
+
+int sumNodes(const Node* root) {
     if (root == nullptr) {
-        return;
+        return 0;
     }
-    display(root->left);
-    cout << root->data << " ";
-    display(root->right);
+    return root->data + sumNodes(root->left) + sumNodes(root->right);
 }
+
 void insert_into_tree(Node*& root, int data) {
     if (root == nullptr) {
         root = new Node;

@@ -10,6 +10,12 @@
 
  *******************************************************************/
 
+
+
+// GREAT page on traversal of trees:
+//https://en.wikipedia.org/wiki/Tree_traversal
+// we will go over it.
+
 // ---------- Include Section ----------
 #include <iostream>
 
@@ -27,7 +33,14 @@ struct Node {
 
 // ---------- Function Prototypes ----------
 void insert_into_tree(Node*& root, int data);
-void display(const Node* root);
+
+int countNodes(const Node* root);
+void inorder(const Node* root);
+
+void preorder(const Node* root);
+
+void postorder(const Node* root);
+
 // ---------- Main Function ----------
 int main() {
     Node* root = nullptr; // Initialize the head of the list to nullptr
@@ -36,32 +49,53 @@ int main() {
     insert_into_tree(root, 30);
     insert_into_tree(root, 5);
     insert_into_tree(root, -15);
-    cout << "Binary Tree: ";
-    display(root);
-    delete_tree(root);
+
+
+    cout << "starting traversal" << endl;
+    cout << "Inorder: ";
+    inorder(root);
+    cout << endl;
+    cout << "Preorder: ";
+    preorder(root);
+    cout << endl;
+    cout << "Postorder: ";
+    postorder(root);
+    cout << endl;
+
+    
+
     return 0;
 }
 
 // ---------- Functions ----------
-// ---------- Functions ----------
-void delete_tree(Node*& root) {
+void inorder(const Node* root)
+ {
     if (root == nullptr) {
         return;
     }
-    delete_tree(root->left);
-    delete_tree(root->right);
-    delete root;
-    root = nullptr;
+    inorder(root->left);
+    cout << root->data << " ";
+    inorder(root->right);
+}
+void preorder(const Node* root)
+ {
+    if (root == nullptr) {
+        return;
+    }
+    cout << root->data << " ";
+    preorder(root->left);
+    preorder(root->right);
+}
+void postorder(const Node* root)
+ {
+    if (root == nullptr) {
+        return;
+    }
+    postorder(root->left);
+    postorder(root->right);
+    cout << root->data << " ";
 }
 
-void display(const Node* root) {
-    if (root == nullptr) {
-        return;
-    }
-    display(root->left);
-    cout << root->data << " ";
-    display(root->right);
-}
 void insert_into_tree(Node*& root, int data) {
     if (root == nullptr) {
         root = new Node;
