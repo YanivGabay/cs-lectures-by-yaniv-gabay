@@ -11,11 +11,6 @@
  *******************************************************************/
 
 
-
-// GREAT page on traversal of trees:
-//https://en.wikipedia.org/wiki/Tree_traversal
-// we will go over it.
-
 // ---------- Include Section ----------
 #include <iostream>
 
@@ -40,7 +35,7 @@ int sumNodes(const Node* root) ;
 void preorder(const Node* root);
 
 void postorder(const Node* root);
-
+void positiveNumbers(const Node* root,int* arr,int& index) ;
 // ---------- Main Function ----------
 int main() {
     Node* root = nullptr; // Initialize the head of the list to nullptr
@@ -54,10 +49,38 @@ int main() {
     cout << "Sum of nodes: " << sumNodes(root) << endl;
     
 
+    //return all positive numbers in the binary tree
+    // we get the info that the tree has max 100 nodes
+    int* arr = new int[100];
+    //check alloc
+    int index = 0;
+    positiveNumbers(root,arr,index);
+
+    cout << "Positive numbers in the binary tree: ";
+    for (int i = 0; i < index; i++) {
+        cout << arr[i] << " ";
+    }
     return 0;
 }
 
 // ---------- Functions ----------
+void positiveNumbers(const Node* root,int* arr,int& index) {
+    if (root == nullptr) {
+        return;
+    }
+    positiveNumbers(root->left,arr,index);
+    if (root->data > 0) {
+        arr[index] = root->data;
+        index++;
+    }
+    //positiveNumbers(root->left,arr,index);//this can work here aswell, what the diff?????
+    positiveNumbers(root->right,arr,index);
+
+
+  
+}
+
+
 void delete_tree(Node*& root) {
     if (root == nullptr) {
         return;
