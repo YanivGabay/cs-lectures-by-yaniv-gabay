@@ -36,6 +36,7 @@ void preorder(const Node* root);
 
 void postorder(const Node* root);
 void positiveNumbers(const Node* root,int* arr,int& index) ;
+int *positiveNumbers(const Node* root,int& index);
 // ---------- Main Function ----------
 int main() {
     Node* root = nullptr; // Initialize the head of the list to nullptr
@@ -49,21 +50,31 @@ int main() {
     cout << "Sum of nodes: " << sumNodes(root) << endl;
     
 
-    //return all positive numbers in the binary tree
+    //return all positive numbers in the binary tree in a array
     // we get the info that the tree has max 100 nodes
-    int* arr = new int[100];
-    //check alloc
+
+
     int index = 0;
-    positiveNumbers(root,arr,index);
+    int * array = positiveNumbers(root,index);
 
     cout << "Positive numbers in the binary tree: ";
     for (int i = 0; i < index; i++) {
-        cout << arr[i] << " ";
+        cout << array[i] << " ";
     }
     return 0;
 }
 
 // ---------- Functions ----------
+int *positiveNumbers(const Node* root,int& index) {
+    if (root == nullptr) {
+        return nullptr;
+    }
+    int* arr = new int[100];
+    //check alloc
+
+    positiveNumbers(root,arr,index);
+    return arr;
+}
 void positiveNumbers(const Node* root,int* arr,int& index) {
     if (root == nullptr) {
         return;
