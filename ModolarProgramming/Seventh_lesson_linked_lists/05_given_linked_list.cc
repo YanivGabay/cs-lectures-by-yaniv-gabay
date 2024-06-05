@@ -90,7 +90,10 @@ int main() {
     //question 3:
     
     cout << "Linked List from the end: ";
+
     reverseList(&head);
+
+
     printList(head,HEAD);
     //two ways to do it:
     //a. we can go through the list and save the last node
@@ -105,6 +108,9 @@ int main() {
 // ---------- Functions ----------
 //question 2:
 bool findTwoNegatives(const Node* head) {
+    if(head == nullptr)
+    return false;
+    
     const Node* current = head;
     while (current != nullptr) {
         if (current->data < 0 && current->next != nullptr && current->next->data < 0) {
@@ -133,13 +139,24 @@ int findMax(const Node* head) {
     return max;
 }
 
+void printReverseList(const Node* head) {
+    if (head == nullptr) {
+        return;
+    }
+    printReverseList(head->next);
+    cout << head->data << " ";
+}
 
 //question 3:
 //we will just reverse the list and print it
 // 3 ptrs: previous, current, next
 void reverseList(Node** head_ref) {
     Node* previous = nullptr;      // To keep track of the previous element, initially null
+    //if we didnt have this we would have need to:
+    // use the **head_ref to update the head pointer
+    
     Node* current = *head_ref;     // Start with the head of the list
+
     Node* next = nullptr;          // To store the next node
 
     while (current != nullptr) {   // Traverse the list

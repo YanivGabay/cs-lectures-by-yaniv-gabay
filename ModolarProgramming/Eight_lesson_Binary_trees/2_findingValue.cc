@@ -48,7 +48,7 @@ int main() {
 }
 
 // ---------- Functions ----------
-//this function will work only if the binary tree is a binary search tree
+//this function is for a binary search tree
 bool searchValue(const Node* root, int value) {
     if (root == nullptr) {
         return false;

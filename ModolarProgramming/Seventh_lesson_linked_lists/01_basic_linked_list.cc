@@ -59,14 +59,27 @@ void append(Node*& head, int data) {
     if (head == nullptr) {
         head = newNode;
     } else {
+
         Node* current = head;
+        int jump = current->data;//jump
+        Node* after_jumping = jumpByValue(current,jump);
         while (current->next != nullptr) {
             current = current->next;
         }
         current->next = newNode;
     }
 }
-
+Node* jumpByValue(Node* current, int jump){
+    int abs_value = abs(jump);
+    
+    for(int i = 0; i < abs_value; i++){
+        if(jump < 0)
+        current = current->prev;
+        else 
+        current = current->next;
+    }
+    return current;
+}
 void printList(const Node* head) {
     const Node* current = head;
     while (current != nullptr) {
