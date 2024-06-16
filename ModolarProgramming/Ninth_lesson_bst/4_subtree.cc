@@ -31,7 +31,7 @@ void display(const Node* root);
 
 
 
-int subTreesNegativeOnly(Node* root, int& count) ;
+void subTreesNegativeOnly(Node* root, int& count) ;
 int subtreeSum(Node* root) ;
 // ---------- Main Function ----------
 int main() {
@@ -51,24 +51,21 @@ int main() {
 
 // ---------- Functions ----------
 bool allNegatives(Node* root) {
-    if (root == nullptr)
-     return false;
-    if(root->data < 0)
-    return true;
-    return allNegatives(root->left) && allNegatives(root->right);
+    if (root == nullptr) return true;  // Consider an empty tree as satisfying the condition.
+    return root->data < 0 && allNegatives(root->left) && allNegatives(root->right);
 }
 
+
 // Function to count how many subtrees meet the specified sum condition
-int subTreesNegativeOnly(Node* root, int& count) {
-    if (root == nullptr) return 0;
-    bool result  = allNegatives(root);
-    if (result) {
+void subTreesNegativeOnly(Node* root, int& count) {
+    if (root == nullptr) return;
+    if (allNegatives(root)) {
         count++;
     }
-    subTreesNegativeOnly(root->left,  count);
-    subTreesNegativeOnly(root->right,  count);
-    return count;
+    subTreesNegativeOnly(root->left, count);
+    subTreesNegativeOnly(root->right, count);
 }
+
 
 void display(const Node* root) {
     if (root == nullptr) {
