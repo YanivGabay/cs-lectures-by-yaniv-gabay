@@ -76,8 +76,8 @@ int sum_of_leafs(const Node* const root,int&sum)
 
     }
 
-    sum += sum_of_leafs(root->left,sum);
-    sum += sum_of_leafs(root->right,sum);
+    
+    return sum+sum_of_leafs(root->left,sum) + sum_of_leafs(root->right,sum);
 
   
 }
