@@ -60,11 +60,8 @@ int countPositiveChildrenParents(Node* root) {
         }
     }
 
-    // Recursively count in left and right subtrees
-    count += countPositiveChildrenParents(root->left);
-    count += countPositiveChildrenParents(root->right);
     
-    return count;
+    return count + countPositiveChildrenParents(root->left) + countPositiveChildrenParents(root->right);
 }
 
 void delete_tree(Node*& root) {
