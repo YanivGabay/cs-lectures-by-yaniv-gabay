@@ -10,7 +10,6 @@
 
  *******************************************************************/
 
-
 // ---------- Include Section ----------
 #include <iostream>
 
@@ -28,55 +27,54 @@ struct Node {
 
 // ---------- Function Prototypes ----------
 void insert_into_tree(Node*& root, int data);
+void display(const Node* root);
 
 
-int countPositiveChildrenParents(Node* root);
+
+void subTreesNegativeOnly(Node* root, int& count) ;
+int subtreeSum(Node* root) ;
 // ---------- Main Function ----------
 int main() {
     Node* root = nullptr; // Initialize the head of the list to nullptr
     insert_into_tree(root, 10);
     insert_into_tree(root, 20);
     insert_into_tree(root, 30);
-    insert_into_tree(root, 5);
-    insert_into_tree(root, -15);
+    insert_into_tree(root, -4);
+    insert_into_tree(root, -14);
 
-    int value = countPositiveChildrenParents(root);
-    cout << "Number of nodes with positive children: " << value << endl;
-
+    display(root);
+    int count = 0;
+    subTreesNegativeOnly(root, count);
+    std::cout << "Number of subtrees with all negatives "  << ": " << count << std::endl;
     return 0;
 }
 
 // ---------- Functions ----------
-int countPositiveChildrenParents(Node* root) {
-    if (root == nullptr) {
-        return 0;
-    }
-
-    int count = 0;
-    // Check if both children are positive
-    if (root->left && root->right) {
-        if (root->left->data > 0 && root->right->data > 0) {
-            count = 1;  // Current node satisfies the condition
-        }
-    }
-
-    
-    return count + countPositiveChildrenParents(root->left) + countPositiveChildrenParents(root->right);
+bool allNegatives(Node* root) {
+    if (root == nullptr) return true;  // Consider an empty tree as satisfying the condition.
+    return root->data < 0 && allNegatives(root->left) && allNegatives(root->right);
 }
 
-void delete_tree(Node*& root) {
+
+// Function to count how many subtrees meet the specified sum condition
+void subTreesNegativeOnly(Node* root, int& count) {
+    if (root == nullptr) return;
+    if (allNegatives(root)) {
+        count++;
+    }
+    subTreesNegativeOnly(root->left, count);
+    subTreesNegativeOnly(root->right, count);
+}
+
+
+void display(const Node* root) {
     if (root == nullptr) {
         return;
     }
-    delete_tree(root->left);
-    delete_tree(root->right);
-    delete root;
-    //some like this, some not, but it is a good practice in my opinion
-    root = nullptr;
+    display(root->left);
+    cout << root->data << " ";
+    display(root->right);
 }
-
-
-
 void insert_into_tree(Node*& root, int data) {
     if (root == nullptr) {
         root = new Node;

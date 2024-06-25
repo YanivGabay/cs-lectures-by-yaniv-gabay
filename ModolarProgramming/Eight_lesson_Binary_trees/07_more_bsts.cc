@@ -28,9 +28,13 @@ struct Node {
 
 // ---------- Function Prototypes ----------
 void insert_into_tree(Node*& root, int data);
+void print_tree(const Node* const root);
 
 
-int countPositiveChildrenParents(Node* root);
+int smallest(const Node* const root);
+int largest(const Node* const root);
+int smallest_biggest_sum(const Node* const root);
+int sum_of_leafs(const Node* const root,int &sum);
 // ---------- Main Function ----------
 int main() {
     Node* root = nullptr; // Initialize the head of the list to nullptr
@@ -40,28 +44,75 @@ int main() {
     insert_into_tree(root, 5);
     insert_into_tree(root, -15);
 
-    int value = countPositiveChildrenParents(root);
-    cout << "Number of nodes with positive children: " << value << endl;
+
+
+
+    //TO BE FIXED
+    print_tree(root);
+    cout << "smallest and largest sum is: " << smallest_biggest_sum(root) << endl;
+    int sum = 0;
+    sum = sum_of_leafs(root,sum);
+    cout << "sum of leafs is: " << sum;
 
     return 0;
 }
 
 // ---------- Functions ----------
-int countPositiveChildrenParents(Node* root) {
-    if (root == nullptr) {
-        return 0;
+int sum_of_leafs(const Node* const root,int&sum)
+{
+    cout << "inside sum_of_leafs" << endl;
+    if(root == nullptr)
+    {
+        cout << "root equal null" << endl;
+          return 0;
     }
+   
+    
+    if(root->left==nullptr && root->right==nullptr)
+    {
+        cout << "found a leaf" << endl;
+        cout << "returning: " << root->data;
+            return root->data;
 
-    int count = 0;
-    // Check if both children are positive
-    if (root->left && root->right) {
-        if (root->left->data > 0 && root->right->data > 0) {
-            count = 1;  // Current node satisfies the condition
-        }
     }
 
     
-    return count + countPositiveChildrenParents(root->left) + countPositiveChildrenParents(root->right);
+    return sum+sum_of_leafs(root->left,sum) + sum_of_leafs(root->right,sum);
+
+  
+}
+
+int smallest_biggest_sum(const Node* const root)
+{
+    return smallest(root)+largest(root);
+}
+int smallest(const Node* const root)
+{
+    //should return -15 +30  
+    if(root->left == nullptr)
+    return root->data;
+
+    smallest(root->left);
+
+
+}
+int largest(const Node* const root)
+{
+    if(root->right == nullptr)
+    return root->data;
+
+    largest(root->right);
+}
+void print_tree(const Node* const root)
+{
+    if(root == nullptr)
+    return;
+
+    print_tree(root->left);
+    cout << root->data << " ";
+    print_tree(root->right);
+
+    return;
 }
 
 void delete_tree(Node*& root) {
