@@ -33,6 +33,10 @@ void printMenu();
 
 int main() {
 
+
+    ///////////// I USE SOME C SYNTAX
+    /// LIKE SCANF AND PRINTF same as cout and cin
+    
     int choice;
     int a, b;
     int result;
