@@ -47,8 +47,8 @@ int main() {
     while (1) {
         printMenu();
         printf("Enter your choice (1-4, 0 to exit): ");
-        scanf("%d", &choice);
-
+        scanf("%d", &choice); // cin >> choice;
+    
         // Exit condition
         if (choice == 0) {
             break;
@@ -60,8 +60,9 @@ int main() {
         }
 
         printf("Enter two numbers: ");
-        scanf("%d %d", &a, &b);
+        scanf("%d %d", &a, &b); // cin >> a >> b;
 
+      
         // Calling the selected operation
         result = operation[choice - 1](a, b);
         printf("Result: %d\n\n", result);

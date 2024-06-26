@@ -67,8 +67,14 @@ int main() {
 // ---------- Functions ----------
 
 // Recursive function to find maximum average of a subtree
+//struct SubtreeData {
+  //  int sum;        // Sum of all nodes in the subtree
+    //int count;      // Number of nodes in the subtree
+    //double average; // Average of the subtree
+//};
 SubtreeData findMaxAverageSubtree(Node* root, double& maxAverage, Node*& maxNode) {
-    if (!root) return {0, 0, 0.0};
+    if (!root) return {0, 0, 0.0}; // !root === root == nullptr
+                                   // if(root) === root is not nullptr
 
     // Recur for left and right subtrees
     SubtreeData left = findMaxAverageSubtree(root->left, maxAverage, maxNode);

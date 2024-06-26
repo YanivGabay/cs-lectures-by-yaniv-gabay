@@ -45,6 +45,8 @@ using std::cin;
 using std::cout;
 using std::endl;
 
+const int SIZE = 4;
+
 // ---------- Structs ----------
 
 // ---------- Function Prototypes ----------
@@ -53,7 +55,7 @@ int add(int x, int y);
 int subtract(int x, int y);
 int multiply(int x, int y);
 void performOperation(int x, int y, int (*operation)(int, int));
-
+int divide(int x,int y);
 
 // ---------- Main Function ----------
 int main() {
@@ -66,12 +68,11 @@ int main() {
     int a = 10;
     int b = 5;
     // its an array of function pointers, that get 2 ints and return an int.
-    int (*operations[3])(int, int) = {add, subtract, multiply};
+    int (*operations[SIZE])(int, int) = {add, subtract, multiply, divide};
 
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < SIZE; i++) {
         performOperation(a, b, operations[i]);
     }
-
 
 
 
@@ -79,7 +80,11 @@ int main() {
 }
 
 // ---------- Functions ----------
+int divide(int x,int y)
+{
+    return x / y;
 
+}
 
 // Function declarations
 int add(int x, int y) {

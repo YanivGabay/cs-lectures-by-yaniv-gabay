@@ -69,11 +69,11 @@ int main() {
     int (*operation)(int, int); // function ptr;
 
     operation = &add; // opeartion = add also works, the & just so we know its pointers.
-
+    
     performOperation(a, b, operation);
     performOperation(a, b, &subtract); //we are sending the function name, and not the substract() call.
     performOperation(a, b, &multiply);
-
+    
 
 
 
