@@ -6,6 +6,8 @@ input.txt
 output.txt
 *.txt.txt
 *.txt
+.env
+config.json
 *.o
 *.out
 build/Debug/
