@@ -16,7 +16,7 @@ struct Node
 
 struct Node* newNode(int data);
 int balanced_helper(const Node* root, const Node*& max_sub_tree, int& balance, bool is_left);
-const Node * find_best_balanaed_tree(Node* root);
+const Node * find_best_balanced_tree(Node* root);
 
 using std::cout;
 using std::endl;
@@ -34,12 +34,12 @@ int main()
     root->_left->_left->_right = newNode(13);
     root->_left->_right->_left = newNode(11);
     root->_right->_left->_left = newNode(20);
-    
+
   
     root->_right->_right->_right = newNode(37);
     cout << "finished building the tree" << endl;
 
-    const Node* max_sub_tree = find_best_balanaed_tree(root);
+    const Node* max_sub_tree = find_best_balanced_tree(root);
     cout << "Root of the largest even-majority subtree: " << max_sub_tree->_data << endl;
 
 
@@ -47,7 +47,7 @@ int main()
 }
 
 
-const Node * find_best_balanaed_tree(Node* root)
+const Node * find_best_balanced_tree(Node* root)
 {
     if (root == nullptr)
     {
