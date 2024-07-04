@@ -1,6 +1,8 @@
 # Introduction to Computer Science and Modular Programming
 
-Welcome to my teaching repository for the first-year courses on Introduction to Computer Science and Modular Programming at Hadassah Academic College (HAC). This collection of materials includes lecture notes and code examples I used during the 2023 academic year.
+Welcome to my GitHub repository for the courses on Introduction to Computer Science and Modular Programming at Hadassah Academic College (HAC). As a teaching assistant in 2023-2024, I've compiled lecture notes, code examples, and additional resources here that I've used to teach the first-year students.
+
+This repository serves as a guide mirroring the curriculum we covered throughout the year.
 
 ## How to Get Started
 
