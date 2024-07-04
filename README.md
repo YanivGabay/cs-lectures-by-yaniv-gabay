@@ -2,18 +2,21 @@
 
 Welcome to my teaching repository for the first-year courses on Introduction to Computer Science and Modular Programming at Hadassah Academic College (HAC). This collection of materials includes lecture notes and code examples I used during the 2023 academic year.
 
+## How to Get Started
+
+Feel free to clone this repo or explore the files directly on GitHub.
+Each folder has examples and notes to help you grasp the concepts.
+If you find the materials helpful, please give this repository a ⭐!
+
 ## Content Overview
 
-This repository is meticulously organized to mirror the curriculum taught throughout the academic year. It spans from introductory topics in computer science to advanced programming concepts as for the modular programming course.
-Its important to understand the syllabus of the courses to understand the content of the repository.
-Which is equivalent to Yorams Biberman Website: [Yoram Biberman - Intro 2 cs + Modular programming](https://sites.google.com/view/yoramb-intro2cs/home)
-
-This course is using Legacy CPP, which is much more similar to C than to C++ in some aspects.
+This repository follows the curriculum we explored together and ranges from the basics of computer science to more complex topics in modular programming, akin to the content on [Yoram Biberman's site](https://sites.google.com/view/yoramb-intro2cs/home).
+Some examples are based on Yoram's materials, while others are my own.
 
 
 ## Repository Structure
 
-The repository is structured as follows:
+Here's how everything is organized:
 
 ```plaintext
 .
@@ -41,7 +44,6 @@ The repository is structured as follows:
 |   ├── Lecture 12 - More Questions from tests
 ```
 
-
 ## How to Use
 
 To dive into the materials, you can clone this repository or browse the files directly on GitHub. Each lecture folder is equipped with specific examples and in-depth notes to enhance your learning experience.
@@ -51,8 +53,8 @@ To dive into the materials, you can clone this repository or browse the files di
 Contributions are welcome! If you have any suggestions for enhancements or additional resources, please feel free to fork this repository and submit a pull request.
 You are more than welcome to look at open issues.
 
-## Contact Information
+## Questions?
 
-Should you have any questions or require further information, please do not hesitate to contact Yaniv at yanivga@edu.hac.ac.il.
+If you have any questions or need more information, feel free to reach out to me at <yanivga@edu.hac.ac.il>.
 
 Thank you for visiting, and happy learning!
