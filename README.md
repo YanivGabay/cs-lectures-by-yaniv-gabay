@@ -1,6 +1,6 @@
-# Lessons from the Academic Year by Yaniv Gabay
+# Introduction to Computer Science and Modular Programming
 
-Welcome to the repository that contains all the lecture notes and coding files used by Yaniv Gabay in the Introduction to Computer Science and Modular Programming courses at Hadassah Academic College (HAC).
+Welcome to my teaching repository for the first-year courses on Introduction to Computer Science and Modular Programming at Hadassah Academic College (HAC). This collection of materials includes lecture notes and code examples I used during the 2023 academic year.
 
 ## Content Overview
 
@@ -38,6 +38,7 @@ The repository is structured as follows:
 |   ├── Lecture 9 - Binary Search Trees and subtrees
 |   ├── Lecture 10 - Bsts and Functions Pointers
 |   ├── Lecture 11 - Questions from tests
+|   ├── Lecture 12 - More Questions from tests
 ```
 
 
