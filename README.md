@@ -15,15 +15,13 @@ If you find the materials helpful, please give this repository a ⭐!
 This repository follows the curriculum we explored together and ranges from the basics of computer science to more complex topics in modular programming, akin to the content on [Yoram Biberman's site](https://sites.google.com/view/yoramb-intro2cs/home).
 Some examples are based on Yoram's materials, while others are my own.
 
-
 ## Repository Structure
 
 Here's how everything is organized:
 
 ```plaintext
-.
 ├── Introduction to Computer Science
-│   ├── Lecture 5 - Triple Nested Loops
+│   ├── Lecture 5 - Triple Nested Loops 
 │   ├── Lecture 6 - Arrays + Extras
 │   ├── Lecture 7 - Functions + topDownDesign
 │   ├── Lecture 8 - enums + basic Matrix
