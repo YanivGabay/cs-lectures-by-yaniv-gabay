@@ -100,6 +100,8 @@ struct TNode *connect_primes_helper(TNode *root, TNode *&new_list_head, TNode *&
     return new_list_head;
 }
 
+
+//just a copy paste is prime for the sake of the example
 bool is_prime(int n)
 {
     if (n <= 1)
