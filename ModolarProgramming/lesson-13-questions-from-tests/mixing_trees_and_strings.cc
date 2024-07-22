@@ -25,6 +25,10 @@ void question_2(struct Node*root , char* name);
 bool name_exists(int letters[],char* name);
 const int NUM_OF_LETTERS = 26;
 
+
+void question_3(struct Node* root , char* name); 
+bool hasPathString(Node* root, char* name,int str_len,int& curr_length);
+
 using std::cout;
 using std::endl;
 
@@ -49,19 +53,56 @@ int main()
 
     // 1. given a tree of chars, we need to return the letter by the inorder traversal (if it was a binary search tree)
     // 2. given a tree of chars, and a given string name: "yaniv" we must say if its exists (not in order)
-    // 3. given a tree of chars, and a given string name: "yan" we must say if exists in order and how many times
+    // 3. given a tree of chars, and a given string name: "yan" we must say if exists in order 
 
 
     //1
     // inorder traversal just mean sorted from lowest to highest
     // so it doesnt matter how we traverse this tree cus ITS NOT A SEARCH TREE
     // we will host all the letters in a 26 size int array
+    cout << "Question 1:" << endl;
     question_1(root);
     char name[] = "yaa";
+    cout << "Question 2:" << endl;
+    //we need to check if name, exists in the tree, we will use the same emthod
     question_2(root, name);
+
+    cout << "Question 3:" << endl;
+    char name_2[] = "yan";
+    question_3(root, name_2);
+
+
 
 
     return 0;
+}
+void question_3(struct Node* root , char* name)
+{
+
+    //this will also act as "helper function"
+    int str_length = strlen(name);
+    int curr_length = str_length;
+    bool found = hasPathString(root,name,str_length,curr_length);
+
+    if(found)
+    cout << "found the string" << endl;
+    else cout << "not found the string" << endl;
+
+}
+bool hasPathString(Node* root, char* name,int str_len,int& curr_length) {
+    if (root == nullptr) 
+    return false;
+
+    if(root->_data!=name[str_len-curr_length])
+    return false;
+
+    curr_length--;
+
+    if(curr_length==0)
+    return true;
+
+    return hasPathString(root->_left,name,str_len,curr_length) || 
+           hasPathString(root->_right,name,str_len,curr_length);
 }
 
 void question_2(struct Node* root,char* name)
