@@ -76,7 +76,7 @@ struct Node* calculate_variance(struct Node* root)
     struct TreeVariance highest_variance;
     highest_variance._variance = 0;
     highest_variance._node = NULL;
-    struct TreeInfo tree_info;
+    //struct TreeInfo tree_info;
     calculate_variance_helper(root, highest_variance);
     
     
