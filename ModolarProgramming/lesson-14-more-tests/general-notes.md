@@ -9,3 +9,11 @@
 - **Write notes to explain your mindset**. If you are not sure about the solution, write down your thoughts. It will help you to get partial credit, i wanted to do this, and than sort this, and extract this using this function, but i didn't have time to finish it etc.
 - **Root for trees and Head/Tail for linked lists**. 
 - **Don't forget to free memory**. If you allocate memory, don't forget to free it.
+- **Yoram doesnt like lined over 90 cols!!!** as well with functions parameters, so split them for example:
+```c
+void foo(int a, int b, int c,
+         int d, int e, int f )
+{
+    // code
+}
+```
