@@ -37,7 +37,7 @@ struct NodeSalaryDiff {
 
     int _sum_diff;
    
-    int _count_bigger; // Change the member name from '_count_bigger_nodes' to '_count_bigger'
+    int _count_bigger; 
 };
 // ---------- Function Prototypes ----------
 double calc_avg_delta(const Node *root);

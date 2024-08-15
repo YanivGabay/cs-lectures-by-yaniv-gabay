@@ -139,7 +139,7 @@ struct SequenceNodes* transform_list(struct Node *head) {
 
     connect_neighbors(new_head, true, tail);
     connect_neighbors(new_head, false,tail);
-  
+    
   
     cout << "printing plus one right" << endl;
     print_plus_right(new_head);

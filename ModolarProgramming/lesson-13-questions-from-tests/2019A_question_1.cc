@@ -123,7 +123,8 @@ struct Node2* manipulateList(Node* root) {
 
 }
 
-void insertIntoList(Node2*& head,enum INSERT_DIRECTION direction, Node2*& node) {
+void insertIntoList(Node2*& head,enum INSERT_DIRECTION direction,
+                    Node2*& node) {
     if (!node) // we got a bad node for some reason
     {
         cout << "The node is null" << endl;

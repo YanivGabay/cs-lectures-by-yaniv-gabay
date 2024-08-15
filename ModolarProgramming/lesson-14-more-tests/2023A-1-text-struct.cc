@@ -53,6 +53,7 @@ int main()
     text[1] = new char[2]{'?', '!'};
     text[2] = new char[5]{'1', '2', '3', '4', '5'};
     int *line_length = new int[3]{3, 2, 5};
+    
     struct Text my_text = {text, 3, line_length};
     // there is no /0 at the end of the lines
     // there is no empty rows/values
@@ -90,7 +91,8 @@ void modify_text(struct Text *text, const int row, const int col)
     // now we need to delete the values from the original row
     fix_my_row(text, row, col);
     text->_line_length[row] = col; // new length
-
+    ///////////
+    
     // now we need to push all the rows down
     // first we need to create a new array of pointers
     char **new_text = new char *[text->_num_of_lines + 1];
@@ -116,6 +118,7 @@ void modify_text(struct Text *text, const int row, const int col)
     // we are copying pointers, so we dont need to delete all the values
     delete[] text->_line_length;
     //maybe i forgot to delete something?
+    
 
     // replace the old arrays with the new arrays
     text->_text = new_text;
@@ -142,13 +145,14 @@ void fix_my_row(struct Text *text, const int row, const int col)
 char *get_values(char *line, const int start, const int end)
 {
     char *values = new char[end - start];
+    //check alloc std::nothrow
     for (int i = start; i < end; i++)
     {
         values[i - start] = line[i];
     }
     return values;
 }
-
+              
 void print_text(const struct Text *const text)
 {
     for (int i = 0; i < text->_num_of_lines; i++)

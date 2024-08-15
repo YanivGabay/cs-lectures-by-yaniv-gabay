@@ -85,7 +85,8 @@ struct Node* calculate_variance(struct Node* root)
     return highest_variance._node;
 }
 
-struct TreeInfo calculate_variance_helper(struct Node* root,struct TreeVariance& highest_variance)
+struct TreeInfo calculate_variance_helper(struct Node* root,
+                                          struct TreeVariance& highest_variance)
 {
     if (root == NULL)
     {
@@ -93,8 +94,10 @@ struct TreeInfo calculate_variance_helper(struct Node* root,struct TreeVariance&
     }
     
     struct TreeInfo left = calculate_variance_helper(root->_left, highest_variance);
+    
     struct TreeInfo right = calculate_variance_helper(root->_right, highest_variance);
 
+   
     int curr_size = left._size + right._size + 1;
     int curr_max = std::max(root->_data, std::max(left._max, right._max));
     int curr_min = std::min(root->_data, std::min(left._min, right._min));
