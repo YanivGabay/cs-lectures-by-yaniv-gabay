@@ -42,7 +42,7 @@ void insert_by_terms(struct Primary_node *head, int data);
 void print(struct Primary_node *head);
 void allocate_new_primary(struct Primary_node *head, int data, int smallest);
 int smallest_primary_div(const int data);
-bool insert_to_right(struct Primary_node *current, int data);
+bool insert_to_right(struct Primary_node *head, int data, struct Primary_node *&tail);
 void check_alloc(void *ptr);
 
 // ---------- Main Function ----------
@@ -51,7 +51,7 @@ int main()
 
     ///////////////////////// VERY PRIMITIVE WAY TO SET THE EXAMPLE /////////////////////////
     //  THE SAME AS THE TEST
-    //IMPORTANT , THE EXAMPLE GIVEN IN THE TEST (CHECK THE .md FILE) , ISNT BY THE "RULES" 
+    // IMPORTANT , THE EXAMPLE GIVEN IN THE TEST (CHECK THE .md FILE) , ISNT BY THE "RULES"
     // WE WERE GIVEN IN THE QUESTION
     struct Primary_node *head = new Primary_node;
     head->_primary_data = 5;
@@ -74,7 +74,6 @@ int main()
     head->_down->_down->_right->_right->_right = new Node;
     head->_down->_down->_right->_right->_right->_data = 33;
 
-
     ////////////////////////////////////////////////////////////////////////////////////////
     // solution including print statements:
 
@@ -91,7 +90,7 @@ int main()
 }
 
 // ---------- Functions ----------
-void insert_by_terms(struct Primary_node *head,const int data)
+void insert_by_terms(struct Primary_node *head, const int data)
 {
     /*
     the rules are:
@@ -104,63 +103,64 @@ void insert_by_terms(struct Primary_node *head,const int data)
 
      */
 
-    struct Primary_node *current = head;
-    if(insert_to_right(current, data))
+    struct Primary_node *tail = head;
+    if (insert_to_right(head, data,tail))
     {
         cout << "inserted to right" << endl;
         return;
     }
-
+    /// you can make this code even better, and save this current
+    // and pass it into the allocate_new_primary already,
+    // instead of getting in again
+    // which in the edge cases of all input numbers are primes
+ 
     // we need to find the smallest primary div of the number
     int smallest = smallest_primary_div(data);
-    
-   
+
     // we are at this point, so if it wasnt divided by
     //  other primary nodes
     // now we have the smallest primary divi
     // now we insert this smallest primary as a new primary node
     //  and the value itself to the right
-    allocate_new_primary(head, data, smallest);
+    allocate_new_primary(tail, data, smallest);
     return;
 }
-void allocate_new_primary(struct Primary_node *head,const int data,const int smallest)
+void allocate_new_primary(struct Primary_node *current, const int data, const int smallest)
 {
-   
-    struct Primary_node *current = head;
-    while (current != nullptr)
+
+    // if we reach here, so the insert to right already updated the current
+    // so the "latest" primary node is the one that we need to insert the new primary node after
+    if (current->_down == nullptr)
     {
-        
-        if (current->_down == nullptr)
-        {
-            struct Primary_node *new_primary = new Primary_node;
-            check_alloc(new_primary);
-            new_primary->_primary_data = smallest;
-            new_primary->_right = new Node;
-            check_alloc(new_primary->_right);
-            new_primary->_right->_data = data;
-            current->_down = new_primary;
-            return;//can use break aswell
-        }
-        current = current->_down;
+        struct Primary_node *new_primary = new Primary_node;
+        check_alloc(new_primary);
+        new_primary->_primary_data = smallest;
+        new_primary->_right = new Node;
+        check_alloc(new_primary->_right);
+        new_primary->_right->_data = data;
+        current->_down = new_primary;
+        return; // can use break aswell
     }
 }
 
 int smallest_primary_div(const int data)
-    {
-        for (int i = 2; i <= data; i++)
-        {
-            if (data % i == 0)
-            {
-                return i;
-            }
-        }
-        return 0;
-    }
-
-bool insert_to_right(struct Primary_node *current,const int data)
 {
+    for (int i = 2; i <= data; i++) // NOT data/2
+    {
+        if (data % i == 0)
+        {
+            return i;
+        }
+    }
+    return 0;
+}
+
+bool insert_to_right(struct Primary_node *head, const int data, struct Primary_node *&tail)
+{
+    struct Primary_node *current = head;
     while (current != nullptr)
     {
+       
         if (data % current->_primary_data == 0)
         {
             // insert to the right
@@ -170,6 +170,10 @@ bool insert_to_right(struct Primary_node *current,const int data)
             new_node->_right = current->_right;
             current->_right = new_node;
             return true;
+        }
+        if (current->_down == nullptr)
+        {
+            tail = current;
         }
         current = current->_down;
     }
