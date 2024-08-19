@@ -49,7 +49,7 @@ void check_alloc(void *ptr);
 int main()
 {
 
-    // VERY PRIMITIVE WAY TO SET THE EXAMPLE 
+    ///////////////////////// VERY PRIMITIVE WAY TO SET THE EXAMPLE /////////////////////////
     //  THE SAME AS THE TEST
     //IMPORTANT , THE EXAMPLE GIVEN IN THE TEST (CHECK THE .md FILE) , ISNT BY THE "RULES" 
     // WE WERE GIVEN IN THE QUESTION
@@ -73,6 +73,11 @@ int main()
     head->_down->_down->_right->_right->_data = 121;
     head->_down->_down->_right->_right->_right = new Node;
     head->_down->_down->_right->_right->_right->_data = 33;
+
+
+    ////////////////////////////////////////////////////////////////////////////////////////
+    // solution including print statements:
+
     cout << "----Before inserting----" << endl;
     print(head);
     insert_by_terms(head, 3);
