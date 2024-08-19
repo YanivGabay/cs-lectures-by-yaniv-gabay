@@ -42,19 +42,27 @@ int main() {
 
 
     //example:
-    int n = 3;
-    char example_string[] = "abc decv";
+    int n = 4;
+    char example_string[] = "Hello friend:)";
     cout << "string before mani: " << example_string << endl;
-    for (int i = 0; i < strlen(example_string)/n; i++)
+    cout << "string length: " << strlen(example_string) << endl;
+    cout << "string length / n: " << strlen(example_string)/n << endl;
+    
+    for (int i = 0; i < strlen(example_string); i+=n)
     {
-        for (int j = i+n-1; example_string[j] != '\0' && j>i  ; j--)
+        int flip_index = i;
+        for (int j = flip_index+n-1; j<strlen(example_string) && j>=flip_index  ; j--)
         {
+            
             //now we need to proc the "swap"
-            char temp = example_string[i];
-            example_string[i] = example_string[j];
+            char temp = example_string[flip_index];
+            example_string[flip_index] = example_string[j];
             example_string[j] = temp;
-            i++;
+            flip_index++;
         }
+        cout << "current i: " << i << " current string: " << example_string << endl;
+
+       
         
     }
     cout << "string after mani: " << example_string << endl;
