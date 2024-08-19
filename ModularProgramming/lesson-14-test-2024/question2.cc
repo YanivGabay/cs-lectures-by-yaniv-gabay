@@ -133,6 +133,7 @@ Node* getWantedNode(Node* root,const int k,int &count) {
 void insert(Node* &root, int data) {
     if(root == nullptr) {
         root = new Node;
+        alloc_check(root);
         root->data = data;
         root->left = nullptr;
         root->right = nullptr;
@@ -142,5 +143,11 @@ void insert(Node* &root, int data) {
         } else {
             insert(root->right, data);
         }
+    }
+}
+void alloc_check(Node* ptr) {
+    if(ptr == nullptr) {
+        cout << "memory allocation failed" << endl;
+        exit(EXIT_FAILURE);
     }
 }
