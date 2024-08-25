@@ -64,7 +64,10 @@ char delimiter = ',';
 //split(string, ',') should return {"hello", "world", "this", "is", "a", "test"}
 
 char** new_array = split(string, delimiter);
-
+if (new_array == nullptr){
+    cout << "null pointer" << endl;
+    return 0;
+}
 cout << "new array after split:" << endl;
 for(int i = 0; i < 6; i++){
     cout << new_array[i] << endl;
@@ -77,6 +80,9 @@ return 0;
 
 // ---------- Functions ----------
 char* reduce(const char* strings[], int size){
+    if (strings == nullptr || size == 0){
+        return nullptr;
+    }
     //first we need to calculate the size of the new string
     int new_size = 0;
     for(int i = 0; i < size; i++){
@@ -101,6 +107,11 @@ char* reduce(const char* strings[], int size){
 }
 
 char** split(const char* string, char delimiter){
+    if (string == nullptr || strlen(string) == 0){
+        return nullptr;
+    }
+
+
     //first we need to count the number of strings
     int count = 1;
     for(int i = 0; i < strlen(string); i++){
@@ -116,14 +127,19 @@ char** split(const char* string, char delimiter){
     //now we need to copy the strings
     int index = 0;
     int array_index = 0;
+    // index is the index of the current string
+    // array_index is the index of the new array
     for(int i = 0; i < strlen(string); i++){
         if(string[i] == delimiter){
+            //we allocate index + 1 for the null terminator
             new_array[array_index] = new char[index + 1];
             //here you need to check allocation
             //also to std::nothrow
             strncpy(new_array[array_index], string + i - index, index);
             new_array[array_index][index] = '\0';
+            //we need to reset the index
             index = 0;
+            //we need to increment the array index
             array_index++;
         }else{
             index++;
@@ -135,6 +151,6 @@ char** split(const char* string, char delimiter){
     //also to std::nothrow
     strncpy(new_array[array_index], string + strlen(string) - index, index);
     new_array[array_index][index] = '\0';
-    
+
     return new_array;
 }
