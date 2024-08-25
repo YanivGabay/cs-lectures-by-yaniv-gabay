@@ -42,8 +42,8 @@ int const EXAMPLE_SIZE = 8;
 
 
 // ---------- Function Prototypes ----------
-char* reduce(const char* strings[], int size);
-char** split(const char* string, char delimiter);
+char* reduce(const char* strings[],const int size);
+char** split(const char* string,const char delimiter);
 // ---------- Main Function ----------
 int main() {
 
@@ -69,6 +69,9 @@ if (new_array == nullptr){
     return 0;
 }
 cout << "new array after split:" << endl;
+
+//THIS LOOP HAS A FIXED SIZE OF 6,
+//if you will change the size of the array, you need to change the loop size
 for(int i = 0; i < 6; i++){
     cout << new_array[i] << endl;
 }
@@ -79,7 +82,7 @@ return 0;
   
 
 // ---------- Functions ----------
-char* reduce(const char* strings[], int size){
+char* reduce(const char* strings[], const int size){
     if (strings == nullptr || size == 0){
         return nullptr;
     }
@@ -106,7 +109,7 @@ char* reduce(const char* strings[], int size){
     return new_string;
 }
 
-char** split(const char* string, char delimiter){
+char** split(const char* string,const char delimiter){
     if (string == nullptr || strlen(string) == 0){
         return nullptr;
     }
