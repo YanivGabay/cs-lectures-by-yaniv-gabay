@@ -1,8 +1,9 @@
 # Introduction to Computer Science and Modular Programming
 
-Welcome to my GitHub repository for the courses on Introduction to Computer Science and Modular Programming at Hadassah Academic College (HAC). As a teaching assistant in 2023-2024, I've compiled lecture notes, code examples, and additional resources here that I've used to teach the first-year students.
+Welcome to my GitHub repository for the courses i teached in the HAC College.
+This repository contains the materials and examples we covered throughout the semesters.
 
-This repository serves as a guide mirroring the curriculum we covered throughout the year.
+Please see the [Hebrew version](#hebrew-version) below.
 
 ## How to Get Started
 
@@ -15,46 +16,110 @@ If you find the materials helpful, please give this repository a ⭐!
 This repository follows the curriculum we explored together and ranges from the basics of computer science to more complex topics in modular programming, akin to the content on [Yoram Biberman's site](https://sites.google.com/view/yoramb-intro2cs/home).
 Some examples are based on Yoram's materials, while others are my own.
 
+The operating systems course is more advanced and focuses on operating systems and C programming , and is based on Yoram's book:
+[Yoram Biberman's book](https://www.academia.edu/1750088/_system_programming_-_)
+
+i highly reccomend to check all Yoram's materials and books at:
+[Yoram Biberman's Profile at HAC](https://cs.hac.ac.il/staff/yoramb/heb_index.htm)
+
 ## Repository Structure
 
 Here's how everything is organized:
 
-```plaintext
-├── Introduction to Computer Science
-│   ├── Lecture 5 - Triple Nested Loops 
-│   ├── Lecture 6 - Arrays + Extras
-│   ├── Lecture 7 - Functions + topDownDesign
-│   ├── Lecture 8 - enums + basic Matrix
-│   ├── Lecture 9 - Recursion
-│   ├── Lecture 10 - Questions From Tests
-│   ├── Lecture 11 - Preview for Next Semester
+- **Intro2Cs**
+  - Contains materials and examples from the Introduction to Computer Science course.
+  
+- **ModularProgramming**
+  - Contains materials and examples from the Modular Programming course.
 
-├── Modular Programming
-│   ├── Lecture 1 - BackTracking (was suppose to be in Intro to CS but was moved here)
-│   ├── Lecture 2 - Chars And Strings
-|   ├── Lecture 3 - More Strings
-|   ├── Lecture 4 - Files operations
-|   ├── Lecture 5 - Dynamic Memory Allocation
-|   ├── Lecture 6 - Ptrs and Structs
-|   ├── Lecture 7 - Linked Lists
-|   ├── Lecture 8 - Binary Trees
-|   ├── Lecture 9 - Binary Search Trees and subtrees
-|   ├── Lecture 10 - Bsts and Functions Pointers
-|   ├── Lecture 11 - Questions from tests
-|   ├── Lecture 12 - More Questions from tests
-```
+- **OS - C language - 2nd Year Course**
+  - Contains advanced materials and examples for second-year students focusing on operating systems and C programming.
 
 ## How to Use
 
-To dive into the materials, you can clone this repository or browse the files directly on GitHub. Each lecture folder is equipped with specific examples and in-depth notes to enhance your learning experience.
+To dive into the materials, you can clone this repository or browse the files directly on GitHub.
+If your new to git, you can clone this into your computer very easily by running the following command in your terminal:
+
+I recommend to navigate to the folder where you want to save the files and run the command from there.
+
+```bash
+git clone https://github.com/YanivGabay/cs-lectures-by-yaniv-gabay
+```
 
 ## Contributions
 
 Contributions are welcome! If you have any suggestions for enhancements or additional resources, please feel free to fork this repository and submit a pull request.
 You are more than welcome to look at open issues.
+I am looking for contributors to help me clean up the code, check for errors, and add more examples.
 
 ## Questions?
 
 If you have any questions or need more information, feel free to reach out to me at <yanivga@edu.hac.ac.il>.
 
 Thank you for visiting, and happy learning!
+
+---
+
+<span id="hebrew-version"></span>
+
+<div dir="rtl">
+
+# מבוא למדעי המחשב ותכנות מודולרי
+
+ברוכים הבאים לגיטהאב שלי עבור הקורסים שלימדתי במכללת הדסה.
+הרפו הזה מכיל את השיעורים והדוגמאות בהם השתמשנו לאורך הסמסטרים.
+
+
+## איך להתחיל
+
+אתם מוזמנים לשכפל מאגר זה או לעיין בקבצים ישירות ב-GitHub.
+כל תיקייה מכילה דוגמאות והערות שיעזרו לכם להבין את המושגים.
+אם החומרים מועילים לכם, אנא תנו למאגר זה ⭐!
+
+## סקירת תוכן
+
+מאגר זה עוקב אחר תוכנית הלימודים שחקרנו יחד ונע מהבסיסים של מדעי המחשב לנושאים מורכבים יותר בתכנות מודולרי, בדומה לתוכן שבאתר של [יורם ביברמן](https://sites.google.com/view/yoramb-intro2cs/home).
+חלק מהדוגמאות מבוססות על החומרים של יורם, בעוד שאחרות הן שלי.
+
+וא מתקדם יותר ומתמקד במערכות הפעלה ובתכנות בשפת C, ומבוסס על הספר של יורם:
+[Yoram Biberman's book](https://www.academia.edu/1750088/_system_programming_-_)
+
+מאוד ממליץ להציץ בפרופיל של יורם ובכל הספרים שלו בלינק:
+[Yoram Biberman's Profile at HAC](https://cs.hac.ac.il/staff/yoramb/heb_index.htm)
+
+## מבנה הקבצים
+
+כך הכל מאורגן:
+
+- **Intro2Cs**
+  - מכיל חומרים ודוגמאות מהקורס מבוא למדעי המחשב.
+  
+- **ModularProgramming**
+  - מכיל חומרים ודוגמאות מהקורס תכנות מודולרי.
+
+- **OS - שפת C - קורס שנה שנייה**
+  - מכיל חומרים מתקדמים ודוגמאות לסטודנטים בשנה השנייה המתמקדים במערכות הפעלה ובתכנות בשפת C.
+
+## איך להשתמש
+
+כדי לגשת לחומרים מהמחשב שלכם, אתם יכולים לשכפל את מאגר זה או לחלופין, לעיין בקבצים ישירות ב-GitHub.
+אם אתם חדשים בגיט, תוכלו לשכפל זאת למחשב שלכם בקלות על ידי הרצת הפקודה הבאה בטרמינל:
+אני ממליץ לעבור לתיקייה שבה תרצו לשמור את הקבצים ולהריץ את הפקודה משם.
+
+```bash
+git clone https://github.com/YanivGabay/cs-lectures-by-yaniv-gabay
+```
+
+
+## תרומות
+
+תרומות מתקבלות בברכה! אם יש לכם הצעות לשיפורים או משאבים נוספים, אנא אל תהססו לבצע fork למאגר זה ולהגיש pull request.
+אתם מוזמנים לעיין בבעיות הפתוחות.
+אני מחפש תורמים שיעזרו לי לנקות את הקוד, לבדוק טעויות ולהוסיף עוד דוגמאות.
+
+## שאלות?
+
+אם יש לכם שאלות או שאתם צריכים מידע נוסף, אל תהססו לפנות אלי בכתובת <yanivga@edu.hac.ac.il>.
+
+תודה שביקרתם, ולמידה נעימה!
+<div>
