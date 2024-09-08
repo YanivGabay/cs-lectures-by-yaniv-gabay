@@ -70,6 +70,10 @@ int main() {
     cout << "Linked List: ";
     printList(head,HEAD);
     
+    
+
+
+
     //now lets ask ourselves questions:
    
     //1. find the max value in the list
@@ -80,7 +84,10 @@ int main() {
     cout << "Max value in the list: " << findMax(head) << endl;
 
     //question 2:
-  
+    
+
+
+
     if (findTwoNegatives(head)) {
         cout << "Two negative numbers in a row were found" << endl;
     } else {
@@ -90,7 +97,7 @@ int main() {
     //question 3:
     
     cout << "Linked List from the end: ";
-
+  
     reverseList(&head);
 
 

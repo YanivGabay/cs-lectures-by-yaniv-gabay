@@ -41,6 +41,8 @@ using std::endl;
 struct Node {
     int data;
     Node* next;
+    
+    
 };
 
 // ---------- Function Prototypes ----------

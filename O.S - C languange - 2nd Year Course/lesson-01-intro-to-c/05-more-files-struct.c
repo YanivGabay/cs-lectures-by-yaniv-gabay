@@ -59,7 +59,10 @@ int main() {
     }
 
     for (int i = 0; i < 3; i++) {
-        fprintf(outFile, "%d %s %.2f\n", employees[i].id, employees[i].name, employees[i].salary);
+        if (fprintf(outFile, "%d %s %.2f\n", employees[i].id, employees[i].name, employees[i].salary) < 0) {
+            perror("Error writing to file");
+            return 1;
+        }
     }
     fclose(outFile);
 
@@ -72,7 +75,11 @@ int main() {
     }
 
     for (int i = 0; i < 3; i++) {
-        fscanf(inFile, "%d %s %f", &readEmployees[i].id, readEmployees[i].name, &readEmployees[i].salary);
+        int itemRead = fscanf(inFile, "%d %s %f", &readEmployees[i].id, readEmployees[i].name, &readEmployees[i].salary);
+        //fscan aswell as fscanf returns the number of items it read        int itemsRead = fscanf(inFile, "%d %s %f", &readEmployees[i].id, readEmployees[i].name, &readEmployees[i].salary);
+        if (itemRead != 3) {
+            // Handle the error or unexpected file format
+        }
     }
     fclose(inFile);
 

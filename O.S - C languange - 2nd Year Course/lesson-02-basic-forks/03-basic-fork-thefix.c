@@ -45,6 +45,9 @@ int main() {
                 perror("Failed to wait for child process");
                 exit(EXIT_FAILURE);
             }
+            else {
+                printf("status value of exited procees: %d\n" ,status)
+            }
         }
     }
 

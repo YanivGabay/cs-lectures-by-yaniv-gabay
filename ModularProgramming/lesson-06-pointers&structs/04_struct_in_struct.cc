@@ -37,6 +37,7 @@ struct Circle {
     Point _center;
     int _radius;
 };
+
 struct Rectangle {
     Point _topLeft;
     Point _bottomRight;
@@ -59,9 +60,6 @@ int main() {
  
 
 
-
-    ptr[5]._center._x = 5;
-
     // Create a circle
     Circle c = {{1, 2}, 3}; // this works.
     cout << "printing c:" << endl;
@@ -77,7 +75,7 @@ int main() {
     Rectangle r = {{1, 2}, {3, 4}}; // this works.
     cout << "printing r:" << endl;
     printRectangle(r);
-
+ 
     // We can do it first by creating two points
     Point topLeft = {5, 6};
     Point bottomRight = {7, 8};

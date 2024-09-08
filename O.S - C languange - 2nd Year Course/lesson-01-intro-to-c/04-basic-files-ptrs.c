@@ -58,14 +58,11 @@ int main() {
         perror("Unable to open file for reading");
     }
 
-
     //// we probably want to use the same file for both reading and writing
     //// and not to open and close it twice
     //// so we can use the "r+" mode
     FILE *file = fopen("example.txt", "r+");
     if (file != NULL) {
-
-
         //we just opened a file, so the pointer is at the beginning
         //so if the file is not empty, we will overwrite it
         //if we want to append, we can use fseek

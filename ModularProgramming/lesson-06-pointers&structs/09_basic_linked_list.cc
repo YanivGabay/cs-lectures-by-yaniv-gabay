@@ -25,7 +25,7 @@ struct Node {
     Node* next;
 };
 
-// ---------- Function Prototypes ----------
+// ----------; Function Prototypes ----------
 Node* createNode(int data);
 void append(Node*& head, int data);
 void printList(const Node* head);
@@ -48,6 +48,7 @@ int main() {
 
 // ---------- Functions ----------
 Node* createNode(int data) {
+    
     Node* newNode = new Node;
     newNode->data = data;
     newNode->next = nullptr;

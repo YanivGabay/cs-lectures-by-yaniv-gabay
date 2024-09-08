@@ -15,6 +15,12 @@
  * - Direct assignment of structs is possible but not always recommended.
  *******************************************************************/
 
+
+
+///// -------------- 10:30 -------------------- /////
+
+
+
 // ---------- Include Section ----------
 #include <iostream>
 
@@ -40,10 +46,13 @@ void printPoint(const Point& p); // Prototype for the print function
 
 // ---------- Main Function ----------
 int main() {
+    
     Point p1 = {1, 2}; // Create a point this syntax works
     Point p2 = {3, 4}; // Create a point this syntax works
 
     printPoint(p1); // Print p1 details
+
+   
 
     p1 = p2; // This does work, but it is not recommended
     cout << "after p1 = p2" << endl;
@@ -65,6 +74,7 @@ int main() {
 // Function to print point details
 //we send a const reference to the function to avoid copying the struct
 //and avoid modifying the struct
+
 void printPoint(const Point& p) {
     cout << "p: " << "x:" << p._x << ", " << "y:" << p._y << endl;
 }

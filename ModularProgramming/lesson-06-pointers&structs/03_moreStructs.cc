@@ -44,6 +44,7 @@ void printPoint(const Point& p); // Prototype for the print function
 int main() {
     // We can create an array of points
     Point points[MAX_SIZE];
+    
     // Initialize the array
     for (int i = 0; i < MAX_SIZE; i++) {
         points[i]._x = i;

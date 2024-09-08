@@ -36,7 +36,6 @@ struct Date
     int month;
     int year;
 };
-
 struct Employee
 {
     int id;
@@ -46,7 +45,7 @@ struct Employee
 struct Department
 {
     int id;
-    char name[50];
+    char name[MAX_SIZE];
     Employee *employees[10];
     int employeeCount;
 };
@@ -63,11 +62,11 @@ void handleListEmployeesInDepartment(const Department& dept);
 // ---------- Main Function ----------
 int main()
 {
-
+   
     Department dept = createDepartment(1, "Engineering");
     //why this works? its creats a copy of the struct returned by createDepartment
     int choice;
-
+ 
     do
     {
         displayMenu();
