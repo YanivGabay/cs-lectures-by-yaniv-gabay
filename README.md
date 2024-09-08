@@ -1,4 +1,4 @@
-# Introduction to Computer Science and Modular Programming
+# Introduction to Computer Science, Modular Programming And Operating Systems
 
 Welcome to my GitHub repository for the courses i teached in the HAC College.
 This repository contains the materials and examples we covered throughout the semesters.
@@ -64,7 +64,7 @@ Thank you for visiting, and happy learning!
 
 <div dir="rtl">
 
-# מבוא למדעי המחשב ותכנות מודולרי
+# מבוא למדעי המחשב תכנות מודולרי ותכנות מערכות 
 
 ברוכים הבאים לגיטהאב שלי עבור הקורסים שלימדתי במכללת הדסה.
 הרפו הזה מכיל את השיעורים והדוגמאות בהם השתמשנו לאורך הסמסטרים.
