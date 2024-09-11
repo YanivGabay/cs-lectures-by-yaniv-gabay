@@ -9,11 +9,10 @@
  * Overview:
 
 
- * what important to understand here, we will show a code that will count the number of subtrees in a 
-    binary tree that all the nodes in the subtree are even.
- * this is NOT the efficient way to do it, but i show it before, so you can understand the concept.
- * the effiecient way will be shown in lesson 6 in the same folder.
- * try to think after you understand, why it is not efficient, how you can make it efficient.
+ * this is the effient way to count the number of subtrees in a binary tree that all the nodes in the subtree are even.
+ * we use post order traversal to solve this problem.
+ * we send a variable by reference to the function, and we increase it by 1 if the subtree is all even.
+ * the post order allows us to send information from the left and right subtree to the parent.
 
 
  *******************************************************************/
@@ -38,8 +37,8 @@ void insert_into_tree(Node*& root, int data);
 void display(const Node* root);
 
 
-bool allEven(Node* root) ;
-int countSubtrees(Node* root);
+int countSubTrees(const Node* root);
+bool actualCount(const Node* root, int& counter);
 // ---------- Main Function ----------
 int main() {
     Node* root = nullptr; // Initialize the head of the list to nullptr
@@ -51,24 +50,32 @@ int main() {
 
     display(root);
 
-    int numSubtrees = countSubtrees(root);
+    int numSubtrees = countSubTrees(root);
     std::cout << "Number of subtrees where all nodes are even: " << numSubtrees << std::endl;
     return 0;
 }
 
 // ---------- Functions ----------
-// Function to check if all nodes in a subtree satisfy a condition
-bool allEven(Node* root) {
-    if (root == nullptr) return true;
-    if (root->data % 2 != 0) return false;
-    return allEven(root->left) && allEven(root->right);
+int countSubTrees(const Node* root)
+{
+    int counter = 0;
+    actualCount(root, counter);
+    return counter;
 }
-
-// Function to count how many subtrees meet a specific condition
-int countSubtrees(Node* root) {
-    if (root == nullptr) return 0;
-    int count = (allEven(root) ? 1 : 0) + countSubtrees(root->left) + countSubtrees(root->right);
-    return count;
+bool actualCount(const Node* root, int& counter)
+{
+    if (root == nullptr)
+    {
+        return true;
+    }
+    bool left = actualCount(root->left, counter);
+    bool right = actualCount(root->right, counter);
+    if (left && right && root->data % 2 == 0)
+    {
+        counter++;
+        return true;
+    }
+    return false;
 }
 
 void display(const Node* root) {
