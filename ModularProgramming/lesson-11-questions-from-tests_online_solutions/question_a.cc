@@ -16,6 +16,9 @@
  * Any additional notes related to this file.
  *******************************************************************/
 
+
+
+//this solution is NOT optimal, and runs in O(n^2) time.
 // ---------- Include Section ----------
 #include <iostream>
 // Add more #include directives as needed
@@ -43,6 +46,7 @@ struct Node {
 int main() {
     //Finding the largest subtree within given min and max values
 }
+
 
 // ---------- Functions ----------
 struct Node *min_to_max_node(struct Node *root,  

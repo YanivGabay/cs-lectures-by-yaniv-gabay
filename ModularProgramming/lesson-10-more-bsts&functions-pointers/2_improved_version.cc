@@ -16,30 +16,9 @@ Binary tree (not bst), we want to check,
 if for every subtree in the tree, 
 that the sum of every subtrees left child is smaller or equal to the sum of the right child.
 
-empty left child subtree is considered as 0
-
-
-//so after we see the code we want to ask what is the running time ?
-so we call sum_tree for every child of every node on the tree.
-but if our tree is a "linked list" tree, then we will call sum_tree , and it will do
-n-1 recursive calls, and then we will call it again for the right child, and it will do n-2 recursive calls.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-so the running time is O(n^2) in the worst case.
-
-can we do better ? yes, we can do it in O(n) time.
+this is a better version of the previous code, (1)yoram_sum_tree.cc
+and runs in O(n) time.
+what the difference? what traversal we are using??
 
 https://sites.google.com/view/yoramb-intro2cs/14-%D7%A2%D7%A6%D7%99%D7%9D-%D7%91%D7%99%D7%A0%D7%90%D7%A8%D7%99%D7%99%D7%9D-binary-trees?authuser=0
  *******************************************************************/

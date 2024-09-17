@@ -13,22 +13,6 @@
  * Any additional notes related to this file.
  *******************************************************************/
 
-
-
-
-
-
-// basicly in a binary search tree, given a k
-// we need to return the kth smallest
-// so if k=0, we return the smallest element
-// if k=1, we return the second smallest element
-// ...
-
-//so you should think INORDER TRAVERSAL
-// why? because inorder traversal of a binary search tree is sorted, from smallest to largest
-// so if we do an inorder traversal and keep track of the number of nodes we have visited
-// we can return the kth node we visit
-
 // ---------- Include Section ----------
 #include <iostream>
 // Add more #include directives as needed
