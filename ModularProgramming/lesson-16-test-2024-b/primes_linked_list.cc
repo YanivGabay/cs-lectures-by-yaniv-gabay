@@ -79,7 +79,7 @@ void add_nums_to_list(Prime_node* prime_head, Num_node*& num_head,const int to_b
     Prime_node* current = prime_head;
     Prime_node* prev = nullptr;
 
-    for(int i = 0; i < size_array; i++){
+    for(int i = 0; i < size_array||divisors[i]==0; i++){
 
         if((divisors[i]==current->prime_num))
         {
