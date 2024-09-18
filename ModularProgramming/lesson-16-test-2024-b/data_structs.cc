@@ -1,5 +1,6 @@
 #include <iostream>
-
+#include <stdio.h>
+#include <string.h>
 
 
 
@@ -86,14 +87,16 @@ int main() {
     cout << "After adding a new line:" << endl;
     cout << " Next data:" << endl;
     cout << "has: " <<next_data.num_of_lines << " num of lines" << endl;
+    for (int i = 0; i < next_data.num_of_lines; i++) {
+        cout << "next_data.line_len[" << i << "] = " << next_data.line_len[i] << endl;
+    }
     print_data(next_data);
     return 0;
 }
 
 // Function definitions
-void add_line(const Data &curr_data, Data &next_data,const int curr_line)
-{
-    //we should add a new line, into next_data struct
+void add_line(const Data &curr_data, Data &next_data, const int curr_line)
+{    //we should add a new line, into next_data struct
     //that new line, should have values from the curr_data.data[curr_line]
     //only if those values are not already in the next_data.data
     //if they are, we should skip them
@@ -109,58 +112,61 @@ void add_line(const Data &curr_data, Data &next_data,const int curr_line)
     //for each value we need to check if it is already in the next_data.data
     //if not we add it, if it does, we can change it to 0  and not copy it.
 
-
-    int max_new_line_size = curr_data.line_len[curr_line];
     //check for values, will return the actual size needed for new allocation
     // also will put 0 instead of values we dont need from curr line
-    int actual_size = check_for_values(next_data,curr_data.data[curr_line],max_new_line_size);
+    int max_new_line_size = curr_data.line_len[curr_line];
+    int actual_size = check_for_values(next_data, curr_data.data[curr_line], max_new_line_size);
     cout << "actual size: " << actual_size << endl;
-    //now we are ready to allocate the new line
-    // of course we need to first allocate a new int** data in the new_data
-    // also we need to modify num_oflines and *line_len with the new len;
+
     if (actual_size > 0)
     {
-        int ** new_data = new int* [next_data.num_of_lines+1];//additional line
-        //we can copy the previos pointers instead of just copying the values
-        
-        copy_pointers(next_data,new_data);
-        
-        new_data[next_data.num_of_lines+1] = new int[actual_size];
-        //now we can copy the values
+        int old_num_of_lines = next_data.num_of_lines;
+        int **new_data = new int*[old_num_of_lines + 1]; // Allocate space for one additional line
+
+        copy_pointers(next_data, new_data);
+
+        // Allocate space for the new line
+        new_data[old_num_of_lines] = new int[actual_size];
+
+        // Copy the values from curr_data to the new line in new_data
+        int new_line_index = 0;
         for (int i = 0; i < max_new_line_size; i++)
         {
-            if(curr_data.data[curr_line][i] != 0)//we dont want to trasfter the 0s
+            if (curr_data.data[curr_line][i] != 0) // Skip zeros
             {
-                new_data[next_data.num_of_lines+1][i] = curr_data.data[curr_line][i];
+                new_data[old_num_of_lines][new_line_index++] = curr_data.data[curr_line][i];
                 cout << "copying: " << curr_data.data[curr_line][i] << endl;
+                cout << "new_data[" << old_num_of_lines << "][" << new_line_index - 1 << "] = " << new_data[old_num_of_lines][new_line_index - 1] << endl;
             }
-            
         }
         cout << "finished copying" << endl;
-        //now just update the two other values
-        next_data.num_of_lines++;
-        cout << " new num of lines: " << next_data.num_of_lines << endl;
-        //need to allocate new line_len
-        int * new_line_len = new int[next_data.num_of_lines];//num of lines is already updated
-        //copy old values
-        for (int i = 0; i < next_data.num_of_lines-1; i++)
+
+        // Allocate new line_len array with one additional element
+        int *new_line_len = new int[old_num_of_lines + 1];
+        // Copy old line lengths
+        for (int i = 0; i < old_num_of_lines; i++)
         {
             new_line_len[i] = next_data.line_len[i];
         }
         cout << "finished copying line_len" << endl;
-        new_line_len[next_data.num_of_lines] = actual_size;
-        cout << "new cell in line_len: " << new_line_len[next_data.num_of_lines] << endl;
-        delete [] next_data.line_len;
+
+        // Set the line length of the new line
+        new_line_len[old_num_of_lines] = actual_size;
+        cout << "new cell in line_len: " << new_line_len[old_num_of_lines] << " in cell old_num_of_lines: " << old_num_of_lines << endl;
+
+        // Clean up old data
+        delete[] next_data.line_len;
         next_data.line_len = new_line_len;
 
-        //now we need to say goodbye to the old data
-        delete [] next_data.data;
+        delete[] next_data.data;
         next_data.data = new_data;
 
+        // Increment num_of_lines after all allocations and assignments are done
+        next_data.num_of_lines = old_num_of_lines + 1;
+        cout << " new num of lines: " << next_data.num_of_lines << endl;
     }
-
-
 }
+
 void copy_pointers(const Data& next_data, int** new_data)
 {
     for (int i = 0; i < next_data.num_of_lines; i++)
