@@ -196,9 +196,12 @@ int check_for_values(Data &next_data, int *curr_line, const int max_new_line_siz
 }
 void look_for_values(const Data &next_data, int &curr_value, int &actual_size)
 {
+    //we were also told each line is in ascending order
+    //so if we reach a value that is bigger than curr_value, we can stop
+    // so we next_data.data[i][j] > curr_value // we can stop the inner loop
     for (int i = 0; i < next_data.num_of_lines; i++)
     {
-        for (int j = 0; j < next_data.line_len[i]; j++)
+        for (int j = 0; j < next_data.line_len[i] || next_data.data[i][j] > curr_value; j++)
         {
             if (next_data.data[i][j] == curr_value)
             {
