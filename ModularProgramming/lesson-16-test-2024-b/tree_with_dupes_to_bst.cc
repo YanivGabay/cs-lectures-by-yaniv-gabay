@@ -36,7 +36,7 @@ struct Node {
 void print_tree(Node* root);
 Node* build_new_tree(Node* root);
 void count_values(Node* root, int counter_array[], int &highest_value);
-Node* insert(Node*& root, int value);
+void insert(Node*& root,int value);
 
 
 // ---------- Main Function ----------
@@ -60,6 +60,7 @@ int main() {
     old_root->right->left->left = nullptr;
     old_root->right->left->right = new Node;
     old_root->right->left->right->data = 150;
+    
     
     print_tree(old_root);
     Node* new_tree = build_new_tree(old_root);
@@ -95,8 +96,11 @@ Node* build_new_tree(Node* root) {
     Node* new_root = nullptr;
     for (int i = 0; i <= highest_value; i++) {
         if (counter_array[i] == 1) {
-            new_root = insert(new_root, i);
+            insert(new_root, i);
         }
+    }
+    if (new_root == nullptr) {
+        cout << "inside build_new_tree: new_root is nullptr" << endl;
     }
     return new_root;
 }
@@ -113,21 +117,22 @@ void count_values(Node* root, int counter_array[],int &highest_value) {
     count_values(root->right, counter_array, highest_value);
 }
 //in the test you dont need to create this function
-Node* insert(Node*& root,int value)
+void insert(Node*& root,int value)
 {
     if (root == nullptr)
     {
-        Node* root = new Node;
+        root = new Node;
         root->data = value;
+        cout << "inserted: " << value << endl;
         root->left = nullptr;
         root->right = nullptr;
     }
-    else if (value <= root->data)
+    else if (value < root->data)
     {
-        root->left = insert(root->left, value);
+        insert(root->left, value);
     }
     else
     {
-        root->right = insert(root->right, value);
+         insert(root->right, value);
     }
 }
