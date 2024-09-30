@@ -73,7 +73,8 @@ int main() {
         perror("Unable to open file for reading");
         return 1;
     }
-
+    //in some c compilers they will not like int i  inside the loop
+    //so might need to declare i before the loop
     for (int i = 0; i < 3; i++) {
         int itemRead = fscanf(inFile, "%d %s %f", &readEmployees[i].id, readEmployees[i].name, &readEmployees[i].salary);
         //fscan aswell as fscanf returns the number of items it read        int itemsRead = fscanf(inFile, "%d %s %f", &readEmployees[i].id, readEmployees[i].name, &readEmployees[i].salary);
