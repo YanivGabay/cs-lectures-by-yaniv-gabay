@@ -16,7 +16,6 @@ a binary tree is a tree where each node has at most 2 children
 a binary search tree is a binary tree where the left child is smaller than the parent and the right child is bigger than the parent
 
 
-
 why we use bst?
 what is the maximum time to find a value?
 what is the maximum time to insert a value?
@@ -47,12 +46,13 @@ using std::endl;
 struct Node {
     int data;
     Node* right;//next //prev
-    Node* left;
+    Node* left ;
 };
 
 // ---------- Function Prototypes ----------
 void insert_into_tree(Node*& root, int data);
 void display(const Node* root);
+void delete_tree(Node*& root);
 // ---------- Main Function ----------
 int main() {
     Node* root = nullptr; // Initialize the head of the list to nullptr
@@ -85,11 +85,14 @@ void delete_tree(Node*& root) {
 
 void display(const Node* root) {
     if (root == nullptr) {
+        
         return;
     }
+    
     display(root->left);
     cout << root->data << " ";
     display(root->right);
+    
 }
 void insert_into_tree(Node*& root, int data) {
     if (root == nullptr) {

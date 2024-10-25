@@ -9,18 +9,30 @@ welcome to check him out, he is very new so he will appreciate it
 
 
 ## Table of Contents
-1. [What is Git?](#what-is-git)
-2. [Installing Git](#installing-git)
-3. [Basic Git Commands](#basic-git-commands)
-4. [Creating a Repository](#creating-a-repository)
-5. [Cloning a Repository](#cloning-a-repository)
-6. [Making Changes](#making-changes)
-7. [Committing Changes](#committing-changes)
-8. [Pushing Changes](#pushing-changes)
-9. [Pulling Changes](#pulling-changes)
-10. [Branching](#branching)
-11. [Merging](#merging)
-12. [Conclusion](#conclusion)
+- [Git Beginner Lesson](#git-beginner-lesson)
+  - [Introduction](#introduction)
+  - [Table of Contents](#table-of-contents)
+  - [What is Git?](#what-is-git)
+  - [Installing Git](#installing-git)
+  - [Basic Git Commands](#basic-git-commands)
+  - [Creating a Repository](#creating-a-repository)
+  - [Making Changes](#making-changes)
+    - [1. Check the Status](#1-check-the-status)
+    - [2. Add Changes](#2-add-changes)
+      - [2.1 Before commititing you need to identify yourself](#21-before-commititing-you-need-to-identify-yourself)
+    - [3. Commit Changes](#3-commit-changes)
+    - [4. Viewing Commit History](#4-viewing-commit-history)
+    - [5. Removing Files](#5-removing-files)
+    - [6. Renaming Files](#6-renaming-files)
+    - [7. Viewing Differences](#7-viewing-differences)
+  - [Branching - live example](#branching---live-example)
+  - [Merging](#merging)
+  - [Conclusion](#conclusion)
+  - [Github](#github)
+  - [create online repository](#create-online-repository)
+  - [clone that repository](#clone-that-repository)
+  - [make sure you can push/pull](#make-sure-you-can-pushpull)
+  - [pull request + merge](#pull-request--merge)
 
 ## What is Git?
 Git is a distributed version control system that helps you track changes in your code and collaborate with others.
@@ -28,6 +40,15 @@ Created by the creator of linux, considered maybe the best programmer ever or th
 Linus Torvalds, the finnish/american software engineer.
 
 ## Installing Git
+
+to check if you have git
+```sh
+git --version
+```
+
+they also offer a free book!
+![alt text](image.png)
+
 Instructions for installing Git on different operating systems:
 - **Windows**: [Download Git for Windows](https://git-scm.com/download/win)
 - **macOS**: [Download Git for macOS](https://git-scm.com/download/mac)
@@ -76,6 +97,12 @@ Or add multiple files:
 git add file1 file2
 ```
 
+#### 2.1 Before commititing you need to identify yourself
+```sh
+git config --global user.email ""
+git config --global user.name ""
+```
+
 ### 3. Commit Changes
 Once your changes are staged, you can commit them to the repository:
 ```sh
@@ -96,6 +123,9 @@ For a more compact view, you can use:
 ```sh
 git log --oneline
 ```
+
+you have different flags to use, like --oneline, --graph, --all, --decorate --stat -p (patch) etc.
+
 
 ### 5. Removing Files
 To remove a file from the repository and the working directory:
@@ -199,7 +229,40 @@ we will try to do an example:
 
 ## create online repository
 
+We should create a github repo
+its would be better, if your connected to the same
+username in your IDE
+
+
 ## clone that repository
+than we can just clone that repo into our local machine
+```sh
+git clone <url>
+```
+
+now we can work on that repo, and push/pull changes
+
+
+
 
 ## make sure you can push/pull
 
+## pull request + merge
+
+lets say you have a project, and you want to add a new feature
+you can create a new branch, and work on that branch
+after you finish, you can create a pull request
+and the owner of the project can review your code
+and merge it to the main branch
+
+```sh
+git checkout -b new-feature
+```
+
+after you finish your work, you can push it to the remote repo
+```sh
+git push
+```
+
+now you can create a pull request, and wait for the owner to review it
+go into github, and create a pull request.

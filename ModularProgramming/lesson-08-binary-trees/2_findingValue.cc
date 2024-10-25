@@ -21,6 +21,8 @@ using std::endl;
 // ---------- Structs ----------
 struct Node {
     int data;
+  
+    
     Node* right;
     Node* left;
 };
@@ -71,7 +73,10 @@ bool searchValueNoneBST(const Node* root, int value) {
     if (root->data == value) {
         return true;
     }
-    return searchValueNoneBST(root->left, value) || searchValueNoneBST(root->right, value);
+   
+  
+    return (searchValueNoneBST(root->left, value) 
+    || searchValueNoneBST(root->right, value));
 }
 
 

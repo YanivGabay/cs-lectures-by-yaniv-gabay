@@ -108,7 +108,9 @@ int sumNodes(const Node* root) {
     if (root == nullptr) {
         return 0;
     }
-    return root->data + sumNodes(root->left) + sumNodes(root->right);
+    int left = sumNodes(root->left);
+    int right = sumNodes(root->right);
+    return root->data + left + right;
 }
 
 void insert_into_tree(Node*& root, int data) {
