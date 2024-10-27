@@ -74,7 +74,7 @@ public:
     // 2. when we create a const person, we could still call this function
         return age;
     }
-    int setAge(int a) {
+    void setAge(int a) {
         age = a;
     }
     // Method to display person details

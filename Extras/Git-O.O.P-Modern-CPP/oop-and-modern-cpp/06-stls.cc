@@ -24,6 +24,7 @@ int main()
      *
 
      */
+    //vector is a dynamic size sequence container (similar to arrays)
     std::vector<int> numbers = {1, 2, 3, 4, 5};
 
     numbers.push_back(6);             // Adds 6 to the end of the vector
