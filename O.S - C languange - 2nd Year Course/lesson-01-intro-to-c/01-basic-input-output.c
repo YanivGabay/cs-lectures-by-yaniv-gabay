@@ -40,8 +40,10 @@ int main()
     int number;
     printf("Enter a number: ");
     scanf("%d", &number);
+    // scanf() reads formatted input from the standard input (stdin)
+    // sscanf() reads formatted input from a string
     // there is also fscanf() function in c
-    //check out more in the link
+    // check out more in the link
     printf("You entered: %d\n", number);
 
    //https://en.cppreference.com/w/c/io/fscanf
