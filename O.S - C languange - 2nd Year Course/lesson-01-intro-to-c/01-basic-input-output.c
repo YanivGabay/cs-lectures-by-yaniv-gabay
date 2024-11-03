@@ -25,6 +25,16 @@ int main() {
 //https://en.cppreference.com/w/c/io //IMPORTANT
 #include <stdio.h>
 //https://en.cppreference.com/w/c/io/fscanf
+
+void print_test(char* input,char* output,char* prase_type)
+{
+    printf("====================================\n");
+    printf("Input: %s\n", input);
+    printf("Parsed %s: %s\n",prase_type ,output);
+    
+}
+
+
 int main()
 {
     int number;
@@ -34,16 +44,20 @@ int main()
     //check out more in the link
     printf("You entered: %d\n", number);
 
-   
-    /* parse as follows:
+   //https://en.cppreference.com/w/c/io/fscanf
+    /* conversion specifiers
        %d: an integer
        %f: a floating-point value
+       %c: a character
+       [set]: a string of characters that match the set 
+            - for example %9[0-9] is a string of at most 9 decimal digits
+            - google scansets in c for more info
+       %s: a string of characters that aren't whitespace
        %9s: a string of at most 9 non-whitespace characters
-       %2d: two-digit integer (digits 5 and 6)
-       %f:  a floating-point value (digits 7, 8, 9)
-       %*d: an integer which isn't stored anywhere
+       %2d: two-digit integer - for example 99
+       %*d: an integer which isn't stored anywhere 
        ' ': all consecutive whitespace
-       %3[0-9]: a string of at most 3 decimal digits (digits 5 and 6)
+       %3[0-9]: a string of at most 3 decimal digits 
     */
     // Example 1: Parsing an integer
     char input1[] = "42";
@@ -95,6 +109,7 @@ int main()
     sscanf(input6_a, "%3[0-9]", str3_a);
     printf("Parsed 3-digit string: %s\n", str3_a);
 
+    
 
     // Example 7: Parsing multiple fields
     // Harder example:
@@ -113,6 +128,31 @@ int main()
            "y = %f\n",
            
            ret, i, x, str1, j, y);
+
+    // Playing with scansets
+    // Example 1: Parsing a string of at most 3 decimal digits
+    char input7[] = "123456";
+    char str4[4];
+    sscanf(input7, "%3[0-9]", str4);
+    printf("Parsed 3-digit string: %s\n", str4);
+
+    // Example 2: Stopping after the first 'X'
+    char input8[] = "123456X789";
+    char str5[10];
+    sscanf(input8, "%9[^X]", str5);
+    print_test(input8,str5,"string");
+
+    // Example 3: only alphabetic characters
+    char input9[] = "abcd4";
+    char str6[10];
+    sscanf(input9, "%[a-zA-Z]", str6);
+    print_test(input9,str6,"string");
+
+    // Example 4: Read till the first \n
+    char input10[] = "Hello World\n abcde";
+    char str7[25];
+    sscanf(input10, "%[^\n]", str7);
+    print_test(input10,str7,"string");
 
     return 0;
 }
