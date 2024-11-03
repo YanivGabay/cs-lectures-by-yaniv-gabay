@@ -39,11 +39,13 @@ private:
     }
 int main() {
     std::vector<Person> people;
+    people.push_back(Person("alice",30));
     people.emplace_back("Alice", 30);//creating a new person object and adding it to the end of the vector
     people.emplace_back("Bob", 25);
     people.emplace_back("Charlie", 35);
 
     std::cout << "Original list:" << std::endl;
+
     for (const auto& person : people) { // you know auto, but why auto&???????? clue: we dont want to copy the object
         person.print();
     }
@@ -87,7 +89,7 @@ Return type: The lambda can infer the return type based on the body (a.getAge() 
 
     // Step 2: Use the function with std::sort
     std::sort(people.begin(), people.end(), compareByAge);
-
+    
 
     std::cout << "\nSorted by age:" << std::endl;
     for (const auto& person : people) {

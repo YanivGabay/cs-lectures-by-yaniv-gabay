@@ -25,12 +25,14 @@ void exampleStringManipulations() {
 
     // Remove all spaces
     str.erase(std::remove(str.begin(), str.end(), ' '), str.end());
+    
     std::cout << "Without spaces: " << str << std::endl;
 }
 
 // Example 2: Using std::vector and std::sort
 void exampleVectorSort() {
     std::vector<int> numbers = {5, 3, 1, 4, 2};
+    
     std::sort(numbers.begin(), numbers.end());
     std::cout << "Sorted vector: ";
     for (int num : numbers) {
@@ -43,11 +45,13 @@ void exampleVectorSort() {
 
 // Example 3: Using std::set
 void exampleSet() {
+    
     std::set<int> uniqueNumbers = {1, 2, 3, 4, 5, 5, 4};
     std::cout << "Unique numbers: ";
-    for (int num : uniqueNumbers) {
+    for (auto num : uniqueNumbers) {
         std::cout << num << " ";
     }
+    
     std::cout << std::endl;
 }
 

@@ -21,7 +21,7 @@ struct Student {
     char name[50];
     int age;
     float gpa;
-
+    char tele[50];
     void printStudent()
     {
         cout << "printing form inside the struct" << endl;
@@ -46,6 +46,7 @@ void initStudent(Student& student, const char* name, int age, float gpa) {
 
 int main() {
     Student student1;
+
     initStudent(student1, "John Doe", 20, 3.5);
     printStudent(student1);
     student1.printStudent();

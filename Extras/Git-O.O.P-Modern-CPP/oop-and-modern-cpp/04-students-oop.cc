@@ -2,7 +2,7 @@
 #include <cstring>
 
 class Student {
-protected:
+private:
     char name[50];
     int age;
     float gpa;

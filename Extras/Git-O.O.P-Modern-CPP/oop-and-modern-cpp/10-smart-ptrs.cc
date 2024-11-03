@@ -33,13 +33,13 @@ int main() {
     //you can create a vector of unique ptr of that class
     //vectors, where each cell is a unique ptr, to that class.
     std::vector<std::unique_ptr<MyClass>> new_vector;
-
+        
 
     // Using shared_ptr
     //they allow multiply instanced of that same ptr, or multiply ptr to the same value.
     //we can always check the count, of how many ptrs, are to that object.
     //usefull for stuff you want to share.
-
+    
     std::shared_ptr<MyClass> sharedPtr1 = std::make_shared<MyClass>();
     {
         std::shared_ptr<MyClass> sharedPtr2 = sharedPtr1;
