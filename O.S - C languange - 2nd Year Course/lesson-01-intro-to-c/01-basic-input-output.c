@@ -60,7 +60,7 @@ int main()
        %*d: an integer which isn't stored anywhere 
        ' ': all consecutive whitespace
        %3[0-9]: a string of at most 3 decimal digits 
-       %i: a integer (from 0-9)
+       %i: a integer (can be octa,hexa or dec)
        %u: an unsigned decimal integer
     */
     // Example 1: Parsing an integer
