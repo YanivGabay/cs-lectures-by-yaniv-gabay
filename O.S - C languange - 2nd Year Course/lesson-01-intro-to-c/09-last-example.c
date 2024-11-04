@@ -2,13 +2,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void initializeData(int ***data, int rows, int cols);
+void initializeData(int **data, int rows, int cols);
 
 int main() {
-    int **data;
+    
     int rows = 3, cols = 4;
-
-    initializeData(&data, rows, cols);  // Initialize the 2D array
+    int **data = malloc(rows * sizeof(int*));
+    initializeData(data, rows, cols);  // Initialize the 2D array
 
     // Print the data
     for (int i = 0; i < rows; i++) {
@@ -28,23 +28,23 @@ int main() {
 }
 
 
-void initializeData(int ***data, int rows, int cols) {
+void initializeData(int **data, int rows, int cols) {
     // Allocate memory for the array of row pointers
-    *data = malloc(rows * sizeof(int*));
-    if (*data == NULL) {
+    
+    if (data == NULL) {
         perror("Failed to allocate memory for row pointers");
         exit(EXIT_FAILURE);
     }
 
     // Allocate memory for each row and initialize values
     for (int i = 0; i < rows; i++) {
-        (*data)[i] = malloc(cols * sizeof(int));
-        if ((*data)[i] == NULL) {
+        (data)[i] = malloc(cols * sizeof(int));
+        if ((data)[i] == NULL) {
             perror("Failed to allocate memory for rows");
             exit(EXIT_FAILURE);
         }
         for (int j = 0; j < cols; j++) {
-            (*data)[i][j] = i * cols + j;  // Example data
+            (data)[i][j] = i * cols + j;  // Example data
         }
     }
 }
