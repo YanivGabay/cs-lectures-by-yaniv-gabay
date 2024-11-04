@@ -48,7 +48,7 @@ int main()
 
    //https://en.cppreference.com/w/c/io/fscanf
     /* conversion specifiers
-       %d: an integer
+       %d: a decimal integer.
        %f: a floating-point value
        %c: a character
        [set]: a string of characters that match the set 
@@ -60,6 +60,7 @@ int main()
        %*d: an integer which isn't stored anywhere 
        ' ': all consecutive whitespace
        %3[0-9]: a string of at most 3 decimal digits 
+       %i: a integer (can be octa, hexa or dec)
     */
     // Example 1: Parsing an integer
     char input1[] = "42";
