@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <unistd.h> // for fork()
+#include <sys/wait.h> // for wait()
 
 // Carefull, this code should run on a Linux machine
 // Windows does not support fork() system call
@@ -41,13 +42,20 @@ int main()
     {
         // Child process
         printf("This is the child process. PID: %d\n", getpid());
+        return 0;
     }
     else
     {
         // Parent process
         printf("This is the parent process. PID: %d, Child PID: %d\n", getpid(), pid);
+        return 0;
     }
-
+    
+    pid_t status = wait(NULL);
+    //the proccesses that ended, are zombies, why?
+    // cus the parent process, has to "wait" for the child process to end
+    // only when it has waited on the children, the children are removed from the process table of the operating system
+    // and they are not zombies anymore
     return 0;
 }
 
