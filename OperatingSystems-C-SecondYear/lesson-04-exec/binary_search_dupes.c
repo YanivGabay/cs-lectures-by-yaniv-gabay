@@ -1,5 +1,11 @@
 #include <stdio.h>
 
+
+// if we found our target, we search for the left and right bounds of the target
+// what is the running time?
+// O(log n) + O(k) where k is the number of duplicates
+// so in the worst case it will be o(n) if all the elements are the same
+
 // Function to count occurrences of a given value
 int count_occurrences(int arr[], int size, int target) {
     int left = 0, right = size - 1;
