@@ -8,7 +8,7 @@
 void catch_int(int sig_num);
 
 int main() {
-    signal(SIGINT, catch_int);// SIGINT is the signal that is sent when you press Ctrl+C
+    signal(SIGINT,SIG_IGN);// we ignore the signal SIGINT
     
     while (1) {
         printf("Hello, World!\n");
