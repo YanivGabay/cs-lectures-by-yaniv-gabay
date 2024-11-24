@@ -30,8 +30,8 @@ int main()
     {
         // Example 2: Using spawnv
         printf("Launching calculator using _spawnv...\n");
-        //char *args[] = {"calculator", "8", "*", "4", NULL};
-        char *args[] = {"calculator.exe", "8", "X", "4", NULL};
+       
+        //char *args[] = {"calculator.exe", "8", "X", "4", NULL};
         ///////////////// IMPORTANT NOTE //////////////////
         //the problem is, when we pass * as an argv to the child process, it will be interpreted as a wildcard
         // which means, it will be replaced by the shell with all the files in the current directory
@@ -40,7 +40,8 @@ int main()
         // we can also use //* instead of * to escape the wildcard
         // or use #define _CRT_glob 0 to disable the wildcard expansion
 
-
+        char *args[] = {"calculator", "8", "*", "4", NULL};
+        int status = spawnv(_P_WAIT, "./calculator.exe", args);
         printf("Arguments being passed to _spawnv:\n");
         for (int i = 0; args[i] != NULL; i++)
         {
@@ -51,7 +52,7 @@ int main()
         // which means, we cant see the child output, because we didnt pass the environment variables
         // which one of them is stdout
         // so the best solution is just to use spawnl
-        int status = spawnv(_P_WAIT, "./calculator.exe", args);
+       
         //testinbg spawnvp
        // int status = spawnvp(_P_WAIT, "./calculator.exe", args);
        
@@ -66,7 +67,7 @@ int main()
     }
     else if (EXAMPLE == 3)
     {
-        //THIS EXAMPLE CURRENTLY FAILS
+       
 
         // in order to fix example 2, to stop injecting , we can use spawnv
         // but we pass an empty environment array, so still we wont be able to see the child output

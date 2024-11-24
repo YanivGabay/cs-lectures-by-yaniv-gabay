@@ -17,6 +17,7 @@ int main(int argc, char *argv[]) {
     int num2 = atoi(argv[3]);
     int result;
 
+    
     switch (operator) {
         case '+': result = num1 + num2; break;
         case '-': result = num1 - num2; break;
