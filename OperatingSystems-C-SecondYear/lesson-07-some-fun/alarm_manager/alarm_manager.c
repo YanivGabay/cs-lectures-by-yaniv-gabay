@@ -42,7 +42,8 @@ int main() {
 
     // Setup signal handler
     sa.sa_handler = handle_alarm;
-    sa.sa_flags = 0;
+    //WHAT WILL HAPPEND IF WE DONT USE SA_RESTART HERE?
+    sa.sa_flags = SA_RESTART;
     sigemptyset(&sa.sa_mask);
     if (sigaction(SIGUSR1, &sa, NULL) == -1) {
         perror("sigaction");
