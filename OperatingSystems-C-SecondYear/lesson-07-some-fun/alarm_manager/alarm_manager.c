@@ -5,6 +5,24 @@
 #include <string.h>
 #include <sys/wait.h>
 
+
+
+
+// this program is a simple alarm manager
+// it will set an alarm for the specified number of seconds
+// and when the alarm is triggered, it will print a message
+// and ask for another alarm to be set
+
+// for each alarm, a child process is created
+// and the child process will send a signal to the parent process
+// when the alarm is triggered
+
+
+//to exit just type exit
+//otherwise type the number of seconds to set new alarm
+
+
+
 #define MAX_ALARMS 10
 
 int alarm_count = 0;

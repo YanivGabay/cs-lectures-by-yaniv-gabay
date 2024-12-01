@@ -87,6 +87,8 @@ int main() {
         pause(); // Wait for signals
     }
 
+    //
+
     // This point is never reached
     return 0;
 }
@@ -113,5 +115,11 @@ void handle_sigusr2(int sig) {
 void handle_sigterm(int sig) {
     printf("Received SIGTERM (Termination Signal). Cleaning up and exiting.\n");
     // Perform any necessary cleanup here
+    
+
+    //before exiting, we need to wait for all the children to finish
+    //we can do that by using the wait function
+
+    while (wait(NULL) > 0); // Wait for all child processes to finish
     exit(EXIT_SUCCESS);
 }
