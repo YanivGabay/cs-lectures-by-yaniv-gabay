@@ -3,7 +3,9 @@
 #include <unistd.h>
 #include <signal.h>
 #include <string.h>
- #include <sys/types.h>
+#include <sys/types.h>
+
+
 int main(int argc, char *argv[]) {
     if (argc != 3) {
         fprintf(stderr, "Usage: %s <seconds> <parent_pid>\n", argv[0]);
