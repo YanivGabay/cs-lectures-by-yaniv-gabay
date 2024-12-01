@@ -20,6 +20,6 @@ int main() {
 
 void catch_int(int sig_num) {
    printf("Caught signal %d\n", sig_num);
-    exit(0); 
+    //exit(0); 
  
 }
