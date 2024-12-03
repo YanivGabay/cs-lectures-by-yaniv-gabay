@@ -77,6 +77,18 @@ int main() {
     pid = fork();
     if (pid == 0) { // Child process
         close(pipefd[1]); // Close unused write end
+        //arguments of read:
+        //1. file descriptor
+        //2. buffer to read into
+        //3. how many bytes to read
+        /*
+        yoram showed:
+        הקורא, על-כן יבצע משהו כמו:
+while (read(my_pipe[0], &c, 1) > 0)
+// which will read one byte at a time until EOF
+// sometimes that approach is better (safer) than reading all at once
+// sometimes its slower
+        */
         ssize_t bytesRead = read(pipefd[0], buffer, sizeof(buffer)); // Read from the pipe
         if (bytesRead == -1) {
             perror("read");
