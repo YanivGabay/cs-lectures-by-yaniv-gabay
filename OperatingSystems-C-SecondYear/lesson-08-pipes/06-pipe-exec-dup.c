@@ -4,6 +4,23 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
+
+
+/*
+File Descriptor Duplication:
+
+The dup2(pipefd[1], STDOUT_FILENO) in the producer
+ process duplicates the write end of the pipe
+ (pipefd[1]) into the standard output file descriptor
+  (STDOUT_FILENO).
+  
+Similarly, dup2(pipefd[0], STDIN_FILENO) in the 
+consumer process duplicates the read end of the pipe
+ (pipefd[0]) into the standard input file descriptor 
+ (STDIN_FILENO).
+
+*/
+
 int main() {
     int pipefd[2];
     pid_t pid_producer, pid_consumer;
