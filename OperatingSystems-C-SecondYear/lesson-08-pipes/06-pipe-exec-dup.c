@@ -21,6 +21,44 @@ consumer process duplicates the read end of the pipe
 
 */
 
+/*
+
+ pipe is created using pipe(pipefd).
+
+pipefd[0]: Read end of the pipe.
+pipefd[1]: Write end of the pipe.
+The program forks two child processes:
+
+The producer writes to the pipe.
+The consumer reads from the pipe.
+The producer and consumer are executed as separate programs using execlp().
+
+The parent process handles cleanup and waits for both children to finish.
+*/
+
+/*
+dup2(pipefd[1], STDOUT_FILENO) duplicates the write end of the pipe into the standard output (STDOUT_FILENO).
+This means anything the producer writes to stdout will go into the pipe.
+Cleanup:
+
+The producer doesn't need pipefd[0] (read end), so it closes it.
+The original pipefd[1] is also closed because dup2() has already duplicated it.
+
+*/
+
+/*
+Redirection:
+
+dup2(pipefd[0], STDIN_FILENO) duplicates the read end of the pipe into the standard input (STDIN_FILENO).
+This means the consumer will read its input from the pipe instead of the terminal.
+Cleanup:
+
+The consumer doesn't need pipefd[1] (write end), so it closes it.
+The original pipefd[0] is also closed after dup2().
+
+*/
+
+
 int main() {
     int pipefd[2];
     pid_t pid_producer, pid_consumer;

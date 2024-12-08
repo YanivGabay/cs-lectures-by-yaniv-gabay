@@ -6,6 +6,19 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
+
+/*
+this is a bit confusing example
+but we will need to scheme it on the board to better udnerstand
+
+we use two pipes to communicate between parent and child
+using dupes , the stdout of the parent goes to the child (to its std in)
+and the stdout of the child comes back to the parent (to its std in)
+
+
+*/
+
+
 #define BUFFER_SIZE 100
 
 int main() {

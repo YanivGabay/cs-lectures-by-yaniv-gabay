@@ -41,6 +41,7 @@ int main() {
 
         const char *message = "Hello, Pipe!";
         ssize_t len = 0;
+        sleep(2);
         while (message[len] != '\0') {
             if (write(my_pipe[1], &message[len], 1) != 1) {
                 perror("write");
