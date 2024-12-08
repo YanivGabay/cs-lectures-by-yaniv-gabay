@@ -21,7 +21,7 @@ int main(int argc, char *argv[]) {
     switch (operator) {
         case '+': result = num1 + num2; break;
         case '-': result = num1 - num2; break;
-        //the * is a "wildcard" in the shell, so we cant use it as an argument
+       // the * is a "wildcard" in the shell, so we cant use it as an argument
        // case '*': result = num1 * num2; break;
         case 'X': result = num1 * num2; break;
         case '/': 

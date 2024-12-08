@@ -23,11 +23,11 @@ int main() {
         {
         case 1:
         //with execl we can pass arguments as a sequence of strings
-            status = execl("/bin/ls", "ls", "-l", NULL);
+            status = execl("/bin/ls" ,"ls", "-l", NULL);
             break;
         case 2:
             //with execv we can pass a char array of arguments
-            char *args[] = {"/bin/ls", "-l", NULL};
+            char *args[] = {"ls", "-l", NULL};
             status = execv("/bin/ls", args);
             break;
       

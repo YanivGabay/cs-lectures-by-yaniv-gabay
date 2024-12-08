@@ -22,7 +22,7 @@ Unidirectional: Data flows in one direction. (meaning the other way around is cl
 
 Byte Streams: Data is treated as a continuous stream of bytes
 
-Limited Buffer Size: POSIX defines a minimum buffer size (PIPE_BUF) - anything less and equal to PIPE_BUF happens atomically (guaranteed to be written/read in one go)
+Limited Buffer Size: POSIX defines a minimum (or maximum atomic) buffer size (PIPE_BUF) - anything less and equal to PIPE_BUF happens atomically (guaranteed to be written/read in one go)
 
 The Pipe | Operator
 

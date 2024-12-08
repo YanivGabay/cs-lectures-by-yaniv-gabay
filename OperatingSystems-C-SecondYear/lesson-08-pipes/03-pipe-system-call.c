@@ -40,7 +40,7 @@ Tips:
 - Always check the return values of read and write to handle cases where not all data is read or written in one operation.
 - Always Close Unused Ends: After creating a pipe, close the unused ends in the parent and child processes to avoid issues like deadlocks.
 - Use sleep() or other synchronization mechanisms to ensure that the child process is ready to read before the parent writes data to the pipe.
-- Of course : Use waitpid in the parent process to wait for child processes to prevent zombie processes.
+- Of course : Use waitpid or wait in the parent process to wait for child processes to prevent zombie processes.
 - EOF Detection: When the parent closes pipefd[1] after writing, the child’s read operation can detect EOF, allowing it to know that no more data will be sent.
 - Basicly while read is > 0, the child will keep reading from the pipe, when it reaches EOF (recived 0) it will stop.
 
