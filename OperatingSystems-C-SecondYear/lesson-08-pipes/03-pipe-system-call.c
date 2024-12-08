@@ -89,6 +89,8 @@ while (read(my_pipe[0], &c, 1) > 0)
 // sometimes that approach is better (safer) than reading all at once
 // sometimes its slower
         */
+       sleep(2); // why this sleep here, will make the program get stuck?
+       // why its bad? and why its better to put the sleep before the write?
         ssize_t bytesRead = read(pipefd[0], buffer, sizeof(buffer)); // Read from the pipe
         if (bytesRead == -1) {
             perror("read");
@@ -100,7 +102,7 @@ while (read(my_pipe[0], &c, 1) > 0)
         exit(EXIT_SUCCESS);
     } else { // Parent process
         close(pipefd[0]); // Close unused read end
-        sleep(2);
+       // sleep(2);
         ssize_t bytesWritten = write(pipefd[1], "Hello, Pipe!", strlen("Hello, Pipe!") + 1); 
         if (bytesWritten == -1) {
             perror("write");
