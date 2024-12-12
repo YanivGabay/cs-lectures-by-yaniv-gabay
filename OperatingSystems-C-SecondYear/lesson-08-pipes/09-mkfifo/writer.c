@@ -18,7 +18,8 @@ int main() {
     const char *message = "Hello from the Writer!\n";
 
     // Open the FIFO for writing
-    int fifo_fd = open(FIFO_PATH, O_WRONLY);
+    int fifo_fd = open(FIFO_PATH, O_WRONLY);// this will block until the reader is opened
+    // you can also you File* fifo_fd = fopen(FIFO_PATH, "w");
     if (fifo_fd == -1) {
         perror("open");
         exit(EXIT_FAILURE);
