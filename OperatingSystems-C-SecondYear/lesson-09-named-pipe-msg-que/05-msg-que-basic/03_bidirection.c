@@ -7,7 +7,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
-#define QUEUE_KEY_PATH "progfile"
+#define QUEUE_KEY_PATH "/tmp"
 #define PROJECT_ID 65
 
 struct my_msgbuf {

@@ -10,6 +10,8 @@
 
 #define MSG_SIZE 100
 
+//https://man7.org/linux/man-pages/man3/msgrcv.3p.html
+
 int const ALLOWED_TYPES[] = {1, 2, 3};
 //we HAVE to use define for msgbuf size
 // cus c doesnt like const inside of structs
@@ -28,7 +30,7 @@ int main() {
     struct my_msgbuf buf;
 
     // Generate unique key using ftok
-    key = ftok("/tmp", 65); // "progfile" should be an existing file
+    key = ftok("/tmp", 65); 
     if (key == -1) {
         perror("ftok");
         exit(EXIT_FAILURE);

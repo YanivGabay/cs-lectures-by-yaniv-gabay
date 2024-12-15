@@ -39,7 +39,7 @@ int main() {
     struct my_msgbuf buf;
 
     // Generate a unique key using ftok
-    key = ftok("progfile", 65); // Ensure "progfile" exists in the current directory
+       key = ftok("/tmp", 65); 
     if (key == -1) {
         perror("ftok");
         exit(EXIT_FAILURE);

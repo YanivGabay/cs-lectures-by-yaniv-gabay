@@ -20,7 +20,7 @@ int main() {
     struct my_msgbuf buf;
 
     // Generate unique key
-    key = ftok("progfile", 65);
+    key = ftok("/tmp", 65); // 
     if (key == -1) {
         perror("ftok");
         exit(EXIT_FAILURE);
