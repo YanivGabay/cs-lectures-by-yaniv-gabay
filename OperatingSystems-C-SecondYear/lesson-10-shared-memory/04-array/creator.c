@@ -23,6 +23,7 @@ void handle_sigint(int sig)
 int main()
 {
 
+    signal(SIGINT, handle_sigint);
     // Create shared memory segment
     shmid = shmget(SHM_KEY, sizeof(int) * ARRAY_SIZE, IPC_CREAT | 0666);
     if (shmid < 0)
