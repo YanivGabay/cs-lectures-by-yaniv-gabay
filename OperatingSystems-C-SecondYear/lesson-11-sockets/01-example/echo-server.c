@@ -11,12 +11,20 @@
 #include <arpa/inet.h>
 #include <sys/select.h>
 
-#define MY_PORT "3879" // Port to listen on
-#define BUFLEN 1000    // Max buffer size for data
+const int BUFLEN = 1024;       // Max buffer size for data
+const char SERVER_PORT[] = "3879"; // Port server is listening on
+
+int main_socket;
+
+void hanlder(int sig){
+    printf("Signal %d received\n", sig);
+    close(main_socket);
+    exit(EXIT_SUCCESS);
+}
 
 int main() {
     int rc; // Return code
-    int main_socket;
+    
     int serving_socket;
     int fd;
     fd_set rfd;    // Master set of file descriptors
@@ -33,7 +41,7 @@ int main() {
     con_kind.ai_flags = AI_PASSIVE;      // Automatically fill in my IP
 
     // Get address info for binding
-    if ((rc = getaddrinfo(NULL, MY_PORT, &con_kind, &addr_info_res)) != 0) {
+    if ((rc = getaddrinfo(NULL, SERVER_PORT, &con_kind, &addr_info_res)) != 0) {
         fprintf(stderr, "getaddrinfo() failed: %s\n", gai_strerror(rc));
         exit(EXIT_FAILURE);
     }
@@ -104,14 +112,14 @@ These steps are typically part of setting up the `select` system call,
     FD_ZERO(&rfd);
     FD_SET(main_socket, &rfd); // Add the main socket to the master set
 
-    printf("Echo server: waiting for connections on port %s...\n", MY_PORT);
+    printf("Echo server: waiting for connections on port %s...\n", SERVER_PORT);
 
     // Main loop to handle incoming connections and data
     while (1) {
         c_rfd = rfd; // Copy the master set to the temp set for select()
 
         // Use select to monitor multiple file descriptors
-        rc = select(getdtablesize(), &c_rfd, NULL, NULL, NULL);
+        rc = select(FD_SETSIZE, &c_rfd, NULL, NULL, NULL);
         if (rc < 0) {
             perror("select failed");
             break;
@@ -130,8 +138,9 @@ These steps are typically part of setting up the `select` system call,
         }
 
         // Iterate through all possible file descriptors to check for incoming data
-        for (fd = main_socket + 1; fd < getdtablesize(); fd++) {
+        for (fd = main_socket + 1; fd < FD_SETSIZE; fd++) {
             if (FD_ISSET(fd, &c_rfd)) {
+                printf("Echo server: data available on fd %d\n", fd);
                 rc = read(fd, buf, BUFLEN);
                 if (rc == 0) {
                     // Connection closed by client
