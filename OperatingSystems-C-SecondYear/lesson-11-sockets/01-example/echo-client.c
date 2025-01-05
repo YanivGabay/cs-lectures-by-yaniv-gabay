@@ -42,6 +42,7 @@ int main(int argc, char *argv[]) {
     }
 
       // Create the client socket and connect
+      //IMPORTANT< cause we using localhost, we need to go over the addr_info_res list, and not just the first one!!!!!!
     for (struct addrinfo* p = addr_info_res; p != NULL; p = p->ai_next) {
         my_socket = socket(p->ai_family, p->ai_socktype, p->ai_protocol);
         if (my_socket < 0) {
@@ -49,10 +50,7 @@ int main(int argc, char *argv[]) {
             continue;
         }
 
-        // Optional: Simulate random delay before connecting
-        // Commented out to attempt immediate connection
-        // sleep(rand() % 10);
-
+      
         rc = connect(my_socket, p->ai_addr, p->ai_addrlen);
         if (rc == 0) {
             // Successfully connected

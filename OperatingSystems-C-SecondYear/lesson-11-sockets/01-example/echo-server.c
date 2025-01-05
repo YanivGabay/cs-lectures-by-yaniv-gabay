@@ -10,13 +10,13 @@
 #include <netdb.h>
 #include <arpa/inet.h>
 #include <sys/select.h>
-
+#include <signal.h>
 const int BUFLEN = 1024;       // Max buffer size for data
 const char SERVER_PORT[] = "3879"; // Port server is listening on
 
-int main_socket;
+int main_socket; // THE primary listening socket
 
-void hanlder(int sig){
+void handler(int sig){
     printf("Signal %d received\n", sig);
     close(main_socket);
     exit(EXIT_SUCCESS);
@@ -24,14 +24,14 @@ void hanlder(int sig){
 
 int main() {
     int rc; // Return code
-    
-    int serving_socket;
+    signal(SIGINT, handler);
+    int serving_socket; // represent a new connection
     int fd;
-    fd_set rfd;    // Master set of file descriptors
+    fd_set rfd;    // a set containing all active file descriptors (connections)
     fd_set c_rfd;  // Temporary set for select()
-    struct sockaddr_storage her_addr;
+    struct sockaddr_storage her_addr; // holds client address
     socklen_t her_addr_size;
-    struct addrinfo con_kind, *addr_info_res;
+    struct addrinfo con_kind, *addr_info_res; // setting up server address
     char buf[BUFLEN + 1];
 
     // Initialize the addrinfo struct
@@ -57,6 +57,7 @@ int main() {
 
     // Bind the socket to the address
     rc = bind(main_socket, addr_info_res->ai_addr, addr_info_res->ai_addrlen);
+    //basicly tells the socket, your ip port and address are what we got from the getaddrinfo
     if (rc) {
         perror("bind failed");
         close(main_socket);
@@ -109,7 +110,8 @@ These steps are typically part of setting up the `select` system call,
     */
 
     // Initialize the master and temp sets
-    FD_ZERO(&rfd);
+    FD_ZERO(&rfd); // think of rfd as a group of telephone lines that the server is listening on
+    // at the start, only the main_socket is in the group
     FD_SET(main_socket, &rfd); // Add the main socket to the master set
 
     printf("Echo server: waiting for connections on port %s...\n", SERVER_PORT);
@@ -119,6 +121,10 @@ These steps are typically part of setting up the `select` system call,
         c_rfd = rfd; // Copy the master set to the temp set for select()
 
         // Use select to monitor multiple file descriptors
+        //think of select like a traffic controller, it will tell the server which of the telephone lines in the group rfd has a call
+
+        //I HIGHLY recommend you not to use gettablesize() as for me it got errors, instead use FD_SETSIZE
+        //or as you can see in the next examples you can keep track of the max fd
         rc = select(FD_SETSIZE, &c_rfd, NULL, NULL, NULL);
         if (rc < 0) {
             perror("select failed");
@@ -138,6 +144,7 @@ These steps are typically part of setting up the `select` system call,
         }
 
         // Iterate through all possible file descriptors to check for incoming data
+        // again here, use the same FD_SETSIZE and not gettablesize()
         for (fd = main_socket + 1; fd < FD_SETSIZE; fd++) {
             if (FD_ISSET(fd, &c_rfd)) {
                 printf("Echo server: data available on fd %d\n", fd);
