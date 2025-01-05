@@ -10,8 +10,8 @@
 #include <netdb.h>
 #include <arpa/inet.h>
 
-#define BUFLEN 1024        // Max buffer size for data
-#define SERVER_PORT "3890" // Port server is listening on
+const int  BUFLEN = 1024;        // Max buffer size for data
+const char * SERVER_PORT = "3890"; // Port server is listening on
 
 int main(int argc, char *argv[]) {
     int rc; // Return code
@@ -37,24 +37,26 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    // Create the client socket
-    my_socket = socket(addr_info_res->ai_family,
-                       addr_info_res->ai_socktype,
-                       addr_info_res->ai_protocol);
-    if (my_socket < 0) {
-        perror("socket: allocation failed");
-        freeaddrinfo(addr_info_res);
-        exit(EXIT_FAILURE);
-    }
+    // Create the client socket and connect
+    for (struct addrinfo* p = addr_info_res; p != NULL; p = p->ai_next) {
+        my_socket = socket(p->ai_family, p->ai_socktype, p->ai_protocol);
+        if (my_socket < 0) {
+            perror("socket: allocation failed");
+            continue;
+        }
 
-    // Connect to the server
-    rc = connect(my_socket, addr_info_res->ai_addr, addr_info_res->ai_addrlen);
-    if (rc) {
+      
+        rc = connect(my_socket, p->ai_addr, p->ai_addrlen);
+        if (rc == 0) {
+            // Successfully connected
+            break;
+        }
+
         perror("connect failed");
         close(my_socket);
-        freeaddrinfo(addr_info_res);
-        exit(EXIT_FAILURE);
     }
+
+    
 
     // Free the address info as it's no longer needed
     freeaddrinfo(addr_info_res);
