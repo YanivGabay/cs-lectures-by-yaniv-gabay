@@ -1,14 +1,3 @@
-// File: pthread_fifo_example.c
-// Compile with: gcc -Wall -pthread pthread_fifo_example.c -o pthread_fifo_example
-//
-// Overview:
-// This example demonstrates how to combine pthreads with a named pipe (FIFO).
-// The main thread creates the FIFO (if it does not already exist) and spawns two threads:
-//   - A writer thread that writes a message to the FIFO every second.
-//   - A reader thread that continuously reads messages from the FIFO and prints them.
-// The main thread then calls pthread_exit() so that it finishes while the worker threads continue.
-// (Note: In a real-world situation, proper synchronization and error handling should be used.)
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -16,120 +5,116 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <string.h>
-#include <errno.h>
-#include <time.h>
 
-// Name of the FIFO to be used for IPC
-#define FIFO_NAME "mypipe"
+// FIFO names
+#define WRITER_TO_READER_FIFO "writer_to_reader_fifo"
+#define READER_TO_WRITER_FIFO "reader_to_writer_fifo"
 
-// Message buffer size
+// Buffer size
 #define BUFSIZE 256
 
-// Number of messages the writer thread sends
+// Number of messages
 #define NUM_MESSAGES 10
 
-// Function prototypes for our threads
-void* writer_thread(void *arg);
-void* reader_thread(void *arg);
+void* writer_thread(void* arg);
+void* reader_thread(void* arg);
 
 int main() {
     pthread_t writer, reader;
-    int status;
-    
-    // Create the named pipe (FIFO) if it does not exist.
-    // Permissions: 0666 (readable and writable by everyone)
-    if (mkfifo(FIFO_NAME, 0666) == -1) {
-        if (errno != EEXIST) {
-            perror("mkfifo failed");
-            exit(EXIT_FAILURE);
-        }
-    }
-    
-    printf("Main: FIFO '%s' created or already exists.\n", FIFO_NAME);
-    
-    // Seed the random number generator for the writer thread.
-    srand((unsigned) time(NULL));
-    
-    // Create the writer thread.
-    status = pthread_create(&writer, NULL, writer_thread, NULL);
-    if (status != 0) {
-        fprintf(stderr, "pthread_create (writer) failed\n");
+
+    // Create FIFOs
+    if (mkfifo(WRITER_TO_READER_FIFO, 0666) == -1) perror("mkfifo writer_to_reader");
+    if (mkfifo(READER_TO_WRITER_FIFO, 0666) == -1) perror("mkfifo reader_to_writer");
+
+    // Create threads
+    if (pthread_create(&writer, NULL, writer_thread, NULL) != 0) {
+        perror("Failed to create writer thread");
         exit(EXIT_FAILURE);
     }
-    
-    // Create the reader thread.
-    status = pthread_create(&reader, NULL, reader_thread, NULL);
-    if (status != 0) {
-        fprintf(stderr, "pthread_create (reader) failed\n");
+    if (pthread_create(&reader, NULL, reader_thread, NULL) != 0) {
+        perror("Failed to create reader thread");
         exit(EXIT_FAILURE);
     }
-    
-    // Main thread exits here (using pthread_exit so that the process lives on for the threads)
-    printf("Main thread: Exiting while threads continue to run.\n");
-    pthread_exit(NULL);
-    
-    // Note: Code after pthread_exit() is never executed.
-    return EXIT_SUCCESS;
+
+    // Wait for threads to finish
+    pthread_join(writer, NULL);
+    pthread_join(reader, NULL);
+
+    // Remove FIFOs after use
+    unlink(WRITER_TO_READER_FIFO);
+    unlink(READER_TO_WRITER_FIFO);
+
+    return 0;
 }
 
-// The writer_thread function writes messages to the FIFO.
-void* writer_thread(void *arg) {
-    int fd;
-    char message[BUFSIZE];
-    
-    // Open the FIFO for writing. (Open in blocking mode)
-    fd = open(FIFO_NAME, O_WRONLY);
-    if (fd < 0) {
-        perror("writer_thread: open FIFO for writing failed");
+void* writer_thread(void* arg) {
+    int write_fd = open(WRITER_TO_READER_FIFO, O_WRONLY);
+    int read_fd = open(READER_TO_WRITER_FIFO, O_RDONLY);
+    char message[BUFSIZE], response[BUFSIZE];
+
+    if (write_fd == -1 || read_fd == -1) {
+        perror("writer_thread: Failed to open FIFOs");
         pthread_exit(NULL);
     }
-    
+
     for (int i = 0; i < NUM_MESSAGES; i++) {
-        // Compose a message
-        snprintf(message, BUFSIZE, "Message %d from writer (pid: %d)", i, getpid());
-        printf("Writer thread: writing: \"%s\"\n", message);
-        
-        // Write message to FIFO
-        if (write(fd, message, strlen(message) + 1) < 0) {
-            perror("writer_thread: write failed");
-            close(fd);
+        // Write a message to the reader
+        snprintf(message, BUFSIZE, "Message %d from writer", i);
+        if (write(write_fd, message, strlen(message) + 1) == -1) {
+            perror("writer_thread: Failed to write message");
+            close(write_fd);
+            close(read_fd);
             pthread_exit(NULL);
         }
-        
-        sleep(1); // Wait one second before sending the next message
+        printf("Writer: Sent \"%s\"\n", message);
+
+        // Wait for acknowledgment from the reader
+        if (read(read_fd, response, BUFSIZE) == -1) {
+            perror("writer_thread: Failed to read response");
+            close(write_fd);
+            close(read_fd);
+            pthread_exit(NULL);
+        }
+        printf("Writer: Received \"%s\"\n", response);
     }
-    
-    close(fd);
+
+    close(write_fd);
+    close(read_fd);
     pthread_exit(NULL);
 }
 
-// The reader_thread function reads messages from the FIFO and prints them.
-void* reader_thread(void *arg) {
-    int fd;
-    char buf[BUFSIZE];
-    int nbytes;
-    
-    // Open the FIFO for reading. (Blocking read)
-    fd = open(FIFO_NAME, O_RDONLY);
-    if (fd < 0) {
-        perror("reader_thread: open FIFO for reading failed");
+void* reader_thread(void* arg) {
+    int read_fd = open(WRITER_TO_READER_FIFO, O_RDONLY);
+    int write_fd = open(READER_TO_WRITER_FIFO, O_WRONLY);
+    char message[BUFSIZE], response[BUFSIZE];
+
+    if (read_fd == -1 || write_fd == -1) {
+        perror("reader_thread: Failed to open FIFOs");
         pthread_exit(NULL);
     }
-    
-    // Continuously read messages.
-    // This example will exit when the writer closes its end,
-    // making read return 0.
-    while ((nbytes = read(fd, buf, BUFSIZE)) > 0) {
-        buf[nbytes] = '\0'; // Ensure null termination
-        printf("Reader thread: received: \"%s\"\n", buf);
+
+    for (int i = 0; i < NUM_MESSAGES; i++) {
+        // Wait for a message from the writer
+        if (read(read_fd, message, BUFSIZE) == -1) {
+            perror("reader_thread: Failed to read message");
+            close(read_fd);
+            close(write_fd);
+            pthread_exit(NULL);
+        }
+        printf("Reader: Received \"%s\"\n", message);
+
+        // Send acknowledgment to the writer
+        snprintf(response, BUFSIZE, "Acknowledged: %s", message);
+        if (write(write_fd, response, strlen(response) + 1) == -1) {
+            perror("reader_thread: Failed to write acknowledgment");
+            close(read_fd);
+            close(write_fd);
+            pthread_exit(NULL);
+        }
+        printf("Reader: Sent \"%s\"\n", response);
     }
-    
-    if (nbytes < 0) {
-        perror("reader_thread: read failed");
-    } else if (nbytes == 0) {
-        printf("Reader thread: writer has closed the FIFO.\n");
-    }
-    
-    close(fd);
+
+    close(read_fd);
+    close(write_fd);
     pthread_exit(NULL);
 }
