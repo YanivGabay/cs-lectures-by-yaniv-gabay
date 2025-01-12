@@ -24,7 +24,9 @@ int main() {
     // Create multiple threads
     for (i = 0; i < num_threads; i++) {
         // Create a thread; each thread executes increment_counter.
-        status = pthread_create(&threads[i], NULL, increment_counter, (void *)&i);
+        int *arg = malloc(sizeof(int));
+        *arg = i;  // Pass a unique value for each thread
+        status = pthread_create(&threads[i], NULL, increment_counter, (void *)arg);
         if (status != 0) {
             fprintf(stderr, "pthread_create failed: %d\n", status);
             exit(EXIT_FAILURE);
