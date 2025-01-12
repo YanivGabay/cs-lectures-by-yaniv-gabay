@@ -25,7 +25,11 @@ int main(int argc, char **argv) {
     rc = pthread_cancel(thread);
     sleep(2);
     puts("main finishing");
+    //HERE there might be race condition
+    // if we return EXIT_SUCCESS, the main thread will exit before the secondary thread
+    // if we use pthread_exit(NULL), the main thread will wait for the secondary thread to finish
     return EXIT_SUCCESS;
+    pthread_exit(NULL);
 }
 
 void *thread_func(void *parm) {
