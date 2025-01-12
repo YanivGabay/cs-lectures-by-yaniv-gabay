@@ -44,6 +44,10 @@ void *thread_func(void *parm) {
     while (1) {
         puts("secondary thread run");
         if (rand() % 10 < 1)
+        //if (1)
+        //we WONT be able to cancel the thread
+        //if we return NULL, 
+        //the cleanup handlers will not run
             return NULL; // Will not execute cleanup; use pthread_exit for cleanup handlers to run.
         sleep(1);
     }
