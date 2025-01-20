@@ -68,11 +68,14 @@ void* thread_function(void* arg)
             while((number[other] != 0) && (number[other],other) < (number[me],me)); // wait until the other thread gets a number
             // you didnt know we can compare lexographically in C, right? :)
 
-            //critical section
-            //do something
-            number[me] = 0;
-            //end of critical section
+           
         }
+        //only after we check with all other threads, we can enter the critical section
+         //critical section
+         //do something
+        number[me] = 0;
+        //end of critical section
+        //than we go back to choosing our number
     }
     return NULL;
 }
