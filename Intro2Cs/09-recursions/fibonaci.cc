@@ -6,7 +6,7 @@ int fibonacci(int n);
 // Main function
 int main() {
     // Test the fibonacci function
-    int num = 7;
+    int num = 3;
     std::cout << "Calculating the " << num << "th term of the Fibonacci sequence" << std::endl;
     std::cout << "The " << num << "th term of the Fibonacci sequence is: " << fibonacci(num) << std::endl;
     return 0;
@@ -16,7 +16,7 @@ int main() {
 
 // Function to calculate nth term of Fibonacci sequence recursively
 int fibonacci(int n) {
-    // Base cases: fibonacci(0) = 0, fibonacci(1) = 1
+    // Base cases: fibonacci(0) = 0, fibonacci(1) = 1 //fibonaci (2) 0+1 / fibonaci 3( ) 2+1
     if (n == 0) {
         std::cout << "Base case reached: fibonacci(0) = 0" << std::endl;
         return 0;
