@@ -8,7 +8,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include <signal.h>
-
+#include <errno.h>
 // Constants
 #define MAX_FILES 5
 #define PROGRESS_BAR_WIDTH 50
