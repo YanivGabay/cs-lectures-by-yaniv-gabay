@@ -105,13 +105,13 @@ void* draw_rectangles(void* arg) {
                 canvas.grid[y][x] = thread_char; // Represent each thread with a unique letter
             }
         }
-        printf("Thread %ld drew a rectangle at (%d, %d) of size %dx%d.\n", thread_id, pos_x, pos_y, rect_width, rect_height);
+       // printf("Thread %ld drew a rectangle at (%d, %d) of size %dx%d.\n", thread_id, pos_x, pos_y, rect_width, rect_height);
 
         // Unlock the mutex after modification
         pthread_mutex_unlock(&canvas_mutex);
 
         // Simulate time taken to draw
-        usleep(100000); // 100 ms
+        usleep(1000000); // 1000 ms
     }
 
     pthread_exit(NULL);

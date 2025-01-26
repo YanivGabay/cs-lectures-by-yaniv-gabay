@@ -8,7 +8,7 @@
 #include <signal.h>
 
 // Define the number of spinner threads
-#define NUM_SPINNERS 5
+#define NUM_SPINNERS 35
 
 // Define spinner characters for animation
 const char spinner_chars[] = {'|', '/', '-', '\\'};
@@ -127,6 +127,7 @@ int main() {
             show_cursor();
             exit(EXIT_FAILURE);
         }
+        sleep(1); // Stagger spinner thread creation by 1 second
     }
 
     // Create the controller thread

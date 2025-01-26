@@ -8,7 +8,7 @@
 #include <fcntl.h>           // For O_CREAT, O_RDWR
 #include <sys/stat.h>        // For mode constants
 #include <sys/wait.h>
-#include <sys/mman.h>        // For shmget, shmat
+#include <sys/shm.h>      // For shmget, shmat
 #include <sys/ipc.h>
 #include <string.h>
 #include <errno.h>

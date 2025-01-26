@@ -6,7 +6,7 @@
 #include <pthread.h>
 #include <unistd.h>
 
-#define NUM_THREADS 5
+#define NUM_THREADS 6
 #define OPERATIONS_PER_THREAD 1000
 
 // Shared bank account balance
@@ -23,10 +23,11 @@ void* deposit(void* arg) {
         
         // Critical section: Deposit $1
         account_balance += 1;
-        
+        //p//rintf("Deposited $1\n");
         // Unlock the mutex after modification
         pthread_mutex_unlock(&account_mutex);
     }
+    printf("Thread %ld finished deposit\n", pthread_self());
     pthread_exit(NULL);
 }
 
@@ -37,13 +38,14 @@ void* withdraw(void* arg) {
         pthread_mutex_lock(&account_mutex);
         
         // Critical section: Withdraw $1 if possible
-        if(account_balance > 0) {
-            account_balance -= 1;
-        }
         
+            account_balance -= 1;
+       
+       // printf("Withdrew $1\n");
         // Unlock the mutex after modification
         pthread_mutex_unlock(&account_mutex);
     }
+    printf("Thread %ld finished withdraw\n", pthread_self());
     pthread_exit(NULL);
 }
 
@@ -81,6 +83,6 @@ int main() {
     // Display the final account balance
     printf("Final account balance: %lld\n", account_balance);
     // Expected balance: Number of deposit threads * OPERATIONS_PER_THREAD - Number of withdrawal threads * OPERATIONS_PER_THREAD
-    printf("Expected balance: %ld\n", (NUM_THREADS / 2) * OPERATIONS_PER_THREAD - (NUM_THREADS / 2) * OPERATIONS_PER_THREAD);
+    printf("Expected balance: %d\n", (NUM_THREADS / 2) * OPERATIONS_PER_THREAD - (NUM_THREADS / 2) * OPERATIONS_PER_THREAD);
     return 0;
 }
