@@ -14,6 +14,11 @@ int main() {
 
 // Constants
 
+// 0! = 1
+// 1! = 1
+// 2! = 2 * 1 = 2
+// 3! = 3 * 2 * 1 = 6
+
 // Function to calculate factorial recursively
 int factorial(int n) {
     // Base case: factorial of 0 is 1
