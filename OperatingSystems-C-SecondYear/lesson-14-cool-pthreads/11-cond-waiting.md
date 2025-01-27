@@ -1,8 +1,7 @@
 
 
-/*
 
-What are conditional waiting?
+### What are conditional waiting?
 
 its a sync mechanism, used in multi thread programming.
 it allows threads to wait for certian condition to be met
@@ -12,7 +11,7 @@ this enable the thread to:
 - wait for a condition to be met
 - signal or broadcast other threads that the condition has been met
 
-How does it works?
+### How does it works?
 
 - mutex , protects the condition variable
 - condition variable,
@@ -24,6 +23,8 @@ So how does it works:
 //condition_met is a bool global variable
 // whitch we change on a critical section
 
+
+```c
 bool condition_met
 
 void *thread_init(void *arg) {
@@ -50,22 +51,22 @@ void *thread_function(void *arg) {
     while (!condition_met) {
       pthread_cond_wait(&cond, &mutex);
       //WE PASS THE MUTEX WE USED TO 
-      LOCK THE CONDITION
+      //LOCK THE CONDITION
     //IMPORTANT:
      // if the condition is not met,
-     the thread will be blocked
-     and the mutex will be released
+    // the thread will be blocked
+    // and the mutex will be released
     // when the condition is met,
-     the thread will be unblocked
-     and the mutex will be re-acquired
+     //the thread will be unblocked
+     //and the mutex will be re-acquired
       
     }
 
     pthread_mutex_unlock(&mutex);
 }
+```
 
-
-// how to notify other threads 
+### how to notify other threads 
 that the condition has been met?
 
 two ways:
