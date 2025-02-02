@@ -4,7 +4,7 @@
 
 - Gives severa; processes the ability to read and write to the same memory location.
 - They can read/write on every memory location given.
-- When we talk about a memory segement its an array of bytes.
+- When we talk about a memory segement its an array of bytes (can be struct etc)
 - Its fast, cause there isnt a kernel buffer in between like several other IPC we have seen.
 
 ### Downsides
