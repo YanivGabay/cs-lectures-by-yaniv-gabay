@@ -21,7 +21,7 @@ what is the maximum time to find a value?
 what is the maximum time to insert a value?
 
 
-
+//everthing is mine
 
 
 
@@ -32,7 +32,7 @@ https://en.wikipedia.org/wiki/Binary_search_tree
 
 
 
- *******************************************************************/
+ *******************************************************************
 
 // ---------- Include Section ----------
 #include <iostream>
