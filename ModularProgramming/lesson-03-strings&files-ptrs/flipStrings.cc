@@ -1,7 +1,7 @@
 /********************************************************************
  * Course: Modolar Programming in C++
  * Lecture: 3 - Strings
- * File: moreString.cc
+ * File: flipStrings.cc
  * 
  * Author: Yaniv Gabay
  * Date: 2024-04-14
