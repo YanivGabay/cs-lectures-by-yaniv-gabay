@@ -5,6 +5,9 @@ This repository contains the materials and examples we covered throughout the se
 
 Please see the [Hebrew version](#hebrew-version) below.
 
+
+Yaniv you suck
+
 ## How to Get Started
 
 Feel free to clone this repo or explore the files directly on GitHub.
