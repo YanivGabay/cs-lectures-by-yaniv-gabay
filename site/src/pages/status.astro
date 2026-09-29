@@ -1,0 +1,151 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="System Status" currentPath="">
+  <section class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <h1 class="text-3xl font-bold text-surface-900 dark:text-white mb-2">System Status</h1>
+    <p class="text-surface-600 dark:text-surface-400 mb-10">Real-time health of the CS Lectures platform.</p>
+
+    <div class="space-y-6">
+      {/* Static Site */}
+      <div class="card p-6">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-3">
+            <div class="w-3 h-3 rounded-full bg-green-500"></div>
+            <h2 class="text-lg font-semibold text-surface-900 dark:text-white">Static Site</h2>
+          </div>
+          <span class="text-xs text-green-600 dark:text-green-400 font-medium bg-green-100 dark:bg-green-900/30 px-2 py-1 rounded-full">Operational</span>
+        </div>
+        <div class="text-sm text-surface-600 dark:text-surface-400">
+          Hosted on Cloudflare Pages — global CDN, no server required.
+        </div>
+      </div>
+
+      {/* Terminal Server */}
+      <div class="card p-6" id="terminal-status">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-3">
+            <div class="w-3 h-3 rounded-full bg-surface-300 dark:bg-surface-600 status-dot"></div>
+            <h2 class="text-lg font-semibold text-surface-900 dark:text-white">Terminal Server</h2>
+          </div>
+          <span class="status-badge text-xs font-medium px-2 py-1 rounded-full bg-surface-200 dark:bg-surface-700 text-surface-500">Checking...</span>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4">
+          <div class="bg-surface-50 dark:bg-surface-900 rounded-xl p-4 text-center">
+            <div class="text-2xl font-bold text-surface-900 dark:text-white" id="stat-sessions">-</div>
+            <div class="text-xs text-surface-500 mt-1">Active Sessions</div>
+          </div>
+          <div class="bg-surface-50 dark:bg-surface-900 rounded-xl p-4 text-center">
+            <div class="text-2xl font-bold text-surface-900 dark:text-white" id="stat-max">-</div>
+            <div class="text-xs text-surface-500 mt-1">Max Sessions</div>
+          </div>
+          <div class="bg-surface-50 dark:bg-surface-900 rounded-xl p-4 text-center">
+            <div class="text-2xl font-bold text-surface-900 dark:text-white" id="stat-served">-</div>
+            <div class="text-xs text-surface-500 mt-1">Total Served</div>
+          </div>
+          <div class="bg-surface-50 dark:bg-surface-900 rounded-xl p-4 text-center">
+            <div class="text-2xl font-bold text-surface-900 dark:text-white" id="stat-uptime">-</div>
+            <div class="text-xs text-surface-500 mt-1">Uptime</div>
+          </div>
+        </div>
+
+        {/* Session capacity bar */}
+        <div class="mb-4">
+          <div class="flex justify-between text-xs text-surface-500 mb-1">
+            <span>Session Capacity</span>
+            <span id="capacity-label">-</span>
+          </div>
+          <div class="w-full h-2 rounded-full bg-surface-200 dark:bg-surface-700 overflow-hidden">
+            <div id="capacity-bar" class="h-full rounded-full bg-primary-500 transition-all duration-500" style="width: 0%"></div>
+          </div>
+        </div>
+
+        <div class="text-sm text-surface-600 dark:text-surface-400">
+          Cloudflare Container — scales to zero when idle, auto-restarts on demand (~3s cold start).
+          <br />Session timeout: <span id="stat-timeout">-</span>
+        </div>
+
+        <div class="mt-4 text-xs text-surface-400" id="last-checked">Last checked: never</div>
+      </div>
+
+      {/* Cost Info */}
+      <div class="card p-6">
+        <h2 class="text-lg font-semibold text-surface-900 dark:text-white mb-3">Cost Structure</h2>
+        <div class="space-y-2 text-sm text-surface-600 dark:text-surface-400">
+          <div class="flex justify-between">
+            <span>Static site hosting</span>
+            <span class="font-mono text-surface-900 dark:text-white">Free</span>
+          </div>
+          <div class="flex justify-between">
+            <span>Workers Paid plan (base)</span>
+            <span class="font-mono text-surface-900 dark:text-white">$5/mo</span>
+          </div>
+          <div class="flex justify-between">
+            <span>Container CPU (active only)</span>
+            <span class="font-mono text-surface-900 dark:text-white">$0.00002/vCPU-sec</span>
+          </div>
+          <div class="flex justify-between">
+            <span>Free tier included</span>
+            <span class="font-mono text-surface-900 dark:text-white">375 vCPU-min</span>
+          </div>
+          <div class="border-t border-surface-200 dark:border-surface-700 pt-2 mt-2 flex justify-between font-medium text-surface-900 dark:text-white">
+            <span>Estimated monthly</span>
+            <span>~$5-7</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<script is:inline>
+  (function() {
+    var TERMINAL_URL = 'https://cs-lectures-terminal.yaniv242.workers.dev';
+
+    function formatUptime(seconds) {
+      if (seconds < 60) return seconds + 's';
+      if (seconds < 3600) return Math.floor(seconds / 60) + 'm ' + (seconds % 60) + 's';
+      var h = Math.floor(seconds / 3600);
+      var m = Math.floor((seconds % 3600) / 60);
+      return h + 'h ' + m + 'm';
+    }
+
+    function update() {
+      fetch(TERMINAL_URL + '/health')
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          document.querySelector('.status-dot').className = 'w-3 h-3 rounded-full bg-green-500 status-dot';
+          document.querySelector('.status-badge').className = 'status-badge text-xs font-medium px-2 py-1 rounded-full bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400';
+          document.querySelector('.status-badge').textContent = 'Operational';
+
+          document.getElementById('stat-sessions').textContent = data.activeSessions;
+          document.getElementById('stat-max').textContent = data.maxSessions;
+          document.getElementById('stat-served').textContent = data.totalServed || '0';
+          document.getElementById('stat-uptime').textContent = formatUptime(data.uptimeSeconds || 0);
+          document.getElementById('stat-timeout').textContent = Math.floor((data.sessionTimeoutMs || 180000) / 1000) + 's';
+
+          var pct = Math.round((data.activeSessions / data.maxSessions) * 100);
+          document.getElementById('capacity-bar').style.width = pct + '%';
+          document.getElementById('capacity-label').textContent = data.activeSessions + ' / ' + data.maxSessions;
+
+          if (pct > 80) document.getElementById('capacity-bar').className = 'h-full rounded-full bg-red-500 transition-all duration-500';
+          else if (pct > 50) document.getElementById('capacity-bar').className = 'h-full rounded-full bg-yellow-500 transition-all duration-500';
+          else document.getElementById('capacity-bar').className = 'h-full rounded-full bg-primary-500 transition-all duration-500';
+
+          document.getElementById('last-checked').textContent = 'Last checked: ' + new Date().toLocaleTimeString();
+        })
+        .catch(function() {
+          document.querySelector('.status-dot').className = 'w-3 h-3 rounded-full bg-yellow-500 status-dot';
+          document.querySelector('.status-badge').className = 'status-badge text-xs font-medium px-2 py-1 rounded-full bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400';
+          document.querySelector('.status-badge').textContent = 'Sleeping (starts on demand)';
+          document.getElementById('stat-sessions').textContent = '0';
+          document.getElementById('last-checked').textContent = 'Last checked: ' + new Date().toLocaleTimeString();
+        });
+    }
+
+    update();
+    setInterval(update, 10000);
+  })();
+</script>

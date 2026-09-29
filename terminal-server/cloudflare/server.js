@@ -9,15 +9,33 @@ const MAX_SESSIONS = parseInt(process.env.MAX_SESSIONS || '5');
 const SESSION_TIMEOUT_MS = parseInt(process.env.SESSION_TIMEOUT || '180000');
 
 const sessions = new Map();
+let totalSessionsServed = 0;
+let totalCompilations = 0;
+const startedAt = Date.now();
 
 function log(id, msg) {
   console.log(`[${new Date().toISOString()}] [${id || '----'}] ${msg}`);
 }
 
 const server = http.createServer((req, res) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET');
+
   if (req.url === '/health') {
+    const sessionList = [];
+    for (const [id, s] of sessions) {
+      sessionList.push({ id, connected: s.ws.readyState === 1 });
+    }
     res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ status: 'ok', sessions: sessions.size, max: MAX_SESSIONS }));
+    res.end(JSON.stringify({
+      status: 'ok',
+      activeSessions: sessions.size,
+      maxSessions: MAX_SESSIONS,
+      totalServed: totalSessionsServed,
+      sessionTimeoutMs: SESSION_TIMEOUT_MS,
+      uptimeSeconds: Math.floor((Date.now() - startedAt) / 1000),
+      sessions: sessionList,
+    }));
     return;
   }
   res.writeHead(404);
@@ -100,8 +118,9 @@ wss.on('connection', (ws) => {
         },
       });
 
-      sessions.set(sessionId, { ws, ptyProcess });
-      log(sessionId, `Session started with ${files.length} files (${sessions.size} active)`);
+      sessions.set(sessionId, { ws, ptyProcess, startedAt: Date.now() });
+      totalSessionsServed++;
+      log(sessionId, `Session started with ${files.length} files (${sessions.size} active, ${totalSessionsServed} total)`);
 
       ptyProcess.onData((data) => {
         if (alive && ws.readyState === 1) {

@@ -43,6 +43,14 @@ const { currentPath = '' } = Astro.props;
       >
         OS & C
       </a>
+      <a
+        href="/status/"
+        class="hidden sm:flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-xs text-surface-500 dark:text-surface-400 hover:bg-surface-100 dark:hover:bg-surface-800 transition-colors"
+        title="System Status"
+      >
+        <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+        <span>Status</span>
+      </a>
       <div class="w-px h-6 bg-surface-200 dark:bg-surface-700 mx-1"></div>
       <Search />
       <div class="w-px h-6 bg-surface-200 dark:bg-surface-700 mx-1 hidden sm:block"></div>
