@@ -84,9 +84,6 @@ void* consumer(void *arg) {
 
 int main() {
     printf("\n");
-    printf("========================================\n");
-    printf("  Producer-Consumer with cond_wait\n");
-    printf("========================================\n\n");
     pthread_t prod_thread, cons_thread;
     int status;
 

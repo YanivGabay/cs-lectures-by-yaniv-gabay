@@ -15,6 +15,11 @@
 #include <unistd.h>
 int main(int argc, char const *argv[])
 {
+
+    printf("\n");
+    printf("══════════════════════════════════════\n");
+    printf("  Producer\n");
+    printf("══════════════════════════════════════\n\n");
     fprintf(stderr, "[Producer PID %d] Writing data to stdout...\n", getpid());
     fprintf(stderr, "[Producer] Usage: ./producer | ./consumer\n");
     printf("Yaniv\n");

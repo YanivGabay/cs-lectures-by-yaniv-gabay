@@ -149,7 +149,6 @@ void *file_loader(void *arg) {
 void update_display() {
     pthread_mutex_lock(&files_mutex);
     printf("\033[H\033[J"); // Clear the screen using ANSI escape codes
-    printf("========== File Loading Progress ==========\n");
     for (int i = 0; i < num_files; i++) {
         printf("%s: [%s] %d%%\n", files[i].filename, get_progress_bar(files[i].progress), files[i].progress);
     }
@@ -160,6 +159,11 @@ void update_display() {
 // ====================== Main Function ====================== //
 
 int main() {
+
+    printf("\n");
+    printf("══════════════════════════════════════\n");
+    printf("  Advanced CLI simulator with progress bars and spinners\n");
+    printf("══════════════════════════════════════\n\n");
     // Seed random number generator
     srand(time(NULL));
 

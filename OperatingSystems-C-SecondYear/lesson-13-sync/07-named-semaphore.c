@@ -59,10 +59,12 @@ void* thread_func(void *arg) {
 }
 
 int main(void) {
+
     printf("\n");
-    printf("========================================\n");
-    printf("  Named Semaphore — Mutual Exclusion\n");
-    printf("========================================\n\n");
+    printf("══════════════════════════════════════\n");
+    printf("  Named semaphores for thread synchronization\n");
+    printf("══════════════════════════════════════\n\n");
+    printf("\n");
     pthread_t threads[NUM_THREADS];
     int thread_ids[NUM_THREADS];
     int status;

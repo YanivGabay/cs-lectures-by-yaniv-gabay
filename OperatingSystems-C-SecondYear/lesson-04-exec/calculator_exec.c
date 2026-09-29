@@ -12,10 +12,12 @@
 #include <sys/wait.h>
 
 int main() {
+
     printf("\n");
-    printf("========================================\n");
-    printf("  fork() + exec() — Launch Calculator\n");
-    printf("========================================\n\n");
+    printf("══════════════════════════════════════\n");
+    printf("  Parent program that fork+exec's the calculator\n");
+    printf("══════════════════════════════════════\n\n");
+    printf("\n");
     printf("[Parent PID %d] Will fork, then exec the calculator program.\n\n", getpid());
     const int EXAMPLE = 1;
 
@@ -55,7 +57,6 @@ int main() {
         printf("[Parent PID %d] Waiting for child PID %d to complete...\n", getpid(), pid);
         wait(NULL);
         printf("[Parent PID %d] Child finished. The calculator ran in a separate process.\n\n", getpid());
-        printf("========================================\n");
     }
 
     return 0;

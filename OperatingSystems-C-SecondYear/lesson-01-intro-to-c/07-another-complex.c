@@ -11,6 +11,11 @@
 #include <ctype.h>
 
 int main() {
+
+    printf("\n");
+    printf("══════════════════════════════════════\n");
+    printf("  More complex scanf/printf patterns\n");
+    printf("══════════════════════════════════════\n\n");
     char *line = NULL;   // Pointer to the buffer allocated by getline
     size_t len = 0;      // Size of the allocated buffer
     size_t read;        // Number of characters read by getline
@@ -19,10 +24,6 @@ int main() {
     char name[100];      // String to store the name
 
     printf("\n");
-    printf("========================================\n");
-    printf("  Tokenizing Input (strtok + realloc)\n");
-    printf("========================================\n\n");
-    printf("  Enter grades followed by a name\n");
     printf("  Example: 90 85 72 John Smith\n\n");
     printf("  > ");
     fflush(stdout);
@@ -68,8 +69,6 @@ int main() {
         printf("%d%s", grades[i], (i < numGrades - 1) ? ", " : "");
     }
     printf("  (%d total)\n\n", numGrades);
-    printf("========================================\n");
-
     // Clean up
     free(grades);
     free(line);

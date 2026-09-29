@@ -19,9 +19,12 @@
 // if we dont, we might get a segfault
 
 
-
-
 int main(int argc, char *argv[]) {
+
+    printf("\n");
+    printf("══════════════════════════════════════\n");
+    printf("  Opening a file from command line arguments with validation\n");
+    printf("══════════════════════════════════════\n\n");
     const int ARGUMENTS_COUNT = 2; 
     if (argc != ARGUMENTS_COUNT) { // if argc is not 2
         perror("Usage: ./a.out <filename>"); // we show the user how to use the program
@@ -32,10 +35,6 @@ int main(int argc, char *argv[]) {
     const char* filename = argv[1];
 
     printf("\n");
-    printf("========================================\n");
-    printf("  Reading a File from Command Line\n");
-    printf("========================================\n\n");
-    printf("  Opening file: \"%s\"\n\n", filename);
 
     FILE *file = fopen(filename, "r");
     if (file == NULL) {
@@ -50,9 +49,5 @@ int main(int argc, char *argv[]) {
         printf("    %s", buffer);
     }
     printf("\n\n  --- End of file ---\n\n");
-    printf("========================================\n");
-
-
-
     return 0;
 }

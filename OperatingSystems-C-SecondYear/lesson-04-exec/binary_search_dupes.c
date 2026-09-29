@@ -80,11 +80,12 @@ void run_tests() {
 
 // Main function
 int main() {
+
     printf("\n");
-    printf("========================================\n");
-    printf("  Binary Search with Duplicate Counting\n");
-    printf("========================================\n\n");
-    printf("  Complexity: O(log n) to find + O(k) to count duplicates\n");
+    printf("══════════════════════════════════════\n");
+    printf("  Binary search with duplicate handling (utility/review)\n");
+    printf("══════════════════════════════════════\n\n");
+    printf("\n");
     printf("  Worst case: O(n) if all elements are the same.\n\n");
     run_tests();
     printf("\n========================================\n");

@@ -16,13 +16,15 @@
 void catch_int(int sig_num);
 
 int main() {
+
+    printf("\n");
+    printf("══════════════════════════════════════\n");
+    printf("  Ignoring signals with SIG_IGN\n");
+    printf("══════════════════════════════════════\n\n");
     // SIG_IGN = "ignore this signal" — Ctrl+C will be silently discarded
     signal(SIGINT, SIG_IGN);
 
     printf("\n");
-    printf("========================================\n");
-    printf("  Ignoring Signals with SIG_IGN\n");
-    printf("========================================\n\n");
     printf("[PID %d] SIGINT (Ctrl+C) is now IGNORED.\n", getpid());
     printf("  Try pressing Ctrl+C — nothing will happen!\n");
     printf("  To quit: press Ctrl+\\ (sends SIGQUIT, which is NOT ignored)\n\n");

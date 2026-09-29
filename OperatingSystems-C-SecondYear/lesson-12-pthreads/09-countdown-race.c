@@ -64,10 +64,12 @@ void* countdown_race(void *arg) {
 }
 
 int main() {
+
     printf("\n");
-    printf("========================================\n");
-    printf("  Countdown Race Condition\n");
-    printf("========================================\n\n");
+    printf("══════════════════════════════════════\n");
+    printf("  Thread race: first to count down to zero wins\n");
+    printf("══════════════════════════════════════\n\n");
+    printf("\n");
     const int num_threads = 3;
     pthread_t threads[num_threads];
     thread_arg_t args[num_threads];

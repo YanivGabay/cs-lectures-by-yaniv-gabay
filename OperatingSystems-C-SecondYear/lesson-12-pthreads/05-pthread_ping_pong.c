@@ -21,10 +21,12 @@ volatile int turn = 0;
 void* pingpong(void *arg);
 
 int main() {
+
     printf("\n");
-    printf("========================================\n");
-    printf("  Ping-Pong — Busy-Wait Sync\n");
-    printf("========================================\n\n");
+    printf("══════════════════════════════════════\n");
+    printf("  Ping-pong between threads using busy waiting\n");
+    printf("══════════════════════════════════════\n\n");
+    printf("\n");
     pthread_t threads[2];
     int ids[2] = {0, 1};
     int status;

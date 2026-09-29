@@ -10,6 +10,11 @@
 #include <string.h>
 
 int main() {
+
+    printf("\n");
+    printf("══════════════════════════════════════\n");
+    printf("  Child\n");
+    printf("══════════════════════════════════════\n\n");
     char buffer[100];
 
     // Read message from parent (via redirected stdin ← pipe)

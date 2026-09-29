@@ -10,10 +10,12 @@
 #include <unistd.h>    // for getpid()
 
 int main(int argc, char *argv[]) {
+
     printf("\n");
-    printf("========================================\n");
-    printf("  Calculator (exec'd child process)\n");
-    printf("========================================\n\n");
+    printf("══════════════════════════════════════\n");
+    printf("  Calculator child program (used by calculator_exec.c)\n");
+    printf("══════════════════════════════════════\n\n");
+    printf("\n");
     printf("[Calculator PID %d] Launched by parent via exec().\n", getpid());
     printf("[Calculator] Received %d arguments (expected 3: num op num)\n\n", argc - 1);
     if (argc != 4) {
@@ -51,6 +53,5 @@ int main(int argc, char *argv[]) {
     }
 
     printf("[Calculator] %d %c %d = %d\n\n", num1, operator, num2, result);
-    printf("========================================\n");
     return 0;
 }

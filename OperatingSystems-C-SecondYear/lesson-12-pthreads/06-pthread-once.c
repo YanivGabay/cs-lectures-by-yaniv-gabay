@@ -21,10 +21,12 @@ int counter = 0;
 pthread_once_t once_control = PTHREAD_ONCE_INIT;
 
 int main() {
+
     printf("\n");
-    printf("========================================\n");
-    printf("  pthread_once — One-Time Init\n");
-    printf("========================================\n\n");
+    printf("══════════════════════════════════════\n");
+    printf("  pthread_once\n");
+    printf("══════════════════════════════════════\n\n");
+    printf("\n");
     pthread_t threads[5];
     int i, status;
 

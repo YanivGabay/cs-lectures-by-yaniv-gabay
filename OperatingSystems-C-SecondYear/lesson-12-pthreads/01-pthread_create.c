@@ -20,10 +20,12 @@
 void* my_func(void *arg);
 
 int main() {
+
     printf("\n");
-    printf("========================================\n");
-    printf("  pthread_create — Your First Thread\n");
-    printf("========================================\n\n");
+    printf("══════════════════════════════════════\n");
+    printf("  Creating your first thread\n");
+    printf("══════════════════════════════════════\n\n");
+    printf("\n");
     pthread_t thread_data;
     int a = 1;  // Value passed to thread
     int status;

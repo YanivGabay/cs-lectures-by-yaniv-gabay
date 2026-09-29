@@ -7,8 +7,6 @@
  */
 
 
-
-
 // to write the same program in c:
 //https://en.cppreference.com/w/c/io //IMPORTANT
 #include <stdio.h>
@@ -17,10 +15,11 @@ int main()
 {
 
     printf("\n");
-    printf("========================================\n");
-    printf("  String Input & printf Formatting\n");
-    printf("========================================\n\n");
+    printf("══════════════════════════════════════\n");
+    printf("  Safe string input with fgets instead of gets\n");
+    printf("══════════════════════════════════════\n\n");
 
+    printf("\n");
     // --- Section 1: gets vs fgets ---
     printf("--- Section 1: gets() vs fgets() ---\n\n");
 
@@ -72,12 +71,6 @@ int main()
     printf("  %%.3s  (3 chars) | [%.3s]\n", s);
     printf("  %%10.3s          | [%10.3s]\n", s);
     printf("  %%*s  (* = 10)   | [%*s]\n\n", 10, s);
-
-    printf("========================================\n");
-    printf("  End of demo\n");
-    printf("========================================\n");
-
-
 
 
 }

@@ -16,12 +16,14 @@ void signal_handler(int sig) {
 }
 
 int main() {
+
+    printf("\n");
+    printf("══════════════════════════════════════\n");
+    printf("  Signal handler behavior during blocking syscalls\n");
+    printf("══════════════════════════════════════\n\n");
     signal(SIGINT, signal_handler);
 
     printf("\n");
-    printf("========================================\n");
-    printf("  signal() Behavior During scanf\n");
-    printf("========================================\n\n");
     printf("[Main PID %d] What happens when Ctrl+C arrives while scanf() is blocking?\n\n", getpid());
     printf("  Experiment:\n");
     printf("    1. Don't type anything yet\n");

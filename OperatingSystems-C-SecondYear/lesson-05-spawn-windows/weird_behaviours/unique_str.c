@@ -8,10 +8,12 @@
 #include <stdio.h>
 
 int main(int argc, char *argv[]) {
+
     printf("\n");
-    printf("========================================\n");
+    printf("══════════════════════════════════════\n");
     printf("  String uniqueness check (utility)\n");
-    printf("========================================\n\n");
+    printf("══════════════════════════════════════\n\n");
+    printf("\n");
     printf("[unique_str] Received %d argument(s):\n\n", argc);
     printf("  %-8s | %s\n", "Index", "Value");
     printf("  -------- | -----\n");

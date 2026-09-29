@@ -15,6 +15,11 @@
 #include <unistd.h>
 int main(int argc, char const *argv[])
 {
+
+    printf("\n");
+    printf("══════════════════════════════════════\n");
+    printf("  Consumer\n");
+    printf("══════════════════════════════════════\n\n");
     fprintf(stderr, "[Consumer PID %d] Reading from stdin...\n", getpid());
     char buffer[100];
     scanf("%s", buffer);

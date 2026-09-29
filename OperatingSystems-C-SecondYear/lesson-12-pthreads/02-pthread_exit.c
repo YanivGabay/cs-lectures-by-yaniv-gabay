@@ -16,10 +16,12 @@
 void* my_func(void *arg);
 
 int main() {
+
     printf("\n");
-    printf("========================================\n");
-    printf("  pthread_exit — Return Values\n");
-    printf("========================================\n\n");
+    printf("══════════════════════════════════════\n");
+    printf("  pthread_exit with return values\n");
+    printf("══════════════════════════════════════\n\n");
+    printf("\n");
     pthread_t thread_id;
     int a[5] = {17, 38, 79, 3879, 0}; // Data for the thread
     int i;

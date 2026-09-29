@@ -127,9 +127,9 @@ const diffColors: Record<string, string> = {
         )}
       </div>
 
-      {/* Table of Contents */}
+      {/* Table of Contents — mobile only */}
       {lesson.examples.length > 0 && (
-        <nav class="mt-6 p-4 rounded-xl bg-surface-100 dark:bg-surface-800/50 border border-surface-200 dark:border-surface-700">
+        <nav class="mt-6 p-4 rounded-xl bg-surface-100 dark:bg-surface-800/50 border border-surface-200 dark:border-surface-700 lg:hidden">
           <h2 class="text-sm font-semibold text-surface-900 dark:text-white mb-3">
             {lesson.examples.length} Examples
           </h2>
@@ -151,9 +151,38 @@ const diffColors: Record<string, string> = {
     </div>
   </section>
 
-  {/* Code Examples */}
-  <section class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10" data-pagefind-body>
-    <div class="space-y-12">
+  {/* Code Examples — with sidebar TOC on desktop */}
+  <section class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10" data-pagefind-body>
+    <div class="lg:grid lg:grid-cols-[220px_1fr] lg:gap-10">
+
+      {/* Sidebar TOC — desktop only */}
+      {lesson.examples.length > 0 && (
+        <aside class="hidden lg:block">
+          <nav id="sidebar-toc" class="sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto pr-2">
+            <h2 class="text-xs font-semibold text-surface-500 dark:text-surface-400 uppercase tracking-wider mb-3">
+              Examples
+            </h2>
+            <ol class="space-y-0.5">
+              {lesson.examples.map((ex, i) => (
+                <li>
+                  <a
+                    href={`#example-${i}`}
+                    data-toc-index={i}
+                    class="toc-link flex items-center gap-2 px-2 py-1.5 rounded-lg text-sm text-surface-600 dark:text-surface-400 hover:text-surface-900 dark:hover:text-white hover:bg-surface-100 dark:hover:bg-surface-800 transition-all border-l-2 border-transparent"
+                  >
+                    <span class="font-mono text-[10px] text-surface-400 dark:text-surface-600 w-4 flex-shrink-0">{i + 1}</span>
+                    <span class="truncate text-[13px]">{ex.title}</span>
+                  </a>
+                </li>
+              ))}
+            </ol>
+          </nav>
+        </aside>
+      )}
+
+      {/* Main content column */}
+      <div class="min-w-0">
+        <div class="space-y-12">
       {lesson.examples.map((example, i) => {
         const code = readExampleCode(example);
         return (
@@ -200,7 +229,9 @@ const diffColors: Record<string, string> = {
           </a>
         </div>
       )}
-    </div>
+        </div>
+      </div>{/* close space-y-12 and min-w-0 */}
+    </div>{/* close lg:grid */}
   </section>
 
   {/* Full lesson terminal */}
@@ -268,6 +299,45 @@ const diffColors: Record<string, string> = {
 </BaseLayout>
 
 <script>
+  // Scroll-spy for sidebar TOC
+  const tocLinks = document.querySelectorAll('.toc-link');
+  const examples = document.querySelectorAll('article[id^="example-"]');
+
+  if (tocLinks.length > 0 && examples.length > 0) {
+    let activeIndex = 0;
+
+    function setActive(index: number) {
+      if (index === activeIndex) return;
+      tocLinks.forEach((link, i) => {
+        const el = link as HTMLElement;
+        if (i === index) {
+          el.classList.add('text-primary-600', 'dark:text-primary-400', 'font-medium', 'border-primary-500');
+          el.classList.remove('text-surface-600', 'dark:text-surface-400', 'border-transparent');
+        } else {
+          el.classList.remove('text-primary-600', 'dark:text-primary-400', 'font-medium', 'border-primary-500');
+          el.classList.add('text-surface-600', 'dark:text-surface-400', 'border-transparent');
+        }
+      });
+      activeIndex = index;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            const id = entry.target.id;
+            const idx = parseInt(id.replace('example-', ''), 10);
+            if (!isNaN(idx)) setActive(idx);
+          }
+        }
+      },
+      { rootMargin: '-80px 0px -60% 0px', threshold: 0 }
+    );
+
+    examples.forEach((el) => observer.observe(el));
+    setActive(0);
+  }
+
   document.querySelectorAll('.lesson-complete-btn').forEach(btn => {
     const el = btn as HTMLElement;
     const lessonNum = el.dataset.lesson!;

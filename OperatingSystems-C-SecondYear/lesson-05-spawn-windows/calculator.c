@@ -9,10 +9,12 @@
 #include <stdlib.h>
 
 int main(int argc, char *argv[]) {
+
     printf("\n");
-    printf("========================================\n");
-    printf("  Calculator for Windows spawn example\n");
-    printf("========================================\n\n");
+    printf("══════════════════════════════════════\n");
+    printf("  Calculator for Windows spawn examples\n");
+    printf("══════════════════════════════════════\n\n");
+    printf("\n");
     if (argc != 4) {
         //recived the following arguments:
         printf("argc in calculator: %d\n", argc);

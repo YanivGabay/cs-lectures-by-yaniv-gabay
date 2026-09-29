@@ -20,10 +20,11 @@ void check_valid_process(pid_t status);
 
 
 int main() {
+
     printf("\n");
-    printf("========================================\n");
-    printf("  FIX: fork() in a loop (with exit+wait)\n");
-    printf("========================================\n");
+    printf("══════════════════════════════════════\n");
+    printf("  Correct way to fork in a loop\n");
+    printf("══════════════════════════════════════\n\n");
     printf("  Fixes: child calls exit(), parent\n");
     printf("  calls wait() before next fork.\n");
 

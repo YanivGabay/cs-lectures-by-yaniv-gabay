@@ -37,9 +37,6 @@ void* increment_counter(void* arg) {
 
 int main() {
     printf("\n");
-    printf("========================================\n");
-    printf("  Thread-safe counter with mutex\n");
-    printf("========================================\n\n");
     pthread_t threads[NUM_THREADS];
     int rc;
 

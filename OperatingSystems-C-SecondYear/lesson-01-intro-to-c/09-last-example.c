@@ -12,12 +12,13 @@
 void initializeData(int **data, int rows, int cols);
 
 int main() {
+
+    printf("\n");
+    printf("══════════════════════════════════════\n");
+    printf("  Advanced pointer patterns and string manipulation\n");
+    printf("══════════════════════════════════════\n\n");
     
     printf("\n");
-    printf("========================================\n");
-    printf("  Dynamic 2D Array with int**\n");
-    printf("========================================\n\n");
-
     int rows = 3, cols = 4;
     printf("  Allocating %dx%d matrix with malloc...\n\n", rows, cols);
     int **data = malloc(rows * sizeof(int*));

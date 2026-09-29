@@ -11,6 +11,11 @@
  OLD EXAMPLE OF HOW WE WOULD USE FILES IN LEGACY CPP:
 
 int main() {
+
+    printf("\n");
+    printf("══════════════════════════════════════\n");
+    printf("  File I/O\n");
+    printf("══════════════════════════════════════\n\n");
     // Writing to a file
     std::ofstream outFile("example.txt");
     if (outFile.is_open()) {
@@ -42,10 +47,6 @@ int main() {
 #include <stdlib.h>
 int main() {
     printf("\n");
-    printf("========================================\n");
-    printf("  File I/O in C (fopen, fprintf, fgets)\n");
-    printf("========================================\n\n");
-
     // --- Section 1: Write to a file ---
     printf("--- Section 1: Writing to a file (mode \"w\") ---\n\n");
     FILE *outFile = fopen("example.txt", "w");
@@ -104,10 +105,6 @@ int main() {
     } else {
         perror("  ERROR: Unable to open file");
     }
-
-    printf("========================================\n");
-    printf("  End of demo\n");
-    printf("========================================\n");
 
     return 0;
 }

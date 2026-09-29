@@ -51,10 +51,12 @@ void* chat_participant(void *arg) {
 }
 
 int main() {
+
     printf("\n");
-    printf("========================================\n");
-    printf("  Async Chat Simulator\n");
-    printf("========================================\n\n");
+    printf("══════════════════════════════════════\n");
+    printf("  Async chat simulator with threads\n");
+    printf("══════════════════════════════════════\n\n");
+    printf("\n");
     pthread_t participants[NUM_PARTICIPANTS];
     int ids[NUM_PARTICIPANTS];
     int status, i;

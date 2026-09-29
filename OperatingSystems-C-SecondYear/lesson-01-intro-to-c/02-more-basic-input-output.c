@@ -7,22 +7,21 @@
  */
 
 
-
-
 // to write the same program in c:
 //https://en.cppreference.com/w/c/io //IMPORTANT
 #include <stdio.h>
 //https://en.cppreference.com/w/c/io/fscanf
 int main()
 {
+
+    printf("\n");
+    printf("══════════════════════════════════════\n");
+    printf("  More I/O\n");
+    printf("══════════════════════════════════════\n\n");
     // there are MANY variant of scanf and printf
     // scanf() and printf() are the most basic ones
     //basic scanf:
     printf("\n");
-    printf("========================================\n");
-    printf("  C I/O Variants: scanf, sscanf, snprintf\n");
-    printf("========================================\n\n");
-
     // --- Section 1: Basic scanf ---
     printf("--- Section 1: Basic scanf (reading from keyboard) ---\n\n");
     int number;
@@ -55,10 +54,6 @@ int main()
     printf("  snprintf(buffer, %zu, \"Hello, %%s!\", \"World\")\n", sizeof(buffer));
     printf("  Result:  \"%s\"\n", buffer);
     printf("  Wanted length: %d  (truncated because buffer is only %zu bytes)\n\n", length, sizeof(buffer));
-
-    printf("========================================\n");
-    printf("  End of demo\n");
-    printf("========================================\n");
 
     return 0;
 }

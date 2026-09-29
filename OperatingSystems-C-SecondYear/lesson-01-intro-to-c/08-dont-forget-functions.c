@@ -16,8 +16,6 @@ void print_results(const char *name, const int *grades, int numGrades);
 void free_resources(int *grades, char *line);
 
 
-
-
 //important details
 // if you pass a char * to a function,
 // the function will not be able to change the pointer itself
@@ -27,6 +25,11 @@ void free_resources(int *grades, char *line);
 
 
 int main() {
+
+    printf("\n");
+    printf("══════════════════════════════════════\n");
+    printf("  Functions with pointer parameters in C\n");
+    printf("══════════════════════════════════════\n\n");
     char *line = NULL;   // Pointer to the buffer allocated by getline
     size_t len = 0;      // Size of the allocated buffer
     int *grades = NULL;  // Array to store grades
@@ -47,10 +50,6 @@ int main() {
 
 int read_line(char **line, size_t *len) {
     printf("\n");
-    printf("========================================\n");
-    printf("  Functions with Pointer Parameters\n");
-    printf("========================================\n\n");
-    printf("  Same program as 07, but refactored into\n");
     printf("  separate functions using pointer params.\n\n");
     printf("  Enter grades followed by a name\n");
     printf("  Example: 90 85 72 John Smith\n\n");
@@ -95,7 +94,6 @@ void print_results(const char *name, const int *grades, int numGrades) {
         printf("%d%s", grades[i], (i < numGrades - 1) ? ", " : "");
     }
     printf("  (%d total)\n\n", numGrades);
-    printf("========================================\n");
 }
 
 void free_resources(int *grades, char *line) {

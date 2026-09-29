@@ -15,6 +15,11 @@
 void handle_alarm(int sig);
 
 int main() {
+
+    printf("\n");
+    printf("══════════════════════════════════════\n");
+    printf("  Using alarm() for a countdown timer\n");
+    printf("══════════════════════════════════════\n\n");
     int countdown = 5;
 
     // Register the signal handler
@@ -22,9 +27,6 @@ int main() {
 
     // Set the alarm for 5 seconds
     printf("\n");
-    printf("========================================\n");
-    printf("  SIGALRM — Timer Countdown\n");
-    printf("========================================\n\n");
     printf("[Main PID %d] Setting alarm(%d) — SIGALRM will fire in %d seconds.\n\n", getpid(), countdown, countdown);
     alarm(countdown);
 

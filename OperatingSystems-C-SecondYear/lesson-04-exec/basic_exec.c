@@ -12,12 +12,13 @@
 #include <sys/wait.h>
 
 
-
 int main() {
+
     printf("\n");
-    printf("========================================\n");
-    printf("  exec family — execl, execlp, execv\n");
-    printf("========================================\n\n");
+    printf("══════════════════════════════════════\n");
+    printf("  exec family\n");
+    printf("══════════════════════════════════════\n\n");
+    printf("\n");
     const int EXAMPLE = 1;
 
     pid_t pid = fork();
@@ -57,7 +58,6 @@ int main() {
         printf("[Parent PID %d] Created child PID %d. Waiting...\n", getpid(), pid);
         wait(NULL);
         printf("[Parent PID %d] Child finished. exec replaced its entire process image.\n\n", getpid());
-        printf("========================================\n");
     }
 
     return 0;

@@ -15,10 +15,11 @@ int main()
 {
 
     printf("\n");
-    printf("========================================\n");
-    printf("  Advanced scanf/printf Formatting\n");
-    printf("========================================\n\n");
+    printf("══════════════════════════════════════\n");
+    printf("  Advanced scanf/printf formatting\n");
+    printf("══════════════════════════════════════\n\n");
 
+    printf("\n");
     // --- Section 1: Multi-type scanf ---
     printf("--- Section 1: Reading multiple types at once ---\n\n");
     int integer;
@@ -71,5 +72,4 @@ int main()
 
     printf("\n========================================\n");
     printf("  End of demo\n");
-    printf("========================================\n");
 }

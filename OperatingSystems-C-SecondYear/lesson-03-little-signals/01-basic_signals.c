@@ -16,14 +16,16 @@
 void catch_int(int sig_num);
 
 int main() {
+
+    printf("\n");
+    printf("══════════════════════════════════════\n");
+    printf("  Catching SIGINT (Ctrl+C) with signal()\n");
+    printf("══════════════════════════════════════\n\n");
     // Register catch_int as the handler for SIGINT (Ctrl+C)
     // signal() returns SIG_ERR on failure
     signal(SIGINT, catch_int);
 
     printf("\n");
-    printf("========================================\n");
-    printf("  Signal Handling — Catching SIGINT\n");
-    printf("========================================\n\n");
     printf("[Main PID %d] Running... Press Ctrl+C to trigger the signal handler.\n", getpid());
     printf("  (The handler catches SIGINT but doesn't exit — try pressing Ctrl+C multiple times!)\n");
     printf("  (To actually quit, press Ctrl+\\ which sends SIGQUIT)\n\n");

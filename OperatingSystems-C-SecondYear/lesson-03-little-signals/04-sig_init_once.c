@@ -20,12 +20,14 @@ void custom_handler(int sig) {
 }
 
 int main() {
+
+    printf("\n");
+    printf("══════════════════════════════════════\n");
+    printf("  One-shot signal handler (catch once, then default)\n");
+    printf("══════════════════════════════════════\n\n");
     signal(SIGINT, custom_handler);
 
     printf("\n");
-    printf("========================================\n");
-    printf("  One-Shot Signal Handler (SIG_DFL)\n");
-    printf("========================================\n\n");
     printf("[Main PID %d] Custom SIGINT handler installed.\n", getpid());
     printf("  1st Ctrl+C → handler catches it, restores default\n");
     printf("  2nd Ctrl+C → default action (terminate process)\n\n");

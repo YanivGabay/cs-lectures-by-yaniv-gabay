@@ -45,9 +45,6 @@ int main() {
 
     // Initialize the array with values 1 to ARRAY_SIZE.
     printf("\n");
-    printf("========================================\n");
-    printf("  Parallel Partial Sum\n");
-    printf("========================================\n\n");
     printf("Initializing array with values: ");
     for (int i = 0; i < ARRAY_SIZE; i++) {
         arr[i] = i + 1;

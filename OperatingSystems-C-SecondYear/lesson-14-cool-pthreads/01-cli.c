@@ -65,10 +65,12 @@ void* fetch_data(void* arg) {
 }
 
 int main() {
+
     printf("\n");
-    printf("========================================\n");
-    printf("  CLI loading animation with a spinner\n");
-    printf("========================================\n\n");
+    printf("══════════════════════════════════════\n");
+    printf("  CLI loading animation with a spinner thread\n");
+    printf("══════════════════════════════════════\n\n");
+    printf("\n");
     pthread_t loader_thread, worker_thread;
     int status;
 

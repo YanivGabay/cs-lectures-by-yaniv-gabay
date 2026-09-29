@@ -11,11 +11,12 @@
 
 int main()
 {
+
     printf("\n");
-    printf("========================================\n");
-    printf("  Windows _spawn() Family (process.h)\n");
-    printf("========================================\n\n");
-    printf("  NOTE: This is Windows-only code!\n");
+    printf("══════════════════════════════════════\n");
+    printf("  Windows _spawnl/_spawnlp/_spawnv process creation\n");
+    printf("══════════════════════════════════════\n\n");
+    printf("\n");
     printf("  It won't compile on Linux/macOS.\n");
     printf("  Linux equivalent: fork() + exec()\n\n");
     const int EXAMPLE = 2;

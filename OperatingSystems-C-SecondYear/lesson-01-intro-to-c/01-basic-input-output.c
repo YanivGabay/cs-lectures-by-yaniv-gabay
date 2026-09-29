@@ -7,17 +7,17 @@
  */
 
 
-
-
-
-
-
 //differences  between c and cpp
 /*
 
 #include <iostream>
 
 int main() {
+
+    printf("\n");
+    printf("══════════════════════════════════════\n");
+    printf("  Basic I/O\n");
+    printf("══════════════════════════════════════\n\n");
     int number;
     std::cout << "Enter a number: ";
     std::cin >> number;
@@ -43,10 +43,6 @@ void print_test(char* input,char* output,char* prase_type)
 int main()
 {
     printf("\n");
-    printf("========================================\n");
-    printf("  Basic C Input/Output (scanf & printf)\n");
-    printf("========================================\n\n");
-
     // --- Section 1: Interactive input ---
     printf("--- Section 1: Reading input with scanf ---\n\n");
     int number;
@@ -176,10 +172,6 @@ int main()
     sscanf(input10, "%[^\n]", str7);
     printf("  %%[^\\n]   : read until newline\n");
     print_test(input10, str7, "stopped at \\n");
-
-    printf("========================================\n");
-    printf("  End of demo\n");
-    printf("========================================\n");
 
     return 0;
 }

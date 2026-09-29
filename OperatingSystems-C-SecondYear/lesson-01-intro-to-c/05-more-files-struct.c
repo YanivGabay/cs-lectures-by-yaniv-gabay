@@ -10,16 +10,16 @@
 #include <string.h>
 
 
-
-
-
 const int EMPLOYEE_COUNT = 3;
 const int MAX_NAME_LENGTH = 50;
 
 
-
-
 int main() {
+
+    printf("\n");
+    printf("══════════════════════════════════════\n");
+    printf("  Reading/writing structs to files\n");
+    printf("══════════════════════════════════════\n\n");
     //### Althourgh this doesnt compile on my window gcc 
     // but it does compile on the HAC linux gcc environment
     struct Employee {
@@ -93,10 +93,6 @@ int main() {
 
     // Displaying the read data
     printf("\n");
-    printf("========================================\n");
-    printf("  Structs + File I/O Demo\n");
-    printf("========================================\n\n");
-
     printf("--- Wrote %d employees to employees.txt ---\n\n", EMPLOYEE_COUNT);
     printf("--- Read them back: ---\n\n");
     printf("  %-4s | %-10s | %s\n", "ID", "Name", "Salary");
@@ -105,7 +101,6 @@ int main() {
         printf("  %-4d | %-10s | $%.2f\n", readEmployees[i].id, readEmployees[i].name, readEmployees[i].salary);
     }
     printf("\n");
-    printf("========================================\n");
     // need to free the memory:
     free(employees);
     return 0;

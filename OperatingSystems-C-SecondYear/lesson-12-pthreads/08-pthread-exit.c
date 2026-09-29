@@ -25,10 +25,12 @@ void* thread_func(void *arg) {
 }
 
 int main() {
+
     printf("\n");
-    printf("========================================\n");
-    printf("  Main Exits, Threads Continue\n");
-    printf("========================================\n\n");
+    printf("══════════════════════════════════════\n");
+    printf("  Main thread exits early, worker threads continue\n");
+    printf("══════════════════════════════════════\n\n");
+    printf("\n");
     pthread_t threads[3];
     int thread_ids[3] = {1, 2, 3};
     

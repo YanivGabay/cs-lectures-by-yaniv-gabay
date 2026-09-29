@@ -12,10 +12,12 @@
 #include <string.h>
 
 int main() {
+
     printf("\n");
-    printf("========================================\n");
+    printf("══════════════════════════════════════\n");
     printf("  Windows shell argv parsing quirks\n");
-    printf("========================================\n\n");
+    printf("══════════════════════════════════════\n\n");
+    printf("\n");
     char program_name[100];
     char input_string[100];
 
@@ -62,7 +64,6 @@ int main() {
         return 1;
     } else {
         printf("[Shell] Child finished with exit status: %d\n\n", status);
-        printf("========================================\n");
     }
 
     return 0;

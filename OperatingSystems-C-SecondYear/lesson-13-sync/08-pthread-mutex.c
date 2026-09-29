@@ -41,9 +41,6 @@ void* increment_counter(void *arg) {
 
 int main() {
     printf("\n");
-    printf("========================================\n");
-    printf("  pthread_mutex — Thread-Safe Counter\n");
-    printf("========================================\n\n");
     const int NUM_THREADS = 5;
     pthread_t threads[NUM_THREADS];
     int thread_ids[NUM_THREADS];

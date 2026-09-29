@@ -33,10 +33,11 @@ int main()
 {
 
     printf("\n");
-    printf("========================================\n");
-    printf("  Your First fork() — Parent vs Child\n");
-    printf("========================================\n\n");
+    printf("══════════════════════════════════════\n");
+    printf("  Your first fork() example\n");
+    printf("══════════════════════════════════════\n\n");
 
+    printf("\n");
     pid_t pid = fork(); // fork() creates a new process
 
     if (pid < 0)

@@ -2,6 +2,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import LessonCard from '../../components/LessonCard.astro';
 import ProgressBar from '../../components/ProgressBar.astro';
+import ConceptGraph from '../../components/ConceptGraph.astro';
 import { OS_COURSE, lessons } from '../../data/os-lessons';
 
 const phases = [
@@ -82,6 +83,11 @@ const phases = [
         })}
       </div>
     </div>
+  </section>
+
+  {/* Concept Dependency Graph */}
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <ConceptGraph />
   </section>
 
   {/* Lessons by Phase */}

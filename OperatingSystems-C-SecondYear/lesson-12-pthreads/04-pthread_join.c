@@ -25,9 +25,6 @@ void* increment_counter(void *arg);
 
 int main() {
     printf("\n");
-    printf("========================================\n");
-    printf("  pthread_join — Waiting for Threads\n");
-    printf("========================================\n\n");
     const int num_threads = 5;
     pthread_t threads[num_threads];
     int status, i;

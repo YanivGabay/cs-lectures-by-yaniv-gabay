@@ -12,12 +12,13 @@
 void initializeData(int ***data, int rows, int cols);
 
 int main() {
+
+    printf("\n");
+    printf("══════════════════════════════════════\n");
+    printf("  2D dynamic allocation in C (malloc/free)\n");
+    printf("══════════════════════════════════════\n\n");
     
     printf("\n");
-    printf("========================================\n");
-    printf("  Dynamic 2D Array with int*** (triple pointer)\n");
-    printf("========================================\n\n");
-    printf("  Same as example 09, but the function\n");
     printf("  receives int*** so it can allocate\n");
     printf("  the array itself (modify caller's pointer).\n\n");
 

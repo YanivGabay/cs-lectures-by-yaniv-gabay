@@ -19,14 +19,14 @@ void perform_task() {
 }
 
 int main() {
+
+    printf("\n");
+    printf("══════════════════════════════════════\n");
+    printf("  Measuring parallel execution time with fork\n");
+    printf("══════════════════════════════════════\n\n");
     struct timeval start, end;
     pid_t pid;
     double elapsed_time;
-
-    printf("\n");
-    printf("========================================\n");
-    printf("  Parallel Execution with fork()\n");
-    printf("========================================\n");
     printf("  Each process sleeps 2 seconds.\n");
     printf("  Sequential: ~4s. Parallel: ~2s.\n\n");
 

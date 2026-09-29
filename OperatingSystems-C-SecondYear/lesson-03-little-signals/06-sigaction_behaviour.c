@@ -16,6 +16,11 @@ void sigint_handler(int sig) {
 }
 
 int main() {
+
+    printf("\n");
+    printf("══════════════════════════════════════\n");
+    printf("  sigaction vs signal\n");
+    printf("══════════════════════════════════════\n\n");
     struct sigaction sa;
     sa.sa_handler = sigint_handler;
     sa.sa_flags = 0;              // No SA_RESTART — scanf will be interrupted
@@ -27,9 +32,6 @@ int main() {
     }
 
     printf("\n");
-    printf("========================================\n");
-    printf("  sigaction() Behavior During scanf\n");
-    printf("========================================\n\n");
     printf("[Main PID %d] Using sigaction() instead of signal().\n\n", getpid());
     printf("  Key differences from signal():\n");
     printf("    - Handler is NOT reset after first signal\n");

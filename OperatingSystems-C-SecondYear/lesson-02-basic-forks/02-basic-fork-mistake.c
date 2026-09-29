@@ -20,9 +20,9 @@ int main()
 {
 
     printf("\n");
-    printf("========================================\n");
-    printf("  BUG: fork() in a loop without exit()\n");
-    printf("========================================\n");
+    printf("══════════════════════════════════════\n");
+    printf("  The classic fork-in-a-loop bug\n");
+    printf("══════════════════════════════════════\n\n");
     printf("  Watch: children don't exit, so they\n");
     printf("  loop again and fork MORE children!\n\n");
 

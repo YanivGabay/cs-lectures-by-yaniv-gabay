@@ -14,11 +14,12 @@ but first, lets run it as usual.
 */
 
 int main(int argc, char *argv[]) {
+
     printf("\n");
-    printf("========================================\n");
-    printf("  Command-Line Arguments (argc/argv)\n");
-    printf("========================================\n\n");
-    printf("  argc (argument count): %d\n\n", argc);
+    printf("══════════════════════════════════════\n");
+    printf("  Basic argc/argv\n");
+    printf("══════════════════════════════════════\n\n");
+    printf("\n");
     printf("  %-6s | %s\n", "Index", "Value");
     printf("  ------ | -----\n");
     for (int i = 0; i < argc; i++) {
@@ -29,6 +30,5 @@ int main(int argc, char *argv[]) {
         printf("  TIP: Try running with arguments:\n");
         printf("    ./prog hello world 42\n\n");
     }
-    printf("========================================\n");
     return 0;
 }
