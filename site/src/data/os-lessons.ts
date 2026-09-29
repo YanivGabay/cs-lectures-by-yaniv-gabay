@@ -26,7 +26,8 @@ export const OS_COURSE = {
   description:
     'A comprehensive systems programming course covering processes, signals, inter-process communication, sockets, threads, and synchronization — all in C on Linux. Progresses from C fundamentals through fork/exec, pipes, shared memory, and pthreads, culminating in real-world concurrent systems like chat servers, bank simulations, and the dining philosophers problem.',
   college: 'Hadassah Academic College',
-  instructor: 'Yaniv Gabay',
+  curriculum: 'Yoram Biberman',
+  instructor: 'Yaniv Gabay (Teaching Assistant)',
   totalLessons: 15,
   totalExamples: 100,
   language: 'C',
