@@ -1,13 +1,27 @@
-// File: pthread_named_semaphore_example.c
-// Compile with: gcc -Wall -pthread pthread_named_semaphore_example.c -o pthread_named_semaphore_example
+/*
+ * 07-named-semaphore.c — Named semaphores for thread synchronization
+ *
+ * Demonstrates: POSIX named semaphores with sem_open/wait/post/close/unlink
+ * Key concepts: Binary semaphore (init=1) as a mutex, critical section protection,
+ *               named semaphores persist in /dev/shm and work across processes too
+ * Compile: gcc -Wall -o named_sem 07-named-semaphore.c -lpthread
+ * Run:     ./named_sem
+ *
+ * Named vs unnamed semaphores:
+ *   Named:   sem_open("/name", ...) — visible system-wide, survives process death
+ *   Unnamed: sem_init(&sem, ...)    — lives in memory, shared via threads or shm
+ *
+ * If this crashes, clean up with: rm /dev/shm/sem.my_named_semaphore
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <pthread.h>
-#include <unistd.h>
-#include <semaphore.h>   // For semaphore functions
-#include <fcntl.h>       // For O_CREAT, O_EXCL
-#include <sys/stat.h>    // For file mode constants
+#include <string.h>        // for strerror()
+#include <pthread.h>       // for pthread_create/join/exit
+#include <unistd.h>        // for sleep()
+#include <semaphore.h>     // for sem_open/wait/post/close/unlink
+#include <fcntl.h>         // for O_CREAT
+#include <sys/stat.h>      // for mode constants (0666)
 #include <errno.h>
 
 #define NUM_THREADS 5
@@ -30,23 +44,25 @@ void* thread_func(void *arg) {
         }
         
         // Critical Section:
-        snprintf(message, sizeof(message), "Thread %d is in critical section (iteration %d)", id, i);
-        printf("%s\n", message);
-        sleep(1);  // Simulate work in the critical section.
-        
-        // Release (increment) the semaphore.
+        printf("[Thread %d] >>> ENTERED critical section (iteration %d/%d)\n", id, i + 1, NUM_ITERATIONS);
+        sleep(1);
+        printf("[Thread %d] <<< LEAVING critical section — calling sem_post\n", id);
+
         if (sem_post(sem) != 0) {
             perror("sem_post failed");
             pthread_exit(NULL);
         }
-        
-        // Simulate some non-critical work.
+
         sleep(1);
     }
     pthread_exit(NULL);
 }
 
 int main(void) {
+    printf("\n");
+    printf("========================================\n");
+    printf("  Named Semaphore — Mutual Exclusion\n");
+    printf("========================================\n\n");
     pthread_t threads[NUM_THREADS];
     int thread_ids[NUM_THREADS];
     int status;
@@ -60,7 +76,7 @@ int main(void) {
         exit(EXIT_FAILURE);
     }
     
-    printf("Main: Named semaphore '%s' created successfully.\n", SEM_NAME);
+    printf("[Main] Named semaphore \"%s\" created (initial value=1, acts as mutex).\n", SEM_NAME);
     
     // Create NUM_THREADS threads.
     for (int i = 0; i < NUM_THREADS; i++) {
@@ -86,6 +102,8 @@ int main(void) {
         perror("sem_unlink failed");
     }
     
-    printf("Main: All threads finished. Semaphore unlinked.\n");
+    printf("\n[Main] All threads finished.\n");
+    printf("[Main] Notice: only ONE thread was in the critical section at a time!\n");
+    printf("[Main] Semaphore \"%s\" unlinked (cleaned up from /dev/shm).\n", SEM_NAME);
     return EXIT_SUCCESS;
 }

@@ -1,3 +1,10 @@
+/*
+ * creator.c — Shared memory creator — shmget + shmat basics
+ *
+ * Key concepts: shmget, shmat, IPC_CREAT, writing to shared memory
+ * Compile: gcc -o creator creator.c
+ * Run:     ./prog
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -14,6 +21,10 @@ const char FULL = '+';
 
 int main(int argc, char const *argv[])
 {
+    printf("\n");
+    printf("══════════════════════════════════════\n");
+    printf("  Shared memory creator — shmget + s\n");
+    printf("══════════════════════════════════════\n\n");
     key_t key;
     int shmid;
     char *shared_mem_ptr;
@@ -51,17 +62,18 @@ int main(int argc, char const *argv[])
 
     shared_mem_ptr[0] = EMPTY;
 
-    printf("now we can read input from the user\n");
+    printf("[Creator PID %d] Shared memory created (shmid=%d). Ready for input.\n", getpid(), shmid);
 
     while (1) {
-        printf("Enter a string: ");
+        printf("Enter a string to write to shared memory (or 'exit' to quit): ");
+        fflush(stdout);
         fgets(str, MAX_STRING_SIZE, stdin);
         //remove the newline character
         str[strcspn(str, "\n")] = 0;
 
         //check if the shared memory is full
         while (shared_mem_ptr[0] == FULL) {
-            printf("The shared memory is full. Please wait.\n");
+            printf("[Creator] Waiting — consumer hasn't read the last message yet...\n");
             sleep(1);
             
         }
@@ -70,7 +82,7 @@ int main(int argc, char const *argv[])
         strcpy(shared_mem_ptr + 1, str);
         shared_mem_ptr[0] = FULL;
 
-        printf("String sent to shared memory: %s\n", str);
+        printf("[Creator] Wrote to shared memory: \"%s\"\n", str);
 
         //check if the user wants to exit
         if (strcmp(str, "exit") == 0) {

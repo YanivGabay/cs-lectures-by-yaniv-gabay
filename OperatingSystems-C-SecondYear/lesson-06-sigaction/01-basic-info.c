@@ -1,3 +1,10 @@
+/*
+ * 01-basic-info.c — sigaction struct reference — fields and usage guide
+ *
+ * Key concepts: struct sigaction, sa_handler, sa_mask, sa_flags
+ * Compile: gcc -o info 01-basic-info.c
+ * Run:     ./prog
+ */
 
 
 //content of the sigaction struct

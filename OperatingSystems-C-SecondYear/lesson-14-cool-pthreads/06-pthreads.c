@@ -1,3 +1,10 @@
+/*
+ * 06-pthreads.c — Thread-safe counter with mutex
+ *
+ * Key concepts: pthread_mutex_lock/unlock, shared counter, thread safety
+ * Compile: gcc -o counter 06-pthreads.c -lpthread
+ * Run:     ./prog
+ */
 // File: thread_safe_counter.c
 // Compile with: gcc -Wall -pthread -o thread_safe_counter thread_safe_counter.c
 
@@ -29,6 +36,10 @@ void* increment_counter(void* arg) {
 }
 
 int main() {
+    printf("\n");
+    printf("========================================\n");
+    printf("  Thread-safe counter with mutex\n");
+    printf("========================================\n\n");
     pthread_t threads[NUM_THREADS];
     int rc;
 
@@ -38,24 +49,29 @@ int main() {
         exit(EXIT_FAILURE);
     }
 
-    // Create threads
+    printf("[Main] %d threads, each incrementing %d times = %d total.\n", NUM_THREADS, INCREMENTS_PER_THREAD, NUM_THREADS * INCREMENTS_PER_THREAD);
+    printf("[Main] Using mutex for every increment (safe but slow).\n\n");
+
     for (long t = 0; t < NUM_THREADS; t++) {
         rc = pthread_create(&threads[t], NULL, increment_counter, NULL);
         if (rc) {
-            fprintf(stderr, "Error: Unable to create thread %ld, return code %d\n", t, rc);
+            fprintf(stderr, "[Main] ERROR: pthread_create failed (thread %ld, rc=%d)\n", t, rc);
             exit(EXIT_FAILURE);
         }
+        printf("[Main] Thread %ld created\n", t);
     }
 
-    // Wait for all threads to finish
+    printf("[Main] Waiting for all threads...\n");
     for (int t = 0; t < NUM_THREADS; t++) {
         pthread_join(threads[t], NULL);
     }
 
-    // Destroy the mutex
     pthread_mutex_destroy(&counter_mutex);
 
-    // Expected counter value: NUM_THREADS * INCREMENTS_PER_THREAD
-    printf("Final counter value: %lld (Expected: %d)\n", counter, NUM_THREADS * INCREMENTS_PER_THREAD);
+    long long expected = (long long)NUM_THREADS * INCREMENTS_PER_THREAD;
+    printf("\n══════════════════════════════════════\n");
+    printf("  Expected: %lld\n", expected);
+    printf("  Actual:   %lld %s\n", counter, counter == expected ? "✓ correct!" : "← BUG!");
+    printf("══════════════════════════════════════\n");
     return 0;
 }

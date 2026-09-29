@@ -1,3 +1,10 @@
+/*
+ * 08-cool-bank.c — Bank simulation — concurrent account transfers
+ *
+ * Key concepts: Multiple threads transferring money, mutex per account, avoiding deadlock
+ * Compile: gcc -o bank 08-cool-bank.c -lpthread
+ * Run:     ./prog
+ */
 // File: thread_safe_bank.c
 // Compile with: gcc -Wall -pthread -o thread_safe_bank thread_safe_bank.c
 
@@ -23,11 +30,11 @@ void* deposit(void* arg) {
         
         // Critical section: Deposit $1
         account_balance += 1;
-        //p//rintf("Deposited $1\n");
+        // (not printing per-operation to avoid flooding output with 1000 lines)
         // Unlock the mutex after modification
         pthread_mutex_unlock(&account_mutex);
     }
-    printf("Thread %ld finished deposit\n", pthread_self());
+    printf("[Deposit Thread] Finished — deposited $%d total\n", OPERATIONS_PER_THREAD);
     pthread_exit(NULL);
 }
 
@@ -41,15 +48,21 @@ void* withdraw(void* arg) {
         
             account_balance -= 1;
        
-       // printf("Withdrew $1\n");
+        // (not printing per-operation to avoid flooding output)
         // Unlock the mutex after modification
         pthread_mutex_unlock(&account_mutex);
     }
-    printf("Thread %ld finished withdraw\n", pthread_self());
+    printf("[Withdraw Thread] Finished — withdrew $%d total\n", OPERATIONS_PER_THREAD);
     pthread_exit(NULL);
 }
 
 int main() {
+    printf("\n");
+    printf("══════════════════════════════════════\n");
+    printf("  Bank Simulation — Concurrent Transfers\n");
+    printf("══════════════════════════════════════\n\n");
+    printf("[Main] %d threads: %d deposit, %d withdraw. Each does %d operations ($1 each).\n", NUM_THREADS, NUM_THREADS/2, NUM_THREADS/2, OPERATIONS_PER_THREAD);
+    printf("[Main] With mutex: balance should end at $0 (deposits == withdrawals).\n\n");
     pthread_t threads[NUM_THREADS];
     int rc;
 
@@ -80,9 +93,9 @@ int main() {
     // Destroy the mutex
     pthread_mutex_destroy(&account_mutex);
 
-    // Display the final account balance
-    printf("Final account balance: %lld\n", account_balance);
-    // Expected balance: Number of deposit threads * OPERATIONS_PER_THREAD - Number of withdrawal threads * OPERATIONS_PER_THREAD
-    printf("Expected balance: %d\n", (NUM_THREADS / 2) * OPERATIONS_PER_THREAD - (NUM_THREADS / 2) * OPERATIONS_PER_THREAD);
+    long long expected = 0; // equal deposits and withdrawals
+    printf("\n══════════════════════════════════════\n");
+    printf("  Final balance: $%lld (expected: $%lld) %s\n", account_balance, expected, account_balance == expected ? "✓" : "← BUG!");
+    printf("══════════════════════════════════════\n");
     return 0;
 }

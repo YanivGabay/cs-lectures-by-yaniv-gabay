@@ -1,3 +1,10 @@
+/*
+ * 03-multi-signals.c — Handling multiple signals with sigaction
+ *
+ * Key concepts: multiple signal handlers, SIGINT, SIGTERM, SIGUSR1
+ * Compile: gcc -o multi 03-multi-signals.c
+ * Run:     ./prog
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <signal.h>
@@ -17,6 +24,11 @@ void handle_sigint(int signum);
 void handle_sigterm(int signum);
 
 int main() {
+    printf("\n");
+    printf("══════════════════════════════════════\n");
+    printf("  Multiple Signal Handlers\n");
+    printf("  SIGINT (Ctrl+C) vs SIGTERM (kill)\n");
+    printf("══════════════════════════════════════\n\n");
     struct sigaction sa_int, sa_term;
 
     // Setup handler for SIGINT
@@ -28,6 +40,7 @@ int main() {
         perror("Error: sigaction for SIGINT failed");
         exit(EXIT_FAILURE);
     }
+    printf("[Setup] Registered handle_sigint  for SIGINT  (signal 2)\n");
 
     // Setup handler for SIGTERM
     sa_term.sa_handler = handle_sigterm;
@@ -38,13 +51,16 @@ int main() {
         perror("Error: sigaction for SIGTERM failed");
         exit(EXIT_FAILURE);
     }
+    printf("[Setup] Registered handle_sigterm for SIGTERM (signal 15)\n\n");
 
-    printf("Process PID: %d\n", getpid());
-    printf("Press Ctrl+C to send SIGINT or use 'kill' command to send SIGTERM.\n");
+    printf("[Info]  Process PID: %d\n", getpid());
+    printf("[Info]  Ctrl+C sends SIGINT  — our handler catches it (won't exit)\n");
+    printf("[Info]  To exit: run 'kill %d' from another terminal (sends SIGTERM)\n\n", getpid());
 
     // Infinite loop to keep the program running
+    int tick = 0;
     while (1) {
-        printf("Program running... PID: %d\n", getpid());
+        printf("  [Tick %d] Waiting for signals... (PID %d)\n", ++tick, getpid());
         sleep(3);
     }
 
@@ -54,11 +70,12 @@ int main() {
 // Functions
 
 void handle_sigint(int signum) {
-    printf("\nReceived SIGINT (signal number %d). Press Ctrl+C again to exit.\n", signum);
+    printf("\n[Handler] Caught SIGINT (signal %d) — ignoring, still running!\n", signum);
+    printf("[Handler] To actually exit, send SIGTERM: kill %d\n\n", getpid());
 }
 
 // Handler for SIGTERM
 void handle_sigterm(int signum) {
-    printf("\nReceived SIGTERM (signal number %d). Terminating program.\n", signum);
+    printf("\n[Handler] Caught SIGTERM (signal %d) — shutting down.\n", signum);
     exit(0);
 }

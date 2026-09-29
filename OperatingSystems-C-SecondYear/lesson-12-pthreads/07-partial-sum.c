@@ -1,3 +1,10 @@
+/*
+ * 07-partial-sum.c — Parallel partial sum — dividing work across threads
+ *
+ * Key concepts: Thread work partitioning, combining partial results
+ * Compile: gcc -o partsum 07-partial-sum.c -lpthread
+ * Run:     ./prog
+ */
 // File: parallel_sum.c
 // Compile with: gcc -Wall -pthread parallel_sum.c -o parallel_sum
 
@@ -18,16 +25,15 @@ void* compute_partial_sum(void *arg) {
     int end = start + (ARRAY_SIZE / NUM_THREADS);
     int sum = 0;
 
-    printf("Thread %d: processing elements from index %d to %d (values: ", thread_id, start, end - 1);
+    printf("[Thread %d] Processing indices %d..%d: ", thread_id, start, end - 1);
     for (int i = start; i < end; i++) {
         printf("%d", arr[i]);
-        if (i < end - 1) printf(", ");
+        if (i < end - 1) printf(" + ");
         sum += arr[i];
     }
-    printf(")\n");
+    printf(" = %d\n", sum);
 
     partial_sums[thread_id] = sum;
-    printf("Thread %d: computed partial sum = %d\n", thread_id, sum);
     pthread_exit(NULL);
 }
 
@@ -38,6 +44,10 @@ int main() {
     int total_sum = 0;
 
     // Initialize the array with values 1 to ARRAY_SIZE.
+    printf("\n");
+    printf("========================================\n");
+    printf("  Parallel Partial Sum\n");
+    printf("========================================\n\n");
     printf("Initializing array with values: ");
     for (int i = 0; i < ARRAY_SIZE; i++) {
         arr[i] = i + 1;
@@ -47,7 +57,7 @@ int main() {
     printf("\n\n");
 
     // Create threads: Each thread computes a part of the sum.
-    printf("Creating %d threads to compute partial sums...\n\n", NUM_THREADS);
+    printf("[Main] Splitting into %d threads (%d elements each)...\n\n", NUM_THREADS, ARRAY_SIZE / NUM_THREADS);
     for (int i = 0; i < NUM_THREADS; i++) {
         thread_ids[i] = i;
         status = pthread_create(&threads[i], NULL, compute_partial_sum, (void *)&thread_ids[i]);
@@ -60,7 +70,7 @@ int main() {
     // Wait for all threads to finish.
     for (int i = 0; i < NUM_THREADS; i++) {
         pthread_join(threads[i], NULL);
-        printf("Main thread: collected partial sum from thread %d = %d\n", i, partial_sums[i]);
+        printf("[Main] Thread %d finished — partial sum = %d\n", i, partial_sums[i]);
     }
 
     // Calculate the total sum.
@@ -68,6 +78,9 @@ int main() {
         total_sum += partial_sums[i];
     }
 
-    printf("\nTotal sum of the array = %d\n", total_sum);
+    printf("\n══════════════════════════════════════\n");
+    printf("  Total sum = %d", total_sum);
+    printf("  (sum of 1..%d = %d × %d / 2 = %d ✓)\n", ARRAY_SIZE, ARRAY_SIZE, ARRAY_SIZE + 1, ARRAY_SIZE * (ARRAY_SIZE + 1) / 2);
+    printf("══════════════════════════════════════\n");
     return EXIT_SUCCESS;
 }

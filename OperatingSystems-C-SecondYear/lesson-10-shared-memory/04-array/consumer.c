@@ -1,3 +1,10 @@
+/*
+ * consumer.c — Shared array consumer — reads from shared array
+ *
+ * Key concepts: Reading shared memory array
+ * Compile: gcc -o arr_cons consumer.c
+ * Run:     ./prog
+ */
 // array_consumer.c
 #include <stdio.h>
 #include <stdlib.h>
@@ -22,6 +29,10 @@ void handle_sigint(int sig) {
 }
 
 int main() {
+    printf("\n");
+    printf("══════════════════════════════════════\n");
+    printf("  Shared array consumer — reads from\n");
+    printf("══════════════════════════════════════\n\n");
     // Register signal handler
     signal(SIGINT, handle_sigint);
 

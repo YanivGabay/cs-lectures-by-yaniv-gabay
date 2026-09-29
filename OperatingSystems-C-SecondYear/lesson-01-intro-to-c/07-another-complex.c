@@ -1,3 +1,10 @@
+/*
+ * 07-another-complex.c — More complex scanf/printf patterns
+ *
+ * Key concepts: format strings, type modifiers
+ * Compile: gcc -o prog 07-another-complex.c
+ * Run:     ./prog
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -11,7 +18,14 @@ int main() {
     int numGrades = 0;   // Number of grades read
     char name[100];      // String to store the name
 
-    printf("Enter grades followed by a name: ");
+    printf("\n");
+    printf("========================================\n");
+    printf("  Tokenizing Input (strtok + realloc)\n");
+    printf("========================================\n\n");
+    printf("  Enter grades followed by a name\n");
+    printf("  Example: 90 85 72 John Smith\n\n");
+    printf("  > ");
+    fflush(stdout);
     read = getline(&line, &len, stdin); // Read the line
     if (read == -1) {
         printf("Failed to read input\n");
@@ -47,12 +61,14 @@ int main() {
     }
 
     // Output the results
-    printf("Name: %s\n", name);
-    printf("Grades: ");
+    printf("\n  --- Parsed Result ---\n\n");
+    printf("  Name:   %s\n", name);
+    printf("  Grades: ");
     for (int i = 0; i < numGrades; i++) {
-        printf("%d ", grades[i]);
+        printf("%d%s", grades[i], (i < numGrades - 1) ? ", " : "");
     }
-    printf("\n");
+    printf("  (%d total)\n\n", numGrades);
+    printf("========================================\n");
 
     // Clean up
     free(grades);

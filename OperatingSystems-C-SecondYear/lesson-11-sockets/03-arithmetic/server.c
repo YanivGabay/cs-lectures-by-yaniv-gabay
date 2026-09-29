@@ -1,3 +1,10 @@
+/*
+ * server.c — Arithmetic expression server — parses and evaluates
+ *
+ * Key concepts: Receives math expressions, parses, computes, returns result
+ * Compile: gcc -o arith_server server.c
+ * Run:     ./prog
+ */
 // File: arith_server.c
 
 #include <stdio.h>
@@ -19,6 +26,10 @@ double compute_expression(const char *expr);
 
 int main()
 {
+    printf("\n");
+    printf("══════════════════════════════════════\n");
+    printf("  Arithmetic expression server — par\n");
+    printf("══════════════════════════════════════\n\n");
     int rc; // Return code
     int main_socket;
     int serving_socket;
@@ -81,7 +92,7 @@ int main()
     FD_SET(main_socket, &rfd); // Add the main socket to the master set
     max_fd = main_socket;      // Keep track of the maximum file descriptor
 
-    printf("Arithmetic server: waiting for connections on port %s...\n", MY_PORT);
+    printf("[Server] Listening on port %s...\n", MY_PORT);
 
     // Main loop to handle incoming connections and data
     while (1)
@@ -108,7 +119,7 @@ int main()
                 {
                     max_fd = serving_socket; // Update the maximum file descriptor
                 }
-                printf("Arithmetic server: new connection accepted (fd: %d)\n", serving_socket);
+                printf("[Server] New client connected (fd=%d)\n", serving_socket);
             }
             else
             {
@@ -127,7 +138,7 @@ int main()
                     if (rc == 0)
                     {
                         // Connection closed by client
-                        printf("Arithmetic server: connection closed (fd: %d)\n", fd);
+                        printf("[Server] Client disconnected (fd=%d)\n", fd);
                     }
                     else
                     {
@@ -139,7 +150,7 @@ int main()
                 else
                 {
                     buf[rc] = '\0'; // Null-terminate the string
-                    printf("Arithmetic server: received '%s' from fd %d\n", buf, fd);
+                    printf("[Server] Received from fd=%d: \"%s\"\n", fd, buf);
 
                     // Compute the result
                     double result = compute_expression(buf);

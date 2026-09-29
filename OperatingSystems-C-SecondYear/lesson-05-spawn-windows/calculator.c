@@ -1,7 +1,18 @@
+/*
+ * calculator.c — Calculator for Windows spawn examples
+ *
+ * Key concepts: Simple calculator, used as child process by main.c
+ * Compile: gcc -o calculator calculator.c
+ * Run:     ./prog
+ */
 #include <stdio.h>
 #include <stdlib.h>
 
 int main(int argc, char *argv[]) {
+    printf("\n");
+    printf("========================================\n");
+    printf("  Calculator for Windows spawn example\n");
+    printf("========================================\n\n");
     if (argc != 4) {
         //recived the following arguments:
         printf("argc in calculator: %d\n", argc);
@@ -36,6 +47,7 @@ int main(int argc, char *argv[]) {
             return 1;
     }
 
-    printf("(output from calculator) Result: %d %c %d = %d\n", num1, operator, num2, result);
+    printf("[Calculator] %d %c %d = %d\n", num1, operator, num2, result);
+    printf("\n========================================\n");
     return 0;
 }

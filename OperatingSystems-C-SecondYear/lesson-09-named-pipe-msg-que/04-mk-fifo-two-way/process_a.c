@@ -1,3 +1,10 @@
+/*
+ * process_a.c — Two-way FIFO — process A (writes then reads)
+ *
+ * Key concepts: Bidirectional IPC using two named pipes
+ * Compile: gcc -o proc_a process_a.c
+ * Run:     ./prog
+ */
 // process_a.c
 #include <stdio.h>
 #include <stdlib.h>
@@ -13,6 +20,10 @@ const int BUFFER_SIZE = 1024;
 
 
 int main() {
+    printf("\n");
+    printf("══════════════════════════════════════\n");
+    printf("  Two-way FIFO — process A (writes t\n");
+    printf("══════════════════════════════════════\n\n");
     FILE *fp_write, *fp_read;
     char buffer[BUFFER_SIZE];
     pid_t pid = getpid();

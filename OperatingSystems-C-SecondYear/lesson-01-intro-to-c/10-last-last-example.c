@@ -1,3 +1,10 @@
+/*
+ * 10-last-last-example.c — 2D dynamic allocation in C (malloc/free)
+ *
+ * Key concepts: malloc, free, 2D arrays, pointer-to-pointer
+ * Compile: gcc -o prog 10-last-last-example.c
+ * Run:     ./prog
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -6,17 +13,33 @@ void initializeData(int ***data, int rows, int cols);
 
 int main() {
     
+    printf("\n");
+    printf("========================================\n");
+    printf("  Dynamic 2D Array with int*** (triple pointer)\n");
+    printf("========================================\n\n");
+    printf("  Same as example 09, but the function\n");
+    printf("  receives int*** so it can allocate\n");
+    printf("  the array itself (modify caller's pointer).\n\n");
+
     int rows = 3, cols = 4;
     int ** data;
-    initializeData(&data, rows, cols);  // Initialize the 2D array
+    printf("  Calling initializeData(&data, %d, %d)...\n\n", rows, cols);
+    initializeData(&data, rows, cols);
 
-    // Print the data
+    printf("  Values (data[i][j] = i * %d + j):\n\n", cols);
+    printf("       ");
+    for (int j = 0; j < cols; j++) printf("col%-2d ", j);
+    printf("\n       ");
+    for (int j = 0; j < cols; j++) printf("----- ");
+    printf("\n");
     for (int i = 0; i < rows; i++) {
+        printf("  row%d |", i);
         for (int j = 0; j < cols; j++) {
-            printf("%d ", data[i][j]);
+            printf(" %3d  ", data[i][j]);
         }
         printf("\n");
     }
+    printf("\n========================================\n");
 
     // Free the allocated memory
     for (int i = 0; i < rows; i++) {

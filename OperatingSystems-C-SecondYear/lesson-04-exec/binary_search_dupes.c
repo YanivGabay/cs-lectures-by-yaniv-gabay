@@ -1,3 +1,10 @@
+/*
+ * binary_search_dupes.c — Binary search with duplicate handling (utility/review)
+ *
+ * Key concepts: binary search, arrays, review from previous courses
+ * Compile: gcc -o bsearch binary_search_dupes.c
+ * Run:     ./prog
+ */
 #include <stdio.h>
 
 
@@ -47,29 +54,39 @@ int count_occurrences(int arr[], int size, int target) {
 
 // Function to run test cases
 void run_tests() {
+    printf("  %-6s | %-28s | %-8s | %-8s | %s\n", "Test", "Array", "Target", "Got", "Expected");
+    printf("  ------ | ---------------------------- | -------- | -------- | --------\n");
+
     int test1[] = {1, 2, 2, 2, 3, 4, 5};
-    int size1 = sizeof(test1) / sizeof(test1[0]);
-    printf("Test 1: Count of 2 = %d (Expected: 3)\n", count_occurrences(test1, size1, 2));
+    int r1 = count_occurrences(test1, 7, 2);
+    printf("  #1     | {1,2,2,2,3,4,5}             | 2        | %-8d | 3  %s\n", r1, r1 == 3 ? "OK" : "FAIL");
 
     int test2[] = {1, 1, 1, 1, 1, 1};
-    int size2 = sizeof(test2) / sizeof(test2[0]);
-    printf("Test 2: Count of 1 = %d (Expected: 6)\n", count_occurrences(test2, size2, 1));
+    int r2 = count_occurrences(test2, 6, 1);
+    printf("  #2     | {1,1,1,1,1,1}               | 1        | %-8d | 6  %s\n", r2, r2 == 6 ? "OK" : "FAIL");
 
     int test3[] = {1, 2, 3, 4, 5, 6, 7};
-    int size3 = sizeof(test3) / sizeof(test3[0]);
-    printf("Test 3: Count of 5 = %d (Expected: 1)\n", count_occurrences(test3, size3, 5));
+    int r3 = count_occurrences(test3, 7, 5);
+    printf("  #3     | {1,2,3,4,5,6,7}             | 5        | %-8d | 1  %s\n", r3, r3 == 1 ? "OK" : "FAIL");
 
     int test4[] = {1, 3, 3, 3, 5, 5, 5, 7};
-    int size4 = sizeof(test4) / sizeof(test4[0]);
-    printf("Test 4: Count of 3 = %d (Expected: 3)\n", count_occurrences(test4, size4, 3));
+    int r4 = count_occurrences(test4, 8, 3);
+    printf("  #4     | {1,3,3,3,5,5,5,7}           | 3        | %-8d | 3  %s\n", r4, r4 == 3 ? "OK" : "FAIL");
 
     int test5[] = {1, 2, 3, 4, 5};
-    int size5 = sizeof(test5) / sizeof(test5[0]);
-    printf("Test 5: Count of 10 = %d (Expected: 0)\n", count_occurrences(test5, size5, 10));
+    int r5 = count_occurrences(test5, 5, 10);
+    printf("  #5     | {1,2,3,4,5}                 | 10       | %-8d | 0  %s\n", r5, r5 == 0 ? "OK" : "FAIL");
 }
 
 // Main function
 int main() {
+    printf("\n");
+    printf("========================================\n");
+    printf("  Binary Search with Duplicate Counting\n");
+    printf("========================================\n\n");
+    printf("  Complexity: O(log n) to find + O(k) to count duplicates\n");
+    printf("  Worst case: O(n) if all elements are the same.\n\n");
     run_tests();
+    printf("\n========================================\n");
     return 0;
 }

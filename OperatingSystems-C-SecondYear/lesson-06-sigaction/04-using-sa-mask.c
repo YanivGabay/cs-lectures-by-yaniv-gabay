@@ -1,3 +1,10 @@
+/*
+ * 04-using-sa-mask.c — Blocking signals during handler execution with sa_mask
+ *
+ * Key concepts: sa_mask, sigaddset(), signals blocked while handler runs
+ * Compile: gcc -o mask 04-using-sa-mask.c
+ * Run:     ./prog
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <signal.h>
@@ -14,18 +21,26 @@
 
 // Handler for SIGUSR1
 void handle_sigusr1(int signum) {
-    printf("\nHandling SIGUSR1 (signal number %d). SIGUSR2 is blocked during this handler.\n", signum);
+    printf("\n[USR1 Handler] Entered! Signal %d received.\n", signum);
+    printf("[USR1 Handler] SIGUSR2 is BLOCKED while this handler runs (sa_mask).\n");
+    printf("[USR1 Handler] Sleeping 5 seconds... send SIGUSR2 now to test blocking!\n");
+    fflush(stdout);
     // Simulate long processing time
     sleep(5);
-    printf("Finished handling SIGUSR1.\n");
+    printf("[USR1 Handler] Done. SIGUSR2 will be delivered NOW if it was pending.\n\n");
 }
 
 // Handler for SIGUSR2
 void handle_sigusr2(int signum) {
-    printf("\nHandling SIGUSR2 (signal number %d).\n", signum);
+    printf("[USR2 Handler] Caught signal %d (SIGUSR2).\n\n", signum);
 }
 
 int main() {
+    printf("\n");
+    printf("══════════════════════════════════════\n");
+    printf("  sa_mask — Blocking Signals in Handler\n");
+    printf("  SIGUSR2 is blocked while SIGUSR1 handler runs\n");
+    printf("══════════════════════════════════════\n\n");
     struct sigaction sa_usr1, sa_usr2;
 
     // Setup handler for SIGUSR1 with SIGUSR2 blocked during handler
@@ -38,6 +53,7 @@ int main() {
         perror("Error: sigaction for SIGUSR1 failed");
         exit(EXIT_FAILURE);
     }
+    printf("[Setup] SIGUSR1 handler registered (sa_mask includes SIGUSR2)\n");
 
     // Setup handler for SIGUSR2
     sa_usr2.sa_handler = handle_sigusr2;
@@ -48,13 +64,17 @@ int main() {
         perror("Error: sigaction for SIGUSR2 failed");
         exit(EXIT_FAILURE);
     }
+    printf("[Setup] SIGUSR2 handler registered (sa_mask empty)\n\n");
 
-    printf("Process PID: %d\n", getpid());
-    printf("Send SIGUSR1 and than (in a 5 secs window) SIGUSR2 signals to see blocking in action.\n");
+    printf("[Info]  Process PID: %d\n", getpid());
+    printf("[Test]  Step 1: kill -SIGUSR1 %d   (starts 5s handler)\n", getpid());
+    printf("[Test]  Step 2: kill -SIGUSR2 %d   (within 5s — will be blocked!)\n", getpid());
+    printf("[Test]  Watch: SIGUSR2 handler runs AFTER SIGUSR1 handler finishes.\n\n");
 
     // Infinite loop to keep the program running
+    int tick = 0;
     while (1) {
-        printf("Program idle... Waiting for signals.\n");
+        printf("  [Tick %d] Waiting for signals... (PID %d)\n", ++tick, getpid());
         sleep(2);
     }
 

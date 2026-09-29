@@ -1,3 +1,10 @@
+/*
+ * 09-last-example.c — Advanced pointer patterns and string manipulation
+ *
+ * Key concepts: pointers, strings, arrays
+ * Compile: gcc -o prog 09-last-example.c
+ * Run:     ./prog
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -6,17 +13,30 @@ void initializeData(int **data, int rows, int cols);
 
 int main() {
     
-    int rows = 3, cols = 4;
-    int **data = malloc(rows * sizeof(int*));
-    initializeData(data, rows, cols);  // Initialize the 2D array
+    printf("\n");
+    printf("========================================\n");
+    printf("  Dynamic 2D Array with int**\n");
+    printf("========================================\n\n");
 
-    // Print the data
+    int rows = 3, cols = 4;
+    printf("  Allocating %dx%d matrix with malloc...\n\n", rows, cols);
+    int **data = malloc(rows * sizeof(int*));
+    initializeData(data, rows, cols);
+
+    printf("  Values (data[i][j] = i * %d + j):\n\n", cols);
+    printf("       ");
+    for (int j = 0; j < cols; j++) printf("col%-2d ", j);
+    printf("\n       ");
+    for (int j = 0; j < cols; j++) printf("----- ");
+    printf("\n");
     for (int i = 0; i < rows; i++) {
+        printf("  row%d |", i);
         for (int j = 0; j < cols; j++) {
-            printf("%d ", data[i][j]);
+            printf(" %3d  ", data[i][j]);
         }
         printf("\n");
     }
+    printf("\n========================================\n");
 
     // Free the allocated memory
     for (int i = 0; i < rows; i++) {

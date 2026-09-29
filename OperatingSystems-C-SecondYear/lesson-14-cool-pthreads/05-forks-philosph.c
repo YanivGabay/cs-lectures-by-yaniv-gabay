@@ -1,5 +1,11 @@
-// File: ipc_dining_philosophers.c
-// Compile with: gcc -Wall -o ipc_dining_philosophers ipc_dining_philosophers.c -lrt
+/*
+ * 05-forks-philosph.c — Dining Philosophers problem — classic deadlock scenario
+ *
+ * Key concepts: Named semaphores, shared memory, fork(), deadlock prevention
+ *               via resource ordering (lowest-numbered fork first)
+ * Compile: gcc -o philosophers 05-forks-philosph.c -lpthread -lrt
+ * Run:     ./philosophers
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -41,6 +47,12 @@ void cleanup_semaphores();
 void cleanup_shared_memory();
 
 int main() {
+    printf("\n");
+    printf("══════════════════════════════════════\n");
+    printf("  Dining Philosophers Problem\n");
+    printf("══════════════════════════════════════\n\n");
+    printf("[Main] Classic deadlock scenario solved with resource ordering.\n");
+    printf("[Main] Each philosopher picks up the lower-numbered fork first.\n\n");
     pid_t pid;
     sem_t *forks[NUM_PHILOSOPHERS];
     key_t shm_key;
@@ -51,7 +63,7 @@ int main() {
     for (int i = 0; i < NUM_PHILOSOPHERS; i++) {
         sem_unlink(fork_names[i]);
     }
-    shm_unlink("/shm_dining_ipc");
+    // Note: using System V shared memory (shmget), not POSIX (shm_open)
 
     // Initialize semaphores for forks
     for (int i = 0; i < NUM_PHILOSOPHERS; i++) {
@@ -125,9 +137,9 @@ int main() {
     }
 
     // Display dining status
-    printf("\nDining Status:\n");
+    printf("\n--- Dining Status (from shared memory) ---\n");
     for (int i = 0; i < NUM_PHILOSOPHERS; i++) {
-        printf("Philosopher %d ate %d times.\n", i, dining_status->times_eaten[i]);
+        printf("  Philosopher %d: ate %d times\n", i, dining_status->times_eaten[i]);
     }
 
     // Cleanup
@@ -135,7 +147,7 @@ int main() {
     shmctl(shm_id, IPC_RMID, NULL);
     cleanup_semaphores();
 
-    printf("Dining Philosophers simulation completed.\n");
+    printf("\n--- Dining Philosophers simulation completed (no deadlocks!) ---\n");
     return EXIT_SUCCESS;
 }
 
@@ -149,29 +161,23 @@ void philosopher(int phil_id, sem_t **forks, dining_status_t *status) {
 
     for (int i = 0; i < EAT_COUNT; i++) {
         // Thinking
-        printf("Philosopher %d is thinking.\n", phil_id);
+        printf("[Philosopher %d] 💭 Thinking... (round %d/%d)\n", phil_id, i + 1, EAT_COUNT);
         usleep((rand() % 500 + 500) * 1000); // 0.5 to 1 second
 
         // Picking up first fork
-        printf("Philosopher %d is hungry and tries to pick up fork %d.\n", phil_id, first);
+        printf("[Philosopher %d] Hungry! Reaching for fork %d (lower-numbered first to prevent deadlock)\n", phil_id, first);
         if (sem_wait(forks[first]) == -1) {
             perror("sem_wait failed on first fork");
             exit(EXIT_FAILURE);
         }
-        printf("Philosopher %d picked up fork %d.\n", phil_id, first);
-
-        // Picking up second fork
-        printf("Philosopher %d tries to pick up fork %d.\n", phil_id, second);
+        printf("[Philosopher %d] ✓ Got fork %d. Now reaching for fork %d...\n", phil_id, first, second);
         if (sem_wait(forks[second]) == -1) {
             perror("sem_wait failed on second fork");
             // Release the first fork before exiting
             sem_post(forks[first]);
             exit(EXIT_FAILURE);
         }
-        printf("Philosopher %d picked up fork %d.\n", phil_id, second);
-
-        // Eating
-        printf("Philosopher %d is eating.\n", phil_id);
+        printf("[Philosopher %d] ✓ Got fork %d. 🍝 EATING!\n", phil_id, second);
         usleep((rand() % 500 + 500) * 1000); // 0.5 to 1 second
         status->times_eaten[phil_id]++;
 
@@ -180,17 +186,17 @@ void philosopher(int phil_id, sem_t **forks, dining_status_t *status) {
             perror("sem_post failed on second fork");
             exit(EXIT_FAILURE);
         }
-        printf("Philosopher %d put down fork %d.\n", phil_id, second);
+        printf("[Philosopher %d] Put down fork %d\n", phil_id, second);
 
         // Putting down first fork
         if (sem_post(forks[first]) == -1) {
             perror("sem_post failed on first fork");
             exit(EXIT_FAILURE);
         }
-        printf("Philosopher %d put down fork %d.\n", phil_id, first);
+        printf("[Philosopher %d] Put down fork %d — done eating.\n", phil_id, first);
     }
 
-    printf("Philosopher %d has finished dining.\n", phil_id);
+    printf("[Philosopher %d] Finished! Ate %d times total.\n", phil_id, EAT_COUNT);
 }
 
 void cleanup_semaphores() {

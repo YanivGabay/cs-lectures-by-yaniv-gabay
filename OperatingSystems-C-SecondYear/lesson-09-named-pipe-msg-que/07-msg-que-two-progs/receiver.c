@@ -1,3 +1,10 @@
+/*
+ * receiver.c — Message queue receiver (separate program)
+ *
+ * Key concepts: msgrcv, blocking receive, message types
+ * Compile: gcc -o receiver receiver.c
+ * Run:     ./prog
+ */
 // receiver.c
 #include <stdio.h>
 #include <stdlib.h>
@@ -12,6 +19,10 @@ struct my_msgbuf {
 };
 
 int main() {
+    printf("\n");
+    printf("══════════════════════════════════════\n");
+    printf("  Message queue receiver (separate pro\n");
+    printf("══════════════════════════════════════\n\n");
     key_t key;
     int msgid;
     struct my_msgbuf buf;

@@ -1,12 +1,25 @@
+/*
+ * main.c — Windows _spawnl/_spawnlp/_spawnv process creation
+ *
+ * Key concepts: _spawnl, _spawnlp, _spawnv (Windows-only, not POSIX)
+ * Compile: cl main.c (MSVC only)
+ * Run:     ./prog
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <process.h> // For spawn functions
 
 int main()
 {
-    const int EXAMPLE = 2; // Choose which spawn variant to use
-    //example 1 is the only working as wanted example
-    printf("Parent process running...\n");
+    printf("\n");
+    printf("========================================\n");
+    printf("  Windows _spawn() Family (process.h)\n");
+    printf("========================================\n\n");
+    printf("  NOTE: This is Windows-only code!\n");
+    printf("  It won't compile on Linux/macOS.\n");
+    printf("  Linux equivalent: fork() + exec()\n\n");
+    const int EXAMPLE = 2;
+    printf("[Parent] Running _spawn example %d...\n\n", EXAMPLE);
 
     if (EXAMPLE == 1)
     {

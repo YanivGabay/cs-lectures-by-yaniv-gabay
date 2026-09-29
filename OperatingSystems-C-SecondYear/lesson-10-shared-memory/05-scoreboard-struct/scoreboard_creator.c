@@ -1,3 +1,10 @@
+/*
+ * scoreboard_creator.c — Scoreboard creator — shared struct with header file
+ *
+ * Key concepts: shmget, shared header file for struct definition
+ * Compile: gcc -o sb_create scoreboard_creator.c
+ * Run:     ./prog
+ */
 // scoreboard_creator.c
 #include <stdio.h>
 #include <stdlib.h>
@@ -10,6 +17,10 @@
 #define SHM_KEY 0x1234 // Unique key for shared memory
 
 int main() {
+    printf("\n");
+    printf("══════════════════════════════════════\n");
+    printf("  Scoreboard creator — shared struct\n");
+    printf("══════════════════════════════════════\n\n");
     int shmid;
     Scoreboard *scoreboard;
 

@@ -1,3 +1,10 @@
+/*
+ * 04-forks-mutex.c — IPC producer-consumer with shared memory and semaphores
+ *
+ * Key concepts: shmget + named semaphores, cross-process synchronization
+ * Compile: gcc -o ipc_prodcons 04-forks-mutex.c -lpthread
+ * Run:     ./prog
+ */
 // File: ipc_producer_consumer.c
 // Compile with: gcc -Wall -o ipc_producer_consumer ipc_producer_consumer.c -lrt
 
@@ -67,6 +74,12 @@ void closeAll()
 }
 int main()
 {
+    printf("\n");
+    printf("══════════════════════════════════════\n");
+    printf("  IPC Producer-Consumer (Shared Memory)\n");
+    printf("══════════════════════════════════════\n\n");
+    printf("[Parent] %d producers, %d consumers, buffer size %d, %d items each.\n", NUM_PRODUCERS, NUM_CONSUMERS, BUFFER_SIZE, ITEMS_PER_PRODUCER);
+    printf("[Parent] Uses fork + shared memory + named semaphores.\n\n");
     pid_t pid;
 
     key_t shm_key;
@@ -194,7 +207,7 @@ int main()
 
     // Clean up semaphores
     closeAll();
-    printf("Producer-Consumer simulation completed.\n");
+    printf("\n[Parent] All producers and consumers finished. Shared memory released.\n");
     return EXIT_SUCCESS;
 }
 
@@ -223,7 +236,7 @@ void producer(int producer_id, shared_buffer_t *shared_buffer, sem_t *mutex, sem
 
         // Critical section: Add item to buffer
         shared_buffer->buffer[shared_buffer->in] = item;
-        printf("Producer %d produced item %d at position %d.\n", producer_id, item, shared_buffer->in);
+        printf("[Producer %d] Produced item %d → buffer[%d]\n", producer_id, item, shared_buffer->in);
         shared_buffer->in = (shared_buffer->in + 1) % BUFFER_SIZE;
 
         // Unlock the mutex after accessing the buffer
@@ -244,7 +257,7 @@ void producer(int producer_id, shared_buffer_t *shared_buffer, sem_t *mutex, sem
         usleep(100000); // 100 ms
     }
 
-    printf("Producer %d finished producing.\n", producer_id);
+    printf("[Producer %d] Finished — produced %d items.\n", producer_id, ITEMS_PER_PRODUCER);
 }
 
 void consumer(int consumer_id, shared_buffer_t *shared_buffer, sem_t *mutex, sem_t *empty, sem_t *full)
@@ -283,7 +296,7 @@ void consumer(int consumer_id, shared_buffer_t *shared_buffer, sem_t *mutex, sem
             }
             break;
         }
-        printf("Consumer %d consumed item %d from position %d.\n", consumer_id, item, shared_buffer->out);
+        printf("[Consumer %d] Consumed item %d ← buffer[%d]\n", consumer_id, item, shared_buffer->out);
         shared_buffer->out = (shared_buffer->out + 1) % BUFFER_SIZE;
 
         // Unlock the mutex after accessing the buffer
@@ -304,5 +317,5 @@ void consumer(int consumer_id, shared_buffer_t *shared_buffer, sem_t *mutex, sem
         usleep(150000); // 150 ms
     }
 
-    printf("Consumer %d finished consuming.\n", consumer_id);
+    printf("[Consumer %d] Finished — consumed %d items.\n", consumer_id, ITEMS_PER_PRODUCER);
 }

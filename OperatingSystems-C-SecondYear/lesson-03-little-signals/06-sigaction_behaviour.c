@@ -1,37 +1,54 @@
+/*
+ * 06-sigaction_behaviour.c — sigaction vs signal — comparing behavior during I/O
+ *
+ * Key concepts: sigaction struct, SA_RESTART flag, reliable signal handling
+ * Compile: gcc -o sigact 06-sigaction_behaviour.c
+ * Run:     ./sigact
+ */
 #include <stdio.h>
 #include <stdlib.h>
-#include <signal.h>
-//#include <unistd.h>
+#include <unistd.h>    // for getpid()
+#include <signal.h>    // for sigaction(), SIGINT
 
-// Signal handler function for SIGINT
 void sigint_handler(int sig) {
-    printf("\nSignal %d received (using sigaction). You pressed Ctrl+C!\n", sig);
+    printf("\n[Handler] Caught signal %d (SIGINT) via sigaction!\n", sig);
+    printf("[Handler] Unlike signal(), sigaction handlers are NOT reset automatically.\n\n");
 }
 
 int main() {
     struct sigaction sa;
+    sa.sa_handler = sigint_handler;
+    sa.sa_flags = 0;              // No SA_RESTART — scanf will be interrupted
+    sigemptyset(&sa.sa_mask);
 
-    // Set up sigaction structure
-    sa.sa_handler = sigint_handler;    // Assign handler function
-    sa.sa_flags = 0;                   // No special flags (default behavior)
-    sigemptyset(&sa.sa_mask);          // Block no additional signals during handler execution
-
-    // Setting up the signal handler using sigaction()
     if (sigaction(SIGINT, &sa, NULL) == -1) {
-        perror("Error: sigaction failed");
+        perror("sigaction failed");
         exit(EXIT_FAILURE);
     }
 
-    int number;
-    printf("Enter a number (use Ctrl+C to send SIGINT and observe behavior): ");
+    printf("\n");
+    printf("========================================\n");
+    printf("  sigaction() Behavior During scanf\n");
+    printf("========================================\n\n");
+    printf("[Main PID %d] Using sigaction() instead of signal().\n\n", getpid());
+    printf("  Key differences from signal():\n");
+    printf("    - Handler is NOT reset after first signal\n");
+    printf("    - sa_flags controls restart behavior (SA_RESTART)\n");
+    printf("    - sa_mask can block other signals during handler\n\n");
+    printf("  Try: press Ctrl+C during scanf, then observe what happens.\n\n");
 
-    // scanf will be interrupted by SIGINT, and after the handler, the program proceeds to the next statement
+    int number;
+    printf("  Enter a number: ");
+    fflush(stdout);
+
     if (scanf("%d", &number) == 1) {
-        printf("You entered: %d\n", number);
+        printf("\n[Main] scanf succeeded! You entered: %d\n", number);
     } else {
-        printf("\nFailed to read a number.\n");
+        printf("[Main] scanf failed — signal interrupted the blocking read.\n");
+        printf("[Main] With sa.sa_flags = SA_RESTART, scanf would have resumed.\n");
     }
-    printf("Program continues after scanf.\n");
+    printf("\n[Main] Program continues normally.\n");
+    printf("\n========================================\n");
 
     return 0;
 }

@@ -1,3 +1,10 @@
+/*
+ * scoreboard_viewer.c — Scoreboard viewer — displays live scores from shared memory
+ *
+ * Key concepts: Reading shared struct, polling for changes
+ * Compile: gcc -o sb_view scoreboard_viewer.c
+ * Run:     ./prog
+ */
 // scoreboard_viewer.c
 #include <stdio.h>
 #include <stdlib.h>
@@ -9,6 +16,10 @@
 #define SHM_KEY 0x1234 // Must match creator's key
 
 int main() {
+    printf("\n");
+    printf("══════════════════════════════════════\n");
+    printf("  Scoreboard viewer — displays live \n");
+    printf("══════════════════════════════════════\n\n");
     int shmid;
     Scoreboard *scoreboard;
 

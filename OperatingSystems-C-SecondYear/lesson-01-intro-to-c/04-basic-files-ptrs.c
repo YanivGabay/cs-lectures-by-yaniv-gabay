@@ -1,3 +1,10 @@
+/*
+ * 04-basic-files-ptrs.c — File I/O — fopen, fclose, fprintf, fscanf
+ *
+ * Key concepts: fopen, fclose, fprintf, fscanf, file modes
+ * Compile: gcc -o prog 04-basic-files-ptrs.c
+ * Run:     ./prog
+ */
 
 /*
 
@@ -34,66 +41,73 @@ int main() {
 #include <stdio.h>
 #include <stdlib.h>
 int main() {
-    // Writing to a file
+    printf("\n");
+    printf("========================================\n");
+    printf("  File I/O in C (fopen, fprintf, fgets)\n");
+    printf("========================================\n\n");
+
+    // --- Section 1: Write to a file ---
+    printf("--- Section 1: Writing to a file (mode \"w\") ---\n\n");
     FILE *outFile = fopen("example.txt", "w");
     if (outFile != NULL) {
         fprintf(outFile, "Hello, this is a test file.\n");
         fprintf(outFile, "Writing another line.");
-        fclose(outFile); // Must explicitly close the file
+        fclose(outFile);
+        printf("  Wrote 2 lines to example.txt\n\n");
     } else {
-        //perror == cerr
-        perror("Unable to open file for writing");
+        perror("  ERROR: Unable to open file for writing");
     }
 
-    // Reading from a file
+    // --- Section 2: Read from a file ---
+    printf("--- Section 2: Reading from a file (mode \"r\") ---\n\n");
     FILE *inFile = fopen("example.txt", "r");
     char buffer[255];
     if (inFile != NULL) {
-        printf("\tFile contents:\n");
+        printf("  Contents of example.txt:\n");
         while (fgets(buffer, sizeof(buffer), inFile)) {
-            printf("\t%s", buffer);
+            printf("    > %s", buffer);
         }
-        fclose(inFile); // Must explicitly close the file
+        printf("\n\n");
+        fclose(inFile);
     } else {
-        perror("Unable to open file for reading");
+        perror("  ERROR: Unable to open file for reading");
     }
 
-    //// we probably want to use the same file for both reading and writing
-    //// and not to open and close it twice
-    //// so we can use the "r+" mode
+    // --- Section 3: Read + Write with fseek ---
+    printf("--- Section 3: Read+Write mode (\"r+\") with fseek ---\n\n");
     FILE *file = fopen("example.txt", "r+");
     if (file != NULL) {
-        //we just opened a file, so the pointer is at the beginning
-        //so if the file is not empty, we will overwrite it
-        //if we want to append, we can use fseek
-        //https://en.cppreference.com/w/c/io/fseek
-        fseek(file, 0, SEEK_END); // seek to end of file // we can also use SEEK_SET and SEEK_CUR
-        //    (file, 0 means we move 0 bytes from the end of the file , seek-end is the end of the file)
-        // Write to the file
+        // Seek to end, then append
+        fseek(file, 0, SEEK_END);
         fprintf(file, "\nAppending a new line.\n");
-        //what happends here? the ptr suppose to be at the end of the file
-        //so if we dont reset it to the beginning, we will not read anything
-        // Read from the file
-        printf("\n\n\tFile contents using r+ :\n");
-        while (fgets(buffer, sizeof(buffer), file)) {
-            printf("\t%s", buffer);
-        }
+        printf("  Appended a line using fseek(SEEK_END)\n\n");
 
-        //so now we will use the same code but with fseek before
-        fseek(file, 0, SEEK_SET); // seek to the beginning of the file
-        //there is also rewind(file) but im not sure yoram approves it
-        
-        printf("\n\n\tFile contents using r+ and seek_set :\n");
+        // Try reading without seeking back — nothing will print
+        printf("  Reading WITHOUT seeking back to start:\n");
+        int count = 0;
         while (fgets(buffer, sizeof(buffer), file)) {
-            printf("\t%s", buffer);
+            count++;
+            printf("    > %s", buffer);
         }
+        if (count == 0) printf("    (nothing — file pointer is at the end!)\n");
+        printf("\n");
 
-        fclose(file); // Must explicitly close the file
+        // Now seek to beginning and read
+        fseek(file, 0, SEEK_SET);
+        printf("  Reading AFTER fseek(SEEK_SET) — back to start:\n");
+        while (fgets(buffer, sizeof(buffer), file)) {
+            printf("    > %s", buffer);
+        }
+        printf("\n");
+
+        fclose(file);
     } else {
-        perror("Unable to open file for reading and writing");
+        perror("  ERROR: Unable to open file");
     }
 
-    
+    printf("========================================\n");
+    printf("  End of demo\n");
+    printf("========================================\n");
 
     return 0;
 }

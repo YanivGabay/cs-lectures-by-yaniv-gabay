@@ -1,3 +1,10 @@
+/*
+ * 05-some-flags.c — sigaction flags — SA_RESTART, SA_RESETHAND
+ *
+ * Key concepts: SA_RESTART (auto-retry interrupted syscalls), SA_RESETHAND (one-shot)
+ * Compile: gcc -o flags 05-some-flags.c
+ * Run:     ./prog
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <signal.h>
@@ -16,10 +23,18 @@
 
 // Handler for SIGUSR1
 void handle_sigusr1(int signum) {
-    printf("\nCaught SIGUSR1 (signal number %d). This handler will reset to default after this.\n", signum);
+    printf("\n[Handler] Caught SIGUSR1 (signal %d).\n", signum);
+    printf("[Handler] SA_RESETHAND: this handler is NOW reset to default (SIG_DFL).\n");
+    printf("[Handler] SA_RESTART:   the sleep() that was interrupted will auto-restart.\n");
+    printf("[Handler] Next SIGUSR1 will TERMINATE the process (default action).\n\n");
 }
 
 int main() {
+    printf("\n");
+    printf("══════════════════════════════════════\n");
+    printf("  sigaction Flags Demo\n");
+    printf("  SA_RESTART | SA_RESETHAND\n");
+    printf("══════════════════════════════════════\n\n");
     struct sigaction sa;
 
     // Setup handler for SIGUSR1 with SA_RESTART and SA_RESETHAND flags
@@ -32,12 +47,17 @@ int main() {
         exit(EXIT_FAILURE);
     }
 
-    printf("Process PID: %d\n", getpid());
-    printf("Send SIGUSR1 signals. Handler will reset after first signal.\n");
+    printf("[Setup] sa_flags = SA_RESTART | SA_RESETHAND\n");
+    printf("[Setup]   SA_RESTART  — interrupted sleep() auto-restarts\n");
+    printf("[Setup]   SA_RESETHAND — handler reverts to SIG_DFL after first catch\n\n");
+    printf("[Info]  Process PID: %d\n", getpid());
+    printf("[Test]  1st: kill -SIGUSR1 %d  → handler runs, then resets\n", getpid());
+    printf("[Test]  2nd: kill -SIGUSR1 %d  → default action (terminate!)\n\n", getpid());
 
     // Infinite loop to keep the program running and handling signals
+    int tick = 0;
     while (1) {
-        printf("Program running... Waiting for SIGUSR1.\n");
+        printf("  [Tick %d] Waiting for SIGUSR1... (PID %d)\n", ++tick, getpid());
         sleep(4);
     }
 

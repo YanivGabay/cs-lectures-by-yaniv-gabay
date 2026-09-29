@@ -1,3 +1,10 @@
+/*
+ * 02-usage.c — Basic sigaction usage — registering a handler
+ *
+ * Key concepts: sigaction(), sigemptyset(), signal registration
+ * Compile: gcc -o usage 02-usage.c
+ * Run:     ./prog
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <signal.h>
@@ -5,11 +12,16 @@
 
 // Handler function for SIGINT
 void sigint_handler(int signum) {
-    printf("\nCaught SIGINT (signal number %d). Exiting gracefully.\n", signum);
+    printf("\n[Handler] Caught signal %d (SIGINT). Exiting gracefully.\n", signum);
     exit(0);
 }
 
 int main() {
+    printf("\n");
+    printf("══════════════════════════════════════\n");
+    printf("  Basic sigaction() Usage\n");
+    printf("  Register a custom handler for SIGINT\n");
+    printf("══════════════════════════════════════\n\n");
     struct sigaction sa;
 
     // Set up the sigaction struct
@@ -23,12 +35,16 @@ int main() {
         exit(EXIT_FAILURE);
     }
 
-    printf("Process PID: %d\n", getpid());
-    printf("Press Ctrl+C to trigger SIGINT.\n");
+    printf("[Setup] sigaction() registered handler for SIGINT\n");
+    printf("[Setup] sa_handler = sigint_handler, sa_flags = 0\n");
+    printf("[Setup] sa_mask = empty (no signals blocked during handler)\n");
+    printf("[Info]  Process PID: %d\n\n", getpid());
+    printf("Press Ctrl+C to trigger SIGINT...\n\n");
 
     // Infinite loop to keep the program running
+    int tick = 0;
     while (1) {
-        printf("Running... Press Ctrl+C to exit.\n");
+        printf("  [Tick %d] Running... (Ctrl+C to exit)\n", ++tick);
         sleep(2);
     }
 

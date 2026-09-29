@@ -1,8 +1,17 @@
-#include <unistd.h>
+/*
+ * 03-pipe-system-call.c — The pipe() system call: parent writes, child reads
+ *
+ * Demonstrates: Creating pipes, fork+pipe pattern, closing unused ends
+ * Key concepts: pipefd[0]=read, pipefd[1]=write, EOF detection, kernel buffer
+ * Compile: gcc -o pipe_call 03-pipe-system-call.c
+ * Run:     ./pipe_call
+ */
+
+#include <unistd.h>    // for pipe(), fork(), read(), write(), close()
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/types.h>
+#include <sys/types.h> // for pid_t
 
 /*
 
@@ -65,6 +74,11 @@ When the parent closes pipefd[1], the child’s read operation will return 0, in
 */
 
 int main() {
+    printf("\n");
+    printf("══════════════════════════════════════\n");
+    printf("  pipe() System Call\n");
+    printf("  Parent writes → Child reads\n");
+    printf("══════════════════════════════════════\n\n");
     int pipefd[2];
     pid_t pid;
     char buffer[100];
@@ -73,6 +87,7 @@ int main() {
         perror("pipe");
         exit(EXIT_FAILURE);
     }
+    printf("[Setup] pipe() created: read_fd=%d, write_fd=%d\n\n", pipefd[0], pipefd[1]);
 
     pid = fork();
     if (pid == 0) { // Child process
@@ -96,18 +111,20 @@ while (read(my_pipe[0], &c, 1) > 0)
             perror("read");
             exit(EXIT_FAILURE);
         }
-        printf("Child received: %s\n", buffer);
-        printf("str length of buffer: %ld\n", strlen(buffer));
+        printf("[Child  PID %d] Received from pipe: \"%s\" (%ld bytes)\n", getpid(), buffer, (long)bytesRead);
+        printf("[Child  PID %d] String length: %ld\n", getpid(), strlen(buffer));
         close(pipefd[0]);
         exit(EXIT_SUCCESS);
     } else { // Parent process
         close(pipefd[0]); // Close unused read end
        // sleep(2);
-        ssize_t bytesWritten = write(pipefd[1], "Hello, Pipe!", strlen("Hello, Pipe!") + 1); 
+        printf("[Parent PID %d] Writing to pipe: \"Hello, Pipe!\"\n", getpid());
+        ssize_t bytesWritten = write(pipefd[1], "Hello, Pipe!", strlen("Hello, Pipe!") + 1);
         if (bytesWritten == -1) {
             perror("write");
             exit(EXIT_FAILURE);
         }
+        printf("[Parent PID %d] Wrote %ld bytes. Closing write end.\n", getpid(), (long)bytesWritten);
         close(pipefd[1]);
     }
 

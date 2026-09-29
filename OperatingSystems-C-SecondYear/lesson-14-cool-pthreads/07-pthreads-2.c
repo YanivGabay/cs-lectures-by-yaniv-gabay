@@ -1,3 +1,10 @@
+/*
+ * 07-pthreads-2.c — Thread logging — ordered output with mutex
+ *
+ * Key concepts: Mutex-protected printf, consistent log output
+ * Compile: gcc -o logging 07-pthreads-2.c -lpthread
+ * Run:     ./prog
+ */
 // File: thread_safe_logging.c
 // Compile with: gcc -Wall -pthread -o thread_safe_logging thread_safe_logging.c
 
@@ -39,6 +46,12 @@ void* write_log(void* arg) {
 }
 
 int main() {
+    printf("\n");
+    printf("══════════════════════════════════════\n");
+    printf("  Thread-Safe File Logging\n");
+    printf("══════════════════════════════════════\n\n");
+    printf("[Main] %d threads each write %d log entries to %s.\n", NUM_THREADS, LOG_ENTRIES_PER_THREAD, LOG_FILE);
+    printf("[Main] Mutex ensures log lines don't get interleaved.\n\n");
     pthread_t threads[NUM_THREADS];
     int rc;
 
@@ -75,6 +88,8 @@ int main() {
     // Destroy the mutex
     pthread_mutex_destroy(&file_mutex);
 
-    printf("All threads have finished logging.\n");
+    int total = NUM_THREADS * LOG_ENTRIES_PER_THREAD;
+    printf("[Main] All threads finished. %d log entries written to %s.\n", total, LOG_FILE);
+    printf("[Main] Check with: wc -l %s (should be %d)\n", LOG_FILE, total);
     return 0;
 }

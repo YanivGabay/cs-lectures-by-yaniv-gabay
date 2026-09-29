@@ -1,25 +1,30 @@
+/*
+ * 02-basic-fork-mistake.c — The classic fork-in-a-loop bug
+ *
+ * Demonstrates: What goes WRONG when you fork() inside a loop without exiting
+ * Key concepts: Exponential process creation, fork bomb pattern
+ * Compile: gcc -o fork_mistake 02-basic-fork-mistake.c
+ * Run:     ./fork_mistake
+ *
+ * BUG: The child process does NOT exit after printing — it continues the loop
+ *      and calls fork() again! With 5 iterations, you get ~2^5 = 32 processes,
+ *      not 5. See 03-basic-fork-thefix.c for the corrected version.
+ */
+
 #include <stdio.h>
-#include <unistd.h> // for fork()
-
-
-
-
-// Carefull, this code should run on a Linux machine
-
-
-// now lets say, we want to run this same code, but we want to run it 5 times
-
-// a common mistake would be to just add a for loop, and run the code 5 times
+#include <stdlib.h>    // for exit(), EXIT_FAILURE
+#include <unistd.h>    // for fork(), getpid()
 
 void check_valid_process(pid_t status);
-
-
-// lets think together, what would happen if we run this code 5 times?
-// what would be the output?
-// why is that?
-// how can we fix it?
 int main()
 {
+
+    printf("\n");
+    printf("========================================\n");
+    printf("  BUG: fork() in a loop without exit()\n");
+    printf("========================================\n");
+    printf("  Watch: children don't exit, so they\n");
+    printf("  loop again and fork MORE children!\n\n");
 
     for (int i = 0; i < 5; i++)
     {
@@ -34,13 +39,13 @@ int main()
         }
         else if (pid == 0)
         {
-            // Child process
-            printf("This is the child process. PID: %d\n", getpid());
+            // BUG: Child prints but does NOT exit — it loops and forks again!
+            printf("[Child  PID %d] iteration %d — BUG: I will keep looping and forking more children!\n", getpid(), i);
         }
         else
         {
             // Parent process
-            printf("This is the parent process. PID: %d, Child PID: %d\n", getpid(), pid);
+            printf("[Parent PID %d] iteration %d — created child PID %d\n", getpid(), i, pid);
         }
     }
 

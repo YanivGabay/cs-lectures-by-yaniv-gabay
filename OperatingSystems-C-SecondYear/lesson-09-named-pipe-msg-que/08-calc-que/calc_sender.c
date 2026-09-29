@@ -1,3 +1,10 @@
+/*
+ * calc_sender.c — Calculator via message queue — sender side
+ *
+ * Key concepts: Sends arithmetic expressions over message queue
+ * Compile: gcc -o calc_send calc_sender.c
+ * Run:     ./prog
+ */
 // calc_sender.c
 
 #include <stdio.h>
@@ -34,6 +41,10 @@ struct my_msgbuf {
 };
 
 int main() {
+    printf("\n");
+    printf("══════════════════════════════════════\n");
+    printf("  Calculator via message queue — sen\n");
+    printf("══════════════════════════════════════\n\n");
     key_t key;
     int msgid;
     struct my_msgbuf buf;
@@ -60,8 +71,8 @@ int main() {
         char operation;
         double num1, num2;
 
-        printf("Calculator Sender: ");
-        fflush(stdout); // Ensure prompt is printed immediately
+        printf("Enter operation (+, -, *, /) then two numbers, or 'e' to exit: ");
+        fflush(stdout);
 
         // Read the operation
         int ret = scanf(" %c", &operation);

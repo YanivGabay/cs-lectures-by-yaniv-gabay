@@ -1,3 +1,10 @@
+/*
+ * 01-cli.c — CLI loading animation with a spinner thread
+ *
+ * Key concepts: Thread for UI animation, usleep for timing
+ * Compile: gcc -o cli 01-cli.c -lpthread
+ * Run:     ./prog
+ */
 // File: cli_loader_fetch.c
 // Compile with: gcc -Wall -pthread cli_loader_fetch.c -o cli_loader_fetch
 
@@ -45,9 +52,9 @@ void* loader(void* arg) {
 // Worker thread function: simulates data fetching
 void* fetch_data(void* arg) {
     // Simulate data fetching with sleep
-    printf("Worker: Starting data fetch...\n");
-    sleep(5); // Simulate a 5-second data fetch
-    printf("Worker: Data fetch completed.\n");
+    printf("[Worker] Starting data fetch (simulating 5 seconds)...\n");
+    sleep(5);
+    printf("[Worker] Data fetch completed!\n");
 
     // Lock mutex to safely update fetch_complete
     pthread_mutex_lock(&flag_mutex);
@@ -58,6 +65,10 @@ void* fetch_data(void* arg) {
 }
 
 int main() {
+    printf("\n");
+    printf("========================================\n");
+    printf("  CLI loading animation with a spinner\n");
+    printf("========================================\n\n");
     pthread_t loader_thread, worker_thread;
     int status;
 
@@ -82,6 +93,6 @@ int main() {
     // Destroy the mutex
     pthread_mutex_destroy(&flag_mutex);
 
-    printf("Main: All tasks completed successfully.\n");
+    printf("[Main] All tasks completed. The spinner ran while the worker fetched data.\n");
     return EXIT_SUCCESS;
 }

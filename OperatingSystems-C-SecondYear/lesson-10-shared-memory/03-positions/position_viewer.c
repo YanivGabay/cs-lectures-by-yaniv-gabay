@@ -1,3 +1,10 @@
+/*
+ * position_viewer.c — Position struct viewer — reads shared memory
+ *
+ * Key concepts: Polling shared memory, real-time data viewing
+ * Compile: gcc -o pos_view position_viewer.c
+ * Run:     ./prog
+ */
 // position_viewer.c
 #include <stdio.h>
 #include <stdlib.h>
@@ -23,6 +30,10 @@ void handle_sigint(int sig) {
 }
 
 int main() {
+    printf("\n");
+    printf("══════════════════════════════════════\n");
+    printf("  Position struct viewer — reads sha\n");
+    printf("══════════════════════════════════════\n\n");
     // Register signal handler
     signal(SIGINT, handle_sigint);
 

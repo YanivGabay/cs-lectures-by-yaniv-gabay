@@ -1,3 +1,10 @@
+/*
+ * calc_receiver.c — Calculator via message queue — receiver/evaluator
+ *
+ * Key concepts: Receives expressions, computes result, sends back
+ * Compile: gcc -o calc_recv calc_receiver.c
+ * Run:     ./prog
+ */
 // calc_receiver.c
 
 #include <stdio.h>
@@ -35,6 +42,10 @@ struct my_msgbuf {
 };
 
 int main() {
+    printf("\n");
+    printf("══════════════════════════════════════\n");
+    printf("  Calculator via message queue — rec\n");
+    printf("══════════════════════════════════════\n\n");
     key_t key;
     int msgid;
     struct my_msgbuf buf;

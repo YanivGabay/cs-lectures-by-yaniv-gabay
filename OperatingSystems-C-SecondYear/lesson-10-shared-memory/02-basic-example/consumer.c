@@ -1,3 +1,10 @@
+/*
+ * consumer.c — Shared memory consumer — reading from shared segment
+ *
+ * Key concepts: shmget, shmat, reading shared data, shmdt
+ * Compile: gcc -o consumer consumer.c
+ * Run:     ./prog
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -15,6 +22,10 @@ const char FULL = '+';
 
 int main(int argc, char const *argv[])
 {
+    printf("\n");
+    printf("══════════════════════════════════════\n");
+    printf("  Shared memory consumer — reading f\n");
+    printf("══════════════════════════════════════\n\n");
     key_t key;
     int shmid;
     char *shared_mem_ptr;
@@ -47,17 +58,15 @@ int main(int argc, char const *argv[])
         //if its empty,"wait"
         while(shared_mem_ptr[0] == EMPTY)
         {
-            printf("Consumer: Buffer is empty, waiting...\n");
+            printf("[Consumer PID %d] Buffer empty — waiting for creator...\n", getpid());
             sleep(1);
         }
 
         //if its full, "consume"
         if(shared_mem_ptr[0] == FULL)
         {
-            printf("Consumer: Consuming data...\n");
-            //copy the data from shared memory to local variable
             strcpy(str, shared_mem_ptr + 1);
-            printf("Consumer: Consumed data: %s\n", str);
+            printf("[Consumer PID %d] Read from shared memory: \"%s\"\n", getpid(), str);
             //set the shared memory to empty
             shared_mem_ptr[0] = EMPTY;
         }
@@ -75,7 +84,7 @@ int main(int argc, char const *argv[])
         perror("shmdt");
         exit(EXIT_FAILURE);
     }
-    printf("Consumer: Detached shared memory\n");
+    printf("[Consumer] Detached from shared memory. Exiting.\n");
 
     return 0;
 

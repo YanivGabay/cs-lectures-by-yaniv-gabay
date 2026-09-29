@@ -1,3 +1,10 @@
+/*
+ * position_updater.c — Position struct updater — modifies shared memory
+ *
+ * Key concepts: Attaching to existing shared memory, updating struct fields
+ * Compile: gcc -o pos_update position_updater.c
+ * Run:     ./prog
+ */
 // position_updater.c
 #include <stdio.h>
 #include <stdlib.h>
@@ -30,6 +37,10 @@ void handle_sigint(int sig) {
 }
 
 int main() {
+    printf("\n");
+    printf("══════════════════════════════════════\n");
+    printf("  Position struct updater — modifies\n");
+    printf("══════════════════════════════════════\n\n");
     // Register signal handler
     signal(SIGINT, handle_sigint);
 

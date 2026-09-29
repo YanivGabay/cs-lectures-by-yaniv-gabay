@@ -1,3 +1,10 @@
+/*
+ * multi-writer.c — Multiple writers to a single FIFO
+ *
+ * Key concepts: Named pipe with multiple producers, atomic writes < PIPE_BUF
+ * Compile: gcc -o mwriter multi-writer.c
+ * Run:     ./prog
+ */
 // fifo_writer_multi.c
 #include <stdio.h>
 #include <stdlib.h>
@@ -11,6 +18,11 @@ const char *FIFO_NAME = "multi_fifo";
 const int BUFFER_SIZE = 1024;
 
 int main(int argc, char *argv[]) {
+    printf("\n");
+    printf("══════════════════════════════════════\n");
+    printf("  Multi-Writer FIFO\n");
+    printf("  Multiple writers → single reader\n");
+    printf("══════════════════════════════════════\n\n");
     FILE *fp;
     char buffer[BUFFER_SIZE];
     pid_t pid = getpid();

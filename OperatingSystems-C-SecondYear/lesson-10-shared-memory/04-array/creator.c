@@ -1,3 +1,10 @@
+/*
+ * creator.c — Shared array creator — allocates shared memory for array
+ *
+ * Key concepts: shmget with array size, shared memory initialization
+ * Compile: gcc -o arr_create creator.c
+ * Run:     ./prog
+ */
 // array_creator.c
 #include <stdio.h>
 #include <stdlib.h>
@@ -22,6 +29,10 @@ void handle_sigint(int sig)
 
 int main()
 {
+    printf("\n");
+    printf("══════════════════════════════════════\n");
+    printf("  Shared array creator — allocates s\n");
+    printf("══════════════════════════════════════\n\n");
 
     signal(SIGINT, handle_sigint);
     // Create shared memory segment
@@ -48,7 +59,7 @@ int main()
         shared_array[i] = 0;
     }
 
-    printf("Shared memory for integer array created and initialized.\n");
+    printf("[Creator PID %d] Shared memory", getpid() for integer array created and initialized.\n");
     printf("Press Ctrl+C to terminate the creator.\n");
 
     // Keep the creator running to maintain the shared memory

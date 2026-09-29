@@ -1,3 +1,10 @@
+/*
+ * echo-server.c — TCP echo server with select() for multiplexing
+ *
+ * Key concepts: socket, bind, listen, accept, select, fd_set, echo protocol
+ * Compile: gcc -o server echo-server.c
+ * Run:     ./prog
+ */
 // File: echo_server.c
 
 #include <stdio.h>
@@ -17,7 +24,11 @@ const char SERVER_PORT[] = "3879"; // Port server is listening on
 int main_socket; // THE primary listening socket
 
 void handler(int sig){
-    printf("Signal %d received\n", sig);
+    printf("\n");
+    printf("══════════════════════════════════════\n");
+    printf("  TCP echo server with select() for mu\n");
+    printf("══════════════════════════════════════\n\n");
+    printf("\n[Server] Signal %d received — shutting down.\n", sig);
     close(main_socket);
     exit(EXIT_SUCCESS);
 }
@@ -114,7 +125,7 @@ These steps are typically part of setting up the `select` system call,
     // at the start, only the main_socket is in the group
     FD_SET(main_socket, &rfd); // Add the main socket to the master set
 
-    printf("Echo server: waiting for connections on port %s...\n", SERVER_PORT);
+    printf("[Server] Listening on port %s — waiting for connections...\n", SERVER_PORT);
 
     // Main loop to handle incoming connections and data
     while (1) {
@@ -137,7 +148,7 @@ These steps are typically part of setting up the `select` system call,
             serving_socket = accept(main_socket, (struct sockaddr *)&her_addr, &her_addr_size);
             if (serving_socket >= 0) {
                 FD_SET(serving_socket, &rfd); // Add the new socket to the master set
-                printf("Echo server: new connection accepted (fd: %d)\n", serving_socket);
+                printf("[Server] New client connected! (fd: %d)\n", serving_socket);
             } else {
                 perror("accept failed");
             }
@@ -147,17 +158,17 @@ These steps are typically part of setting up the `select` system call,
         // again here, use the same FD_SETSIZE and not gettablesize()
         for (fd = main_socket + 1; fd < FD_SETSIZE; fd++) {
             if (FD_ISSET(fd, &c_rfd)) {
-                printf("Echo server: data available on fd %d\n", fd);
+                printf("[Server] Data available on fd %d\n", fd);
                 rc = read(fd, buf, BUFLEN);
                 if (rc == 0) {
                     // Connection closed by client
-                    printf("Echo server: connection closed (fd: %d)\n", fd);
+                    printf("[Server] Client disconnected (fd: %d)\n", fd);
                     close(fd);
                     FD_CLR(fd, &rfd); // Remove from master set
                 } else if (rc > 0) {
                     // Echo the received data back to the client
                     buf[rc] = '\0'; // Null-terminate the string
-                    printf("Echo server: received '%s' from fd %d\n", buf, fd);
+                    printf("[Server] Received from fd %d: \"%s\" — echoing back\n", fd, buf);
                     write(fd, buf, rc);
                 } else {
                     perror("read() failed");

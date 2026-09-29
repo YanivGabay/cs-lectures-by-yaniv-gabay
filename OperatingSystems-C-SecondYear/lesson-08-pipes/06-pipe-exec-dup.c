@@ -1,10 +1,21 @@
-#include <unistd.h>
+/*
+ * 06-pipe-exec-dup.c — Connecting two programs with pipe + dup2 + exec
+ *
+ * Demonstrates: The dup2() pattern for redirecting stdin/stdout through a pipe
+ * Key concepts: dup2(), execlp(), producer-consumer via pipe, fd cleanup
+ * Compile: gcc -o pipe_exec 06-pipe-exec-dup.c
+ *          (also compile producer.c and consumer.c from 02-pipe-operator-with-programs/)
+ * Run:     ./pipe_exec
+ *
+ * This implements the equivalent of: ./producer | ./consumer
+ * but programmatically using fork + pipe + dup2 + exec.
+ */
+
+#include <unistd.h>    // for pipe(), fork(), dup2(), execlp(), close()
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-
-
+#include <sys/types.h> // for pid_t
+#include <sys/wait.h>  // for waitpid()
 
 /*
 File Descriptor Duplication:
@@ -60,6 +71,11 @@ The original pipefd[0] is also closed after dup2().
 
 
 int main() {
+    printf("\n");
+    printf("══════════════════════════════════════\n");
+    printf("  pipe + dup2 + exec\n");
+    printf("  Programmatic: ./producer | ./consumer\n");
+    printf("══════════════════════════════════════\n\n");
     int pipefd[2];
     pid_t pid_producer, pid_consumer;
 
@@ -74,6 +90,8 @@ int main() {
         perror("fork");
         exit(EXIT_FAILURE);
     }
+
+    printf("[Parent PID %d] pipe() created: read_fd=%d, write_fd=%d\n", getpid(), pipefd[0], pipefd[1]);
 
     if (pid_producer == 0) { // Producer Child
         // Redirect stdout to pipe's write end
@@ -112,13 +130,16 @@ int main() {
         exit(EXIT_FAILURE);
     }
 
-    // Parent process closes both ends of the pipe
+    printf("[Parent] Forked producer (PID %d) and consumer (PID %d).\n", pid_producer, pid_consumer);
+    printf("[Parent] dup2: producer stdout → pipe write end, consumer stdin → pipe read end.\n");
+    printf("[Parent] Closing pipe fds and waiting for children...\n\n");
+
     close(pipefd[0]);
     close(pipefd[1]);
 
-    // Wait for both children to finish
     waitpid(pid_producer, NULL, 0);
     waitpid(pid_consumer, NULL, 0);
+    printf("[Parent] Both children finished.\n");
 
     return 0;
 }

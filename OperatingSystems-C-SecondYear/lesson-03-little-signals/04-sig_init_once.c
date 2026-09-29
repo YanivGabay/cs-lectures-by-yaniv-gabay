@@ -1,20 +1,39 @@
+/*
+ * 04-sig_init_once.c — One-shot signal handler (catch once, then default)
+ *
+ * Demonstrates: Restoring default signal behavior with SIG_DFL inside a handler
+ * Key concepts: First Ctrl+C is caught, second Ctrl+C kills the process
+ * Compile: gcc -o once 04-sig_init_once.c
+ * Run:     ./once   (press Ctrl+C twice)
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
-#include <signal.h>
+#include <unistd.h>    // for getpid(), sleep()
+#include <signal.h>    // for signal(), SIGINT, SIG_DFL
 
-// Custom signal handler for SIGINT
 void custom_handler(int sig) {
-    printf("\nCaught SIGINT. Switching to default behavior...\n");
-    signal(SIGINT, SIG_DFL); // Restore default handler
+    printf("\n[Handler] Caught signal %d (SIGINT) — first Ctrl+C!\n", sig);
+    printf("[Handler] Restoring default behavior with signal(SIGINT, SIG_DFL).\n");
+    printf("[Handler] Next Ctrl+C will KILL the process.\n\n");
+    signal(SIGINT, SIG_DFL);
 }
 
 int main() {
-    // Set the custom signal handler
     signal(SIGINT, custom_handler);
 
-    printf("Press Ctrl+C to trigger SIGINT. Default behavior will be restored after the first signal.\n");
+    printf("\n");
+    printf("========================================\n");
+    printf("  One-Shot Signal Handler (SIG_DFL)\n");
+    printf("========================================\n\n");
+    printf("[Main PID %d] Custom SIGINT handler installed.\n", getpid());
+    printf("  1st Ctrl+C → handler catches it, restores default\n");
+    printf("  2nd Ctrl+C → default action (terminate process)\n\n");
+
+    int count = 0;
     while (1) {
-        // Infinite loop
+        printf("[Main PID %d] Running... (tick %d)\n", getpid(), ++count);
+        sleep(2);
     }
 
     return 0;

@@ -1,3 +1,10 @@
+/*
+ * 03-forks-mutex.c — Fork + semaphore — file-based synchronization across processes
+ *
+ * Key concepts: Named semaphore with forked processes, sem_open, sem_wait, sem_post
+ * Compile: gcc -o fork_sem 03-forks-mutex.c -lpthread
+ * Run:     ./prog
+ */
 // File: synchronized_file_write.c
 // Compile with: gcc -Wall -o synchronized_file_write synchronized_file_write.c -lrt
 
@@ -17,6 +24,11 @@
 
 int main()
 {
+    printf("\n");
+    printf("══════════════════════════════════════\n");
+    printf("  Fork + Semaphore — File Sync\n");
+    printf("══════════════════════════════════════\n\n");
+    printf("[Parent] %d child processes will write to '%s' protected by semaphore.\n\n", NUM_PROCESSES, FILE_NAME);
     pid_t pid;
     sem_t *mutex;
 
@@ -97,7 +109,7 @@ int main()
             char message[100];
             snprintf(message, sizeof(message), "Process %d (PID %d) is writing this line.\n", i + 1, getpid());
             fprintf(child_fp, "%s", message);
-            printf("Process %d (PID %d) wrote to the file.\n", i + 1, getpid());
+            printf("[Child %d, PID %d] Acquired semaphore → wrote to file → releasing.\n", i + 1, getpid());
 
             fclose(child_fp);
 
@@ -125,6 +137,6 @@ int main()
     sem_close(mutex);
     sem_unlink(SEM_NAME);
 
-    printf("All child processes have finished writing.\n");
+    printf("\n[Parent] All children finished. Check output: cat %s\n", FILE_NAME);
     return EXIT_SUCCESS;
 }

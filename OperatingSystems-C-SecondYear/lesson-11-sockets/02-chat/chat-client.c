@@ -1,3 +1,10 @@
+/*
+ * chat-client.c — Chat client — connects to chat server
+ *
+ * Key concepts: socket, connect, concurrent read/write with select()
+ * Compile: gcc -o chat_client chat-client.c
+ * Run:     ./prog
+ */
 // File: chat_client.c
 
 #include <stdio.h>
@@ -16,6 +23,10 @@ const int BUFLEN = 1024;          // Max buffer size for data
 const char SERVER_PORT[] = "3880"; // Port server is listening on
 
 int main(int argc, char *argv[]) {
+    printf("\n");
+    printf("══════════════════════════════════════\n");
+    printf("  Chat client — connects to chat ser\n");
+    printf("══════════════════════════════════════\n\n");
     int rc; // Return code
     int my_socket;
     char rbuf[BUFLEN + 1];

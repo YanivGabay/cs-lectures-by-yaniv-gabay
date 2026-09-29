@@ -1,3 +1,10 @@
+/*
+ * reader.c — Named pipe reader — intro to mkfifo (FIFO)
+ *
+ * Key concepts: mkfifo, open, read from named pipe
+ * Compile: gcc -o reader reader.c
+ * Run:     ./prog
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <fcntl.h>
@@ -13,9 +20,16 @@
 
 
 int main() {
+    printf("\n");
+    printf("══════════════════════════════════════\n");
+    printf("  Named Pipe (FIFO) Reader\n");
+    printf("  First: mkfifo %s\n", FIFO_PATH);
+    printf("══════════════════════════════════════\n\n");
     char buffer[100];
 
-    // Open the FIFO for reading
+    printf("[Reader PID %d] Opening FIFO %s for reading...\n", getpid(), FIFO_PATH);
+    printf("[Reader] (blocks until a writer opens the other end)\n");
+    fflush(stdout);
     int fifo_fd = open(FIFO_PATH, O_RDONLY);
     if (fifo_fd == -1) {
         perror("open");
@@ -31,7 +45,7 @@ int main() {
     }
 
     buffer[bytesRead] = '\0'; // Null-terminate the string
-    printf("Reader: Message received: %s", buffer);
+    printf("[Reader PID %d] Received %ld bytes: \"%s\"\n", getpid(), (long)bytesRead, buffer);
 
     close(fifo_fd);
     return 0;

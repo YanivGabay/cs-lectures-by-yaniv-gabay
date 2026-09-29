@@ -1,3 +1,10 @@
+/*
+ * shell.c — Windows shell argv parsing quirks
+ *
+ * Key concepts: Windows command line parsing, argv escaping edge cases
+ * Compile: cl shell.c (MSVC only)
+ * Run:     ./prog
+ */
 
 #include <process.h>
 #include <stdio.h>
@@ -5,6 +12,10 @@
 #include <string.h>
 
 int main() {
+    printf("\n");
+    printf("========================================\n");
+    printf("  Windows shell argv parsing quirks\n");
+    printf("========================================\n\n");
     char program_name[100];
     char input_string[100];
 
@@ -25,10 +36,12 @@ int main() {
 
     // Get the name of the program to run
     printf("Enter the program name to run (e.g., unique_str): ");
+    fflush(stdout);
     scanf("%99s", program_name);
 
     // Get the input string
     printf("Enter the string to pass as a single argument (e.g., \"aa bb cc\"): ");
+    fflush(stdout);
     getchar(); // Consume the newline left in the buffer
     fgets(input_string, sizeof(input_string), stdin);
 
@@ -37,7 +50,8 @@ int main() {
     if (len > 0 && input_string[len - 1] == '\n') {
         input_string[len - 1] = '\0';
     }
-    printf("received from user: %s\n", input_string);
+    printf("[Shell] Received input: \"%s\"\n", input_string);
+    printf("[Shell] Spawning %s with this as a single argument...\n\n", program_name);
     // Arguments for spawn
     char *args[] = {program_name, input_string, NULL};
 
@@ -47,7 +61,8 @@ int main() {
         perror("spawnv failed");
         return 1;
     } else {
-        printf("Program finished with status: %d\n", status);
+        printf("[Shell] Child finished with exit status: %d\n\n", status);
+        printf("========================================\n");
     }
 
     return 0;

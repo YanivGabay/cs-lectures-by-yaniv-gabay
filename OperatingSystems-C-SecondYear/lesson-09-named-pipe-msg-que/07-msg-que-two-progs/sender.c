@@ -1,3 +1,10 @@
+/*
+ * sender.c — Message queue sender (separate program)
+ *
+ * Key concepts: msgsnd, cross-program IPC via shared queue key
+ * Compile: gcc -o sender sender.c
+ * Run:     ./prog
+ */
 // sender.c
 #include <stdio.h>
 #include <stdlib.h>
@@ -13,6 +20,10 @@ struct my_msgbuf {
 };
 
 int main() {
+    printf("\n");
+    printf("══════════════════════════════════════\n");
+    printf("  Message queue sender (separate progr\n");
+    printf("══════════════════════════════════════\n\n");
     key_t key;
     int msgid;
     struct my_msgbuf buf;
@@ -35,6 +46,7 @@ int main() {
 
     while (1) {
         printf("Sender: ");
+        fflush(stdout);
         fgets(buf.mtext, sizeof(buf.mtext), stdin);
         buf.mtext[strcspn(buf.mtext, "\n")] = '\0'; // Remove newline
 

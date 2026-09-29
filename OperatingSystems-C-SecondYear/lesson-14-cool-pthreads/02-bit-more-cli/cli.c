@@ -1,3 +1,10 @@
+/*
+ * cli.c — Advanced CLI simulator with progress bars and spinners
+ *
+ * Key concepts: Multiple animation threads, terminal escape codes, ANSI colors
+ * Compile: gcc -o cli2 cli.c -lpthread
+ * Run:     ./prog
+ */
 // File: cli_loader_simulator.c
 // Compile with: gcc -Wall -pthread cli_loader_simulator.c -o cli_loader_simulator
 

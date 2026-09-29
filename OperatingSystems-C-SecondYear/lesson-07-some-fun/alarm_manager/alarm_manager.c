@@ -1,3 +1,10 @@
+/*
+ * alarm_manager.c — Alarm manager parent — fork+exec based alarm system
+ *
+ * Key concepts: fork, exec, multi-process signal coordination
+ * Compile: gcc -o alarm_manager alarm_manager.c
+ * Run:     ./prog
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -30,12 +37,17 @@ int alarm_count = 0;
 // Signal handler for SIGUSR1
 void handle_alarm(int sig) {
     alarm_count++;
-    printf("\nAlarm #%d triggered!\n", alarm_count);
-    printf("Set another alarm or type 'exit' to quit.\nmyalarm> ");
+    printf("\n[ALARM #%d] Signal %d received — a child timer fired!\n", alarm_count, sig);
+    printf("myalarm> ");
     fflush(stdout);
 }
 
 int main() {
+    printf("\n");
+    printf("══════════════════════════════════════\n");
+    printf("  Alarm Manager (fork + exec)\n");
+    printf("  Each alarm spawns a child process\n");
+    printf("══════════════════════════════════════\n\n");
     pid_t pid;
     char input[100];
     struct sigaction sa;
@@ -50,8 +62,9 @@ int main() {
         exit(EXIT_FAILURE);
     }
 
-    printf("Simple Alarm Manager\n");
-    printf("Type the number of seconds to set an alarm or 'exit' to quit.\n");
+    printf("[Parent PID %d] Alarm Manager ready.\n", getpid());
+    printf("[Info]  Type seconds to set an alarm, 'exit' to quit.\n");
+    printf("[Info]  Each alarm forks a child that sleeps, then signals back.\n\n");
 
     while (1) {
         printf("myalarm> ");
@@ -109,7 +122,7 @@ int main() {
             exit(EXIT_FAILURE);
         } else {
             // Parent process: Continue to accept more alarms
-            printf("Alarm set for %d seconds.\n", seconds);
+            printf("[Parent] Forked child PID %d — alarm set for %d seconds.\n", pid, seconds);
         }
     }
 

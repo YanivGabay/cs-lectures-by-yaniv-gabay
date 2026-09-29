@@ -1,3 +1,10 @@
+/*
+ * 03_bidirection.c — Bidirectional message queue communication
+ *
+ * Key concepts: Two-way IPC over a single message queue using mtype
+ * Compile: gcc -o bidir 03_bidirection.c
+ * Run:     ./prog
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/ipc.h>
@@ -16,6 +23,10 @@ struct my_msgbuf {
 };
 
 int main() {
+    printf("\n");
+    printf("══════════════════════════════════════\n");
+    printf("  Bidirectional message queue communic\n");
+    printf("══════════════════════════════════════\n\n");
     key_t key;
     int msgid;
     pid_t pid;

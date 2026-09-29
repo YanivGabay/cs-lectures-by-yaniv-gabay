@@ -1,3 +1,10 @@
+/*
+ * 05-pthread_ping_pong.c — Ping-pong between threads using busy waiting
+ *
+ * Key concepts: Shared flag, busy waiting (spin loop), thread coordination
+ * Compile: gcc -o pingpong 05-pthread_ping_pong.c -lpthread
+ * Run:     ./prog
+ */
 // File: pthread_pingpong.c
 // Compile with: gcc -Wall -pthread pthread_pingpong.c -o pthread_pingpong
 
@@ -14,6 +21,10 @@ volatile int turn = 0;
 void* pingpong(void *arg);
 
 int main() {
+    printf("\n");
+    printf("========================================\n");
+    printf("  Ping-Pong — Busy-Wait Sync\n");
+    printf("========================================\n\n");
     pthread_t threads[2];
     int ids[2] = {0, 1};
     int status;
@@ -21,20 +32,22 @@ int main() {
     // Seed random number generator.
     srand((unsigned) time(NULL));
 
-    // Create two threads with IDs 0 and 1.
+    printf("[Main] Two threads take turns printing — coordinated via a shared 'turn' flag.\n");
+    printf("[Main] Thread 0 = Ping, Thread 1 = Pong. Each waits in a spin loop (busy wait).\n");
+    printf("[Main] Note: busy waiting wastes CPU! Better approaches: mutex + cond_wait (lesson 13).\n\n");
+
     for (int i = 0; i < 2; i++) {
         status = pthread_create(&threads[i], NULL, pingpong, &ids[i]);
         if (status != 0) {
-            fprintf(stderr, "pthread_create failed: %d\n", status);
+            fprintf(stderr, "[Main] ERROR: pthread_create failed (rc=%d)\n", status);
             exit(EXIT_FAILURE);
         }
     }
 
-    // Wait for both threads to finish (they run a fixed number of rounds)
     for (int i = 0; i < 2; i++) {
         pthread_join(threads[i], NULL);
     }
-    printf("Ping-Pong finished.\n");
+    printf("\n[Main] Ping-Pong complete — 5 rounds each, perfectly alternating.\n");
     return EXIT_SUCCESS;
 }
 
@@ -49,9 +62,9 @@ void* pingpong(void *arg) {
 
         // Print message: "Ping" or "Pong"
         if (id == 0)
-            printf("Ping\n");
+            printf("[Thread 0] Ping! (round %d)\n", round + 1);
         else
-            printf("Pong\n");
+            printf("[Thread 1]   Pong! (round %d)\n", round + 1);
 
         // Let the other thread proceed.
         turn = 1 - id;

@@ -1,3 +1,10 @@
+/*
+ * 08-dont-forget-functions.c — Functions with pointer parameters in C
+ *
+ * Key concepts: pass-by-pointer, function parameters, pointer arithmetic
+ * Compile: gcc -o prog 08-dont-forget-functions.c
+ * Run:     ./prog
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -39,7 +46,16 @@ int main() {
 }
 
 int read_line(char **line, size_t *len) {
-    printf("Enter grades followed by a name: ");
+    printf("\n");
+    printf("========================================\n");
+    printf("  Functions with Pointer Parameters\n");
+    printf("========================================\n\n");
+    printf("  Same program as 07, but refactored into\n");
+    printf("  separate functions using pointer params.\n\n");
+    printf("  Enter grades followed by a name\n");
+    printf("  Example: 90 85 72 John Smith\n\n");
+    printf("  > ");
+    fflush(stdout);
     size_t read = getline(line, len, stdin);
     return (read != -1) ? 0 : -1;
 }
@@ -72,12 +88,14 @@ int parse_grades_and_name(char *line, int **grades, char *name) {
 }
 
 void print_results(const char *name, const int *grades, int numGrades) {
-    printf("Name: %s\n", name);
-    printf("Grades: ");
+    printf("\n  --- Parsed Result ---\n\n");
+    printf("  Name:   %s\n", name);
+    printf("  Grades: ");
     for (int i = 0; i < numGrades; i++) {
-        printf("%d ", grades[i]);
+        printf("%d%s", grades[i], (i < numGrades - 1) ? ", " : "");
     }
-    printf("\n");
+    printf("  (%d total)\n\n", numGrades);
+    printf("========================================\n");
 }
 
 void free_resources(int *grades, char *line) {

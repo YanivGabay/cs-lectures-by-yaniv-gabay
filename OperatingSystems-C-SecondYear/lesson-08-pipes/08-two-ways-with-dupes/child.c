@@ -1,3 +1,10 @@
+/*
+ * child.c — Child — reads stdin, writes stdout (duped from pipes)
+ *
+ * Key concepts: Reads from redirected stdin, writes to redirected stdout
+ * Compile: gcc -o child child.c
+ * Run:     ./prog
+ */
 // child_program.c
 #include <stdio.h>
 #include <string.h>
@@ -5,15 +12,14 @@
 int main() {
     char buffer[100];
 
-    // Read message from parent
+    // Read message from parent (via redirected stdin ← pipe)
     if (fgets(buffer, sizeof(buffer), stdin) != NULL) {
-        // Remove newline character if present
         buffer[strcspn(buffer, "\n")] = '\0';
-        printf("Child received: %s\n", buffer);
+        // stdout goes back to parent via the other pipe
+        printf("[Child] Received from parent: \"%s\"\n", buffer);
     }
 
-    // Respond to parent
-    printf("Hello from Child Program!\n");
+    printf("[Child] Sending reply back to parent.\n");
 
     return 0;
 }

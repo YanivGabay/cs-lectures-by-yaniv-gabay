@@ -1,3 +1,9 @@
+/*
+ * scoreboard.h — Shared struct definition for the scoreboard example
+ *
+ * Used by: scoreboard_creator.c, scoreboard_updater.c, scoreboard_viewer.c
+ * Key concepts: Shared header ensures all programs agree on the memory layout
+ */
 // scoreboard.h
 #ifndef SCOREBOARD_H
 #define SCOREBOARD_H

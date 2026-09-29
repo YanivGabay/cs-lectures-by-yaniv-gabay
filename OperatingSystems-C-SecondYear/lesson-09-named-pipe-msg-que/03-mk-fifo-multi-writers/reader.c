@@ -1,3 +1,10 @@
+/*
+ * reader.c — Reader for multi-writer FIFO
+ *
+ * Key concepts: Reading from FIFO with multiple writers
+ * Compile: gcc -o reader reader.c
+ * Run:     ./prog
+ */
 // fifo_reader_single.c
 #include <stdio.h>
 #include <stdlib.h>
@@ -11,6 +18,10 @@ const char *FIFO_NAME = "multi_fifo";
 const int BUFFER_SIZE = 1024;
 
 int main() {
+    printf("\n");
+    printf("══════════════════════════════════════\n");
+    printf("  Reader for multi-writer FIFO\n");
+    printf("══════════════════════════════════════\n\n");
     FILE *fp;
     char buffer[BUFFER_SIZE];
     int writer_count = 0;

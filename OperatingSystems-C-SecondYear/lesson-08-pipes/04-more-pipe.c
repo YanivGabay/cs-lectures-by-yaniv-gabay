@@ -1,3 +1,10 @@
+/*
+ * 04-more-pipe.c — More pipe examples — parent/child communication
+ *
+ * Key concepts: pipe(), fork(), read/write, closing unused ends
+ * Compile: gcc -o more_pipe 04-more-pipe.c
+ * Run:     ./prog
+ */
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -20,6 +27,11 @@ After closing the write end, the child's read() detects EOF (when read() returns
 */
 
 int main() {
+    printf("\n");
+    printf("══════════════════════════════════════\n");
+    printf("  Pipe: Char-by-Char Write, Bulk Read\n");
+    printf("  Parent writes loop → Child reads all\n");
+    printf("══════════════════════════════════════\n\n");
     int pipefd[2];
     pid_t pid;
     ssize_t bytes;
@@ -35,13 +47,14 @@ int main() {
         close(pipefd[1]); // Close write end
         while ((bytes = read(pipefd[0], buffer, sizeof(buffer)-1)) > 0) {
             buffer[bytes] = '\0';
-            printf("Child read: %s", buffer);
+            printf("[Child  PID %d] Read %ld bytes: \"%s\"", getpid(), (long)bytes, buffer);
         }
         close(pipefd[0]);
         exit(EXIT_SUCCESS);
     } else { // Parent: Writer
         close(pipefd[0]); // Close read end
         const char *msg = "Hello, this is a message from the parent.\n";
+        printf("[Parent PID %d] Writing %ld bytes to pipe...\n", getpid(), (long)strlen(msg));
         size_t len = strlen(msg);
         ssize_t total_written = 0;
 

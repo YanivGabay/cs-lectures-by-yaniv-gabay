@@ -1,3 +1,10 @@
+/*
+ * 06-ipcm-ipcrm-removing.c — Cleaning up IPC resources — ipcs and ipcrm
+ *
+ * Key concepts: msgctl IPC_RMID, cleaning up message queues, ipcs command
+ * Compile: gcc -o cleanup 06-ipcm-ipcrm-removing.c
+ * Run:     ./prog
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/ipc.h>
@@ -30,6 +37,10 @@ struct my_msgbuf {
 };
 
 int main() {
+    printf("\n");
+    printf("══════════════════════════════════════\n");
+    printf("  Cleaning up IPC resources — ipcs a\n");
+    printf("══════════════════════════════════════\n\n");
     key_t key;
     int msgid;
     struct my_msgbuf buf;

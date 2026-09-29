@@ -1,3 +1,10 @@
+/*
+ * parent-program.c — Parent with dup2 — redirected stdin/stdout for child
+ *
+ * Key concepts: dup2(), fork(), exec(), bidirectional pipe communication
+ * Compile: gcc -o parent parent-program.c
+ * Run:     ./prog
+ */
 // parent_program.c
 #include <unistd.h>
 #include <stdio.h>
@@ -22,6 +29,11 @@ and the stdout of the child comes back to the parent (to its std in)
 #define BUFFER_SIZE 100
 
 int main() {
+    printf("\n");
+    printf("══════════════════════════════════════\n");
+    printf("  Bidirectional dup2 + exec\n");
+    printf("  Parent ↔ Child via redirected stdio\n");
+    printf("══════════════════════════════════════\n\n");
     int pipe_parent_to_child[2];
     int pipe_child_to_parent[2];
     pid_t pid;
@@ -91,17 +103,18 @@ int main() {
 
         // Send message to child
         const char *message = "Hello from Parent Program!";
+        fprintf(stderr, "[Parent PID %d] Sending to child: \"%s\"\n", getpid(), message);
         fprintf(write_fp, "%s\n", message);
-        fflush(write_fp); // Ensure the message is sent
+        fflush(write_fp);
 
         // Read response from child
         if (fgets(buffer, sizeof(buffer), read_fp) != NULL) {
-            printf("Parent received: %s", buffer);
+            fprintf(stderr, "[Parent] Received from child: %s", buffer);
         }
 
         // Read second response from child
         if (fgets(buffer, sizeof(buffer), read_fp) != NULL) {
-            printf("Parent received: %s", buffer);
+            fprintf(stderr, "[Parent] Received from child: %s", buffer);
         }
 
         // Close the streams

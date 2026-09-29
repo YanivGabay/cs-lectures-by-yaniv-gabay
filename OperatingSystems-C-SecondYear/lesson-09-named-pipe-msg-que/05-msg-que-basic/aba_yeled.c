@@ -1,3 +1,10 @@
+/*
+ * aba_yeled.c — Basic message queue — parent-child communication
+ *
+ * Key concepts: msgget, msgsnd, msgrcv, IPC_CREAT, message types
+ * Compile: gcc -o msgq aba_yeled.c
+ * Run:     ./prog
+ */
 /// includes needed for the program
 #include <stdio.h>
 #include <stdlib.h>
@@ -24,6 +31,10 @@ struct my_msgbuf {
 
 
 int main() {
+    printf("\n");
+    printf("══════════════════════════════════════\n");
+    printf("  Basic message queue — parent-child\n");
+    printf("══════════════════════════════════════\n\n");
     key_t key;
     int msgid;
     pid_t pid;
@@ -59,7 +70,7 @@ int main() {
             exit(EXIT_FAILURE);
         }
 
-        printf("Child received message: %s\n", buf.mtext);
+        printf("[Child PID %d] Received message (type %ld): \"%s\"\n", getpid(), buf.mtype, buf.mtext);
         exit(EXIT_SUCCESS);
     } else {         // Parent Process: Sender
         // Prepare message
@@ -72,7 +83,7 @@ int main() {
             exit(EXIT_FAILURE);
         }
 
-        printf("Parent sent message: %s\n", buf.mtext);
+        printf("[Parent PID %d] Sent message (type %ld): \"%s\" to queue %d\n", getpid(), buf.mtype, buf.mtext, msgid);
 
         // Wait for child to finish
         wait(NULL);

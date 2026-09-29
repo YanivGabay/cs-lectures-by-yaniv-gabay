@@ -1,3 +1,10 @@
+/*
+ * 06-complex-usage-scanf-printf.c — Advanced scanf/printf formatting — width, precision, flags
+ *
+ * Key concepts: format specifiers, width modifiers, precision
+ * Compile: gcc -o prog 06-complex-usage-scanf-printf.c
+ * Run:     ./prog
+ */
 
 
 // to write the same program in c:
@@ -7,47 +14,62 @@
 int main()
 {
 
+    printf("\n");
+    printf("========================================\n");
+    printf("  Advanced scanf/printf Formatting\n");
+    printf("========================================\n\n");
+
+    // --- Section 1: Multi-type scanf ---
+    printf("--- Section 1: Reading multiple types at once ---\n\n");
     int integer;
     float realNumber;
     char character;
     char string[100];
 
-    printf("Enter an integer, a floating-point number, a character, and a string: ");
-    scanf("%d %f %c %s", &integer, &realNumber, &character, string); // Note: no & for string
-    //we no need &? cus an array name is a pointer to the first element of the array
+    printf("  Enter: integer float char string (e.g., 42 3.14 A hello): ");
+    fflush(stdout);
+    scanf("%d %f %c %s", &integer, &realNumber, &character, string);
 
-    printf("You entered integer: %d\n", integer);
-    printf("You entered float: %.2f\n", realNumber); // printing float with two decimal places
-    printf("You entered character: %c\n", character);
-    printf("You entered string: %s\n", string);
-    // the scanf stop reading when it reaches a whitespace
+    printf("\n  %-12s | %s\n", "Type", "Value");
+    printf("  ------------ | -----\n");
+    printf("  %%d (int)     | %d\n", integer);
+    printf("  %%f (float)   | %.2f\n", realNumber);
+    printf("  %%c (char)    | '%c'\n", character);
+    printf("  %%s (string)  | \"%s\"\n\n", string);
 
-
+    // --- Section 2: Precision and width ---
+    printf("--- Section 2: Precision and width formatting ---\n\n");
     double pi = 3.141592653589793;
     int number = 50;
 
-    // Print pi with varying precision
-    printf("Pi with 2 decimal places: %.2f\n", pi);
-    printf("Pi with 5 decimal places: %.5f\n", pi);
+    printf("  Pi with different precision:\n");
+    printf("    %%.2f  -> %.2f\n", pi);
+    printf("    %%.5f  -> %.5f\n", pi);
+    printf("    %%.10f -> %.10f\n\n", pi);
 
-    // Print numbers with field width of 10 characters
-    printf("Number right-aligned (width 10): |%10d|\n", number);
-    printf("Number left-aligned  (width 10): |%-10d|\n", number);
+    printf("  Width formatting (| shows boundaries):\n");
+    printf("    %%10d  (right-aligned) -> |%10d|\n", number);
+    printf("    %%-10d (left-aligned)  -> |%-10d|\n\n", number);
 
-
+    // --- Section 3: Parsing a date string ---
+    printf("--- Section 3: Parsing a formatted string ---\n\n");
     char line[256];
     int day, year;
     char month[20];
-    fgetc(stdin); // Consume newline character left behind by previous scanf
-    //IMPORTANT IN C, each enter is a new line character
-    //what happens if we remove the fgetc?
-    printf("Enter date (e.g., January 1, 2020): ");
-    fgets(line, sizeof(line), stdin); // Read full line including spaces
-    sscanf(line, "%s %d, %d", month, &day, &year); // Parse string into parts
-    //pay attention, we have %s %d, %d WE HAVE ',' in the format string
-    // so its expected to have a comma in the input
-    //else year will be 0
-    printf("Month: %s\n", month);
-    printf("Day: %d\n", day);
-    printf("Year: %d\n", year);
+    fgetc(stdin); // Consume leftover newline from previous scanf
+
+    printf("  Enter a date (e.g., January 1, 2020): ");
+    fflush(stdout);
+    fgets(line, sizeof(line), stdin);
+    sscanf(line, "%s %d, %d", month, &day, &year);
+
+    printf("\n  Parsed result:\n");
+    printf("    Month: %s\n", month);
+    printf("    Day:   %d\n", day);
+    printf("    Year:  %d\n", year);
+    if (year == 0) printf("    NOTE: Year is 0 — did you forget the comma?\n");
+
+    printf("\n========================================\n");
+    printf("  End of demo\n");
+    printf("========================================\n");
 }

@@ -1,3 +1,10 @@
+/*
+ * multiply_signals.c — Multiplexing signals across 4 child processes
+ *
+ * Key concepts: Multiple children, signal routing, wait, kill
+ * Compile: gcc -o multi_sig multiply_signals.c
+ * Run:     ./prog
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -15,6 +22,11 @@ void handle_sigusr2(int sig);
 void handle_sigterm(int sig);
 
 int main() {
+    printf("\n");
+    printf("══════════════════════════════════════\n");
+    printf("  Signal Multiplexing — 4 Children\n");
+    printf("  Each child sends a different signal\n");
+    printf("══════════════════════════════════════\n\n");
     pid_t pid;
     struct sigaction sa_int, sa_usr1, sa_usr2, sa_term;
 
@@ -54,10 +66,10 @@ int main() {
         exit(EXIT_FAILURE);
     }
 
-    printf("Parent PID: %d\n", getpid());
-    printf("Setting up %d child processes to send signals.\n", NUM_CHILDREN);
+    printf("[Parent PID %d] Handlers registered for SIGINT, SIGUSR1, SIGUSR2, SIGTERM.\n\n", getpid());
 
     // Array of signals to be sent by children
+    const char *sig_names[NUM_CHILDREN] = {"SIGINT", "SIGUSR1", "SIGUSR2", "SIGTERM"};
     int signals[NUM_CHILDREN] = {SIGINT, SIGUSR1, SIGUSR2, SIGTERM};
 
     // Forking child processes
@@ -70,8 +82,11 @@ int main() {
 
         if (pid == 0) {
             // Child process
-            sleep(2 * (i + 1)); // Stagger the signals
-            printf("Child %d sending signal %d to parent.\n", getpid(), signals[i]);
+            int delay = 2 * (i + 1);
+            printf("[Child %d PID %d] Will send %s in %d seconds.\n", i, getpid(), sig_names[i], delay);
+            fflush(stdout);
+            sleep(delay);
+            printf("[Child %d PID %d] Sending %s to Parent (PID %d)...\n", i, getpid(), sig_names[i], getppid());
             if (kill(getppid(), signals[i]) == -1) {
                 perror("Failed to send signal");
                 exit(EXIT_FAILURE);
@@ -81,7 +96,8 @@ int main() {
     }
 
     // Parent process waits for signals indefinitely
-    printf("Parent is waiting for signals. Press Ctrl+C to send SIGINT manually.\n");
+    printf("\n[Parent] All children forked. Waiting for signals...\n");
+    printf("[Parent] Signals will arrive staggered: 2s, 4s, 6s, 8s.\n\n");
 
     while (1) {
         pause(); // Wait for signals
@@ -95,25 +111,19 @@ int main() {
 
 // Handler for SIGINT
 void handle_sigint(int sig) {
-    printf("\nReceived SIGINT (Interrupt Signal). Handling gracefully.\n");
-    // Additional actions can be performed here
+    printf("\n[Handler] SIGINT (signal %d) — Interrupt. Handling gracefully.\n\n", sig);
 }
 
-// Handler for SIGUSR1
 void handle_sigusr1(int sig) {
-    printf("Received SIGUSR1 (User-Defined Signal 1). Performing action 1.\n");
-    // Additional actions can be performed here
+    printf("[Handler] SIGUSR1 (signal %d) — User-defined signal 1 received.\n\n", sig);
 }
 
-// Handler for SIGUSR2
 void handle_sigusr2(int sig) {
-    printf("Received SIGUSR2 (User-Defined Signal 2). Performing action 2.\n");
-    // Additional actions can be performed here
+    printf("[Handler] SIGUSR2 (signal %d) — User-defined signal 2 received.\n\n", sig);
 }
 
-// Handler for SIGTERM
 void handle_sigterm(int sig) {
-    printf("Received SIGTERM (Termination Signal). Cleaning up and exiting.\n");
+    printf("[Handler] SIGTERM (signal %d) — Termination. Cleaning up...\n", sig);
     // Perform any necessary cleanup here
     
 

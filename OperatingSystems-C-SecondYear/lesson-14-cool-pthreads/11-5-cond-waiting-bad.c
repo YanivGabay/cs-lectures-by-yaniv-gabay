@@ -1,9 +1,14 @@
+/*
+ * 11-5-cond-waiting-bad.c — Condition variable pitfalls — what can go wrong
+ *
+ * Key concepts: Missed signals, spurious wakeups, why while-loop is needed
+ * Compile: gcc -o cond_bad 11-5-cond-waiting-bad.c -lpthread
+ * Run:     ./cond_bad
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
 #include <unistd.h>
-
-//showing that signals will be lost
 
 #define NUM_THREADS 2
 
@@ -13,32 +18,46 @@ int condition_met = 0;
 
 void* thread_func(void* arg) {
     long id = (long)arg;
-    printf("Thread %ld starting.\n", id);
+    printf("[Thread %ld] Starting — will wait for condition...\n", id);
     pthread_mutex_lock(&mutex);
     while (!condition_met) {
+        printf("[Thread %ld] Calling cond_wait (blocking)...\n", id);
         pthread_cond_wait(&cond, &mutex);
+        printf("[Thread %ld] Woke up! Checking condition...\n", id);
     }
     pthread_mutex_unlock(&mutex);
 
-    printf("Thread %ld proceeding.\n", id);
+    printf("[Thread %ld] Condition met — proceeding.\n", id);
     return NULL;
 }
 
 int main() {
-    pthread_t threads[NUM_THREADS];
-    
-   
-    pthread_cond_signal(&cond); // First signal
-    pthread_cond_signal(&cond); // Second signal
-    
+    printf("\n");
+    printf("══════════════════════════════════════\n");
+    printf("  Condition Variable Pitfalls\n");
+    printf("══════════════════════════════════════\n\n");
+    printf("[Main] BUG DEMO: signals sent BEFORE threads are created!\n");
+    printf("[Main] The signals are lost — threads will block forever.\n\n");
 
-    // Create threads after signals
-    for(long i = 0; i < NUM_THREADS; i++) {
+    pthread_t threads[NUM_THREADS];
+
+    // BUG: Sending signals before any thread is waiting
+    printf("[Main] Sending cond_signal #1... (nobody is listening!)\n");
+    pthread_cond_signal(&cond);
+    printf("[Main] Sending cond_signal #2... (still nobody listening!)\n");
+    pthread_cond_signal(&cond);
+    printf("[Main] Both signals are LOST — they don't queue up.\n\n");
+
+    // Create threads after signals — they'll never wake up
+    for (long i = 0; i < NUM_THREADS; i++) {
         pthread_create(&threads[i], NULL, thread_func, (void*)i);
     }
-    
-    // Join threads
-    for(int i = 0; i < NUM_THREADS; i++) {
+
+    printf("[Main] Threads created. They're waiting for signals that already fired.\n");
+    printf("[Main] This program will hang forever! (Ctrl+C to exit)\n");
+    printf("[Main] Fix: set condition_met=1 before signaling, or signal after threads start.\n");
+
+    for (int i = 0; i < NUM_THREADS; i++) {
         pthread_join(threads[i], NULL);
     }
 

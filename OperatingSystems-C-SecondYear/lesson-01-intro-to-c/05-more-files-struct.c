@@ -1,3 +1,10 @@
+/*
+ * 05-more-files-struct.c — Reading/writing structs to files
+ *
+ * Key concepts: structs, fwrite, fread, file I/O with structured data
+ * Compile: gcc -o prog 05-more-files-struct.c
+ * Run:     ./prog
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -85,11 +92,20 @@ int main() {
     fclose(inFile);
 
     // Displaying the read data
+    printf("\n");
+    printf("========================================\n");
+    printf("  Structs + File I/O Demo\n");
+    printf("========================================\n\n");
+
+    printf("--- Wrote %d employees to employees.txt ---\n\n", EMPLOYEE_COUNT);
+    printf("--- Read them back: ---\n\n");
+    printf("  %-4s | %-10s | %s\n", "ID", "Name", "Salary");
+    printf("  ---- | ---------- | ----------\n");
     for (int i = 0; i < 3; i++) {
-        printf("Employee ID: %d\n", readEmployees[i].id);
-        printf("Name: %s\n", readEmployees[i].name);
-        printf("Salary: %.2f\n\n", readEmployees[i].salary);
+        printf("  %-4d | %-10s | $%.2f\n", readEmployees[i].id, readEmployees[i].name, readEmployees[i].salary);
     }
+    printf("\n");
+    printf("========================================\n");
     // need to free the memory:
     free(employees);
     return 0;

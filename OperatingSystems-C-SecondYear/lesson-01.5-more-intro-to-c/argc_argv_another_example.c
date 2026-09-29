@@ -1,3 +1,10 @@
+/*
+ * argc_argv_another_example.c — Opening a file from command line arguments with validation
+ *
+ * Key concepts: argc/argv, fopen, perror, EXIT_FAILURE
+ * Compile: gcc -o prog argc_argv_another_example.c
+ * Run:     ./prog arg1 arg2
+ */
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -24,19 +31,26 @@ int main(int argc, char *argv[]) {
 
     const char* filename = argv[1];
 
-    printf("Filename: %s\n", filename);
+    printf("\n");
+    printf("========================================\n");
+    printf("  Reading a File from Command Line\n");
+    printf("========================================\n\n");
+    printf("  Opening file: \"%s\"\n\n", filename);
 
     FILE *file = fopen(filename, "r");
     if (file == NULL) {
-        perror("Error opening file");
+        perror("  ERROR: Cannot open file");
         return EXIT_FAILURE;
     }
 
     // Read from the file
+    printf("  --- File contents ---\n\n");
     char buffer[100];
     while (fgets(buffer, sizeof(buffer), file) != NULL) {
-        printf("%s", buffer);
+        printf("    %s", buffer);
     }
+    printf("\n\n  --- End of file ---\n\n");
+    printf("========================================\n");
 
 
 

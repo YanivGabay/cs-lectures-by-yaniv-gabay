@@ -1,3 +1,10 @@
+/*
+ * 11-pthreads-fifo.c — Threads combined with FIFO (named pipe)
+ *
+ * Key concepts: pthreads + mkfifo, IPC between threads and processes
+ * Compile: gcc -o fifo_thread 11-pthreads-fifo.c -lpthread
+ * Run:     ./prog
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -22,11 +29,16 @@ void* reader_thread(void* arg);
 int main() {
     pthread_t writer, reader;
 
-    // Create FIFOs
-    if (mkfifo(WRITER_TO_READER_FIFO, 0666) == -1) perror("mkfifo writer_to_reader");
-    if (mkfifo(READER_TO_WRITER_FIFO, 0666) == -1) perror("mkfifo reader_to_writer");
+    printf("\n");
+    printf("══════════════════════════════════════\n");
+    printf("  Threads + FIFO Communication\n");
+    printf("══════════════════════════════════════\n\n");
+    printf("[Main] Two threads communicate via named pipes (FIFOs).\n");
+    printf("[Main] Writer sends %d messages, Reader acknowledges each.\n\n", NUM_MESSAGES);
 
-    // Create threads
+    if (mkfifo(WRITER_TO_READER_FIFO, 0666) == -1) perror("[Main] mkfifo writer_to_reader");
+    if (mkfifo(READER_TO_WRITER_FIFO, 0666) == -1) perror("[Main] mkfifo reader_to_writer");
+
     if (pthread_create(&writer, NULL, writer_thread, NULL) != 0) {
         perror("Failed to create writer thread");
         exit(EXIT_FAILURE);
@@ -58,7 +70,6 @@ void* writer_thread(void* arg) {
     }
 
     for (int i = 0; i < NUM_MESSAGES; i++) {
-        // Write a message to the reader
         snprintf(message, BUFSIZE, "Message %d from writer", i);
         if (write(write_fd, message, strlen(message) + 1) == -1) {
             perror("writer_thread: Failed to write message");
@@ -66,7 +77,7 @@ void* writer_thread(void* arg) {
             close(read_fd);
             pthread_exit(NULL);
         }
-        printf("Writer: Sent \"%s\"\n", message);
+        printf("[Writer] Sent \"%s\"\n", message);
 
         // Wait for acknowledgment from the reader
         if (read(read_fd, response, BUFSIZE) == -1) {
@@ -75,7 +86,7 @@ void* writer_thread(void* arg) {
             close(read_fd);
             pthread_exit(NULL);
         }
-        printf("Writer: Received \"%s\"\n", response);
+        printf("[Writer] Got ACK: \"%s\"\n", response);
     }
 
     close(write_fd);
@@ -101,7 +112,7 @@ void* reader_thread(void* arg) {
             close(write_fd);
             pthread_exit(NULL);
         }
-        printf("Reader: Received \"%s\"\n", message);
+        printf("[Reader] Got: \"%s\"\n", message);
 
         // Send acknowledgment to the writer
         snprintf(response, BUFSIZE, "Acknowledged: %s", message);
@@ -111,7 +122,7 @@ void* reader_thread(void* arg) {
             close(write_fd);
             pthread_exit(NULL);
         }
-        printf("Reader: Sent \"%s\"\n", response);
+        printf("[Reader] Sent ACK: \"%s\"\n", response);
     }
 
     close(read_fd);

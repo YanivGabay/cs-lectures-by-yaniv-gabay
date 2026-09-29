@@ -1,3 +1,10 @@
+/*
+ * 09-cool-canvas.c — Shared canvas — threads drawing on a 2D grid
+ *
+ * Key concepts: Mutex-protected 2D array, concurrent writes, terminal visualization
+ * Compile: gcc -o canvas 09-cool-canvas.c -lpthread
+ * Run:     ./prog
+ */
 // File: multithreaded_drawing_with_display.c
 // Compile with: gcc -Wall -pthread -o multithreaded_drawing_with_display multithreaded_drawing_with_display.c
 
@@ -142,6 +149,10 @@ void* display_canvas(void* arg) {
 }
 
 int main() {
+    printf("\n");
+    printf("══════════════════════════════════════\n");
+    printf("  Shared Canvas — Concurrent Drawing\n");
+    printf("══════════════════════════════════════\n\n");
     pthread_t drawing_threads[NUM_DRAWING_THREADS];
     pthread_t display_thread;
     int rc;

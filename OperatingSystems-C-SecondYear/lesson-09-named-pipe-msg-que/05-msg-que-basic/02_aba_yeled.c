@@ -1,3 +1,10 @@
+/*
+ * 02_aba_yeled.c — Extended message queue with typed messages
+ *
+ * Key concepts: mtype field for selective message receiving
+ * Compile: gcc -o msgq2 02_aba_yeled.c
+ * Run:     ./prog
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/ipc.h>
@@ -14,6 +21,10 @@ struct my_msgbuf {
 int const ALLOWED_TYPES[] = {1, 2, 3};
 
 int main() {
+    printf("\n");
+    printf("══════════════════════════════════════\n");
+    printf("  Extended message queue with typed me\n");
+    printf("══════════════════════════════════════\n\n");
     key_t key;
     int msgid;
     pid_t pid;

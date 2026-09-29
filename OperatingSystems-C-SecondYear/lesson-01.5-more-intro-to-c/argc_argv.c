@@ -1,3 +1,10 @@
+/*
+ * argc_argv.c — Basic argc/argv — command line arguments
+ *
+ * Key concepts: argc, argv, main parameters
+ * Compile: gcc -o prog argc_argv.c
+ * Run:     ./prog arg1 arg2
+ */
 #include <stdio.h>
 
 
@@ -7,9 +14,21 @@ but first, lets run it as usual.
 */
 
 int main(int argc, char *argv[]) {
-    printf("Number of arguments: %d\n", argc);
+    printf("\n");
+    printf("========================================\n");
+    printf("  Command-Line Arguments (argc/argv)\n");
+    printf("========================================\n\n");
+    printf("  argc (argument count): %d\n\n", argc);
+    printf("  %-6s | %s\n", "Index", "Value");
+    printf("  ------ | -----\n");
     for (int i = 0; i < argc; i++) {
-        printf("Argument %d: %s\n", i, argv[i]);
+        printf("  argv[%d] | \"%s\"%s\n", i, argv[i], i == 0 ? "  (program name)" : "");
     }
+    printf("\n");
+    if (argc == 1) {
+        printf("  TIP: Try running with arguments:\n");
+        printf("    ./prog hello world 42\n\n");
+    }
+    printf("========================================\n");
     return 0;
 }

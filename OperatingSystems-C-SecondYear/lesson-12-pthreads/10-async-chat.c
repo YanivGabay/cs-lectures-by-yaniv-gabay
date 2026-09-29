@@ -1,3 +1,10 @@
+/*
+ * 10-async-chat.c — Async chat simulator with threads
+ *
+ * Key concepts: One thread reads, one writes, concurrent I/O
+ * Compile: gcc -o chat 10-async-chat.c -lpthread
+ * Run:     ./prog
+ */
 // File: chat_simulator.c
 // Compile with: gcc -Wall -pthread chat_simulator.c -o chat_simulator
 
@@ -37,31 +44,36 @@ void* chat_participant(void *arg) {
         log_buffer[pos] = '\0'; // Clear previous (not strictly necessary)
         strncpy(log_buffer, message, sizeof(log_buffer)-1);
         log_index++;
-        printf("Participant %d posted: %s\n", id, message);
+        printf("[Participant %d] Posted message %d/%d: \"%s\" (log position: %d)\n", id, i + 1, NUM_MESSAGES, message, pos);
     }
     
     pthread_exit(NULL);
 }
 
 int main() {
+    printf("\n");
+    printf("========================================\n");
+    printf("  Async Chat Simulator\n");
+    printf("========================================\n\n");
     pthread_t participants[NUM_PARTICIPANTS];
     int ids[NUM_PARTICIPANTS];
     int status, i;
 
     srand(time(NULL));
 
-    // Create chat participant threads.
+    printf("[Main] Starting %d chat participants, each will post %d messages.\n", NUM_PARTICIPANTS, NUM_MESSAGES);
+    printf("[Main] WARNING: no mutex on shared log — messages may get lost or corrupted!\n\n");
+
     for (i = 0; i < NUM_PARTICIPANTS; i++) {
         ids[i] = i;
         status = pthread_create(&participants[i], NULL, chat_participant, (void *)&ids[i]);
         if (status != 0) {
-            fprintf(stderr, "pthread_create failed for participant %d\n", i);
+            fprintf(stderr, "[Main] ERROR: pthread_create failed for participant %d\n", i);
             exit(EXIT_FAILURE);
         }
     }
-    
-    // Main thread finishes quickly.
-    printf("Main thread: Exiting immediately, chat participants continue.\n");
+
+    printf("[Main] All participants started. Main exits, chat continues...\n\n");
     pthread_exit(NULL);
     
     return EXIT_SUCCESS;

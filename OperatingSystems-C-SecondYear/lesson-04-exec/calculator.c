@@ -1,8 +1,22 @@
+/*
+ * calculator.c — Calculator child program (used by calculator_exec.c)
+ *
+ * Key concepts: This is the child program that exec launches
+ * Compile: gcc -o calculator calculator.c
+ * Run:     ./prog
+ */
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>    // for getpid()
 
 int main(int argc, char *argv[]) {
-    if (argc != 4) { // Expect exactly 3 arguments: num1, operator, num2
+    printf("\n");
+    printf("========================================\n");
+    printf("  Calculator (exec'd child process)\n");
+    printf("========================================\n\n");
+    printf("[Calculator PID %d] Launched by parent via exec().\n", getpid());
+    printf("[Calculator] Received %d arguments (expected 3: num op num)\n\n", argc - 1);
+    if (argc != 4) {
         fprintf(stderr, "Usage: %s <num1> <operator> <num2>\n", argv[0]);
         return 1;
     }
@@ -36,7 +50,7 @@ int main(int argc, char *argv[]) {
             return 1;
     }
 
-    // Print the result
-    printf("Result: %d %c %d = %d\n", num1, operator, num2, result);
+    printf("[Calculator] %d %c %d = %d\n\n", num1, operator, num2, result);
+    printf("========================================\n");
     return 0;
 }

@@ -1,3 +1,10 @@
+/*
+ * chat-server.c — Multi-client chat server using select()
+ *
+ * Key concepts: select() multiplexing, broadcasting to all clients, fd tracking
+ * Compile: gcc -o chat_server chat-server.c
+ * Run:     ./prog
+ */
 // File: chat_server.c
 
 #include <stdio.h>
@@ -15,6 +22,10 @@ const int BUFLEN = 1000;      // Max buffer size for data
 
 int main()
 {
+    printf("\n");
+    printf("══════════════════════════════════════\n");
+    printf("  Multi-client chat server using selec\n");
+    printf("══════════════════════════════════════\n\n");
     int rc; // Return code
     int main_socket;
     int serving_socket;
@@ -77,7 +88,8 @@ int main()
     FD_SET(main_socket, &rfd); // Add the main socket to the master set
     max_fd = main_socket;      // Keep track of the maximum file descriptor
 
-    printf("Chat server: waiting for connections on port %s...\n", MY_PORT);
+    printf("[Server] Listening on port %s (main_socket fd=%d).\n", MY_PORT, main_socket);
+    printf("[Server] Waiting for connections...\n\n");
 
     // Main loop to handle incoming connections and data
     while (1)
@@ -106,7 +118,7 @@ int main()
                 {
                     max_fd = serving_socket; // Update the maximum file descriptor
                 }
-                printf("Chat server: new connection accepted (fd: %d)\n", serving_socket);
+                printf("[Server] New client connected (fd=%d, total fds monitored: %d)\n", serving_socket, max_fd - main_socket);
             }
             else
             {
@@ -125,7 +137,7 @@ int main()
                     if (rc == 0)
                     {
                         // Connection closed by client
-                        printf("Chat server: connection closed (fd: %d)\n", fd);
+                        printf("[Server] Client disconnected (fd=%d)\n", fd);
                     }
                     else
                     {
@@ -137,7 +149,7 @@ int main()
                 else
                 {
                     buf[rc] = '\0'; // Null-terminate the string
-                    printf("Chat server: received '%s' from fd %d\n", buf, fd);
+                    printf("[Server] Received %d bytes from fd=%d: \"%s\"\n", rc, fd, buf);
 
                     // Broadcast the message to all connected clients
                     for (int i = 0; i <= max_fd; i++)

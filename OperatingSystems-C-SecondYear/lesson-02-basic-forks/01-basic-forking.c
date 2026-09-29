@@ -1,33 +1,41 @@
-#include <stdio.h>
-#include <unistd.h> // for fork()
-#include <sys/wait.h> // for wait()
-
-// Carefull, this code should run on a Linux machine
-// Windows does not support fork() system call
-// fork() creates a new process by duplicating the existing process
-// its a system call that is used to create processes
-// which means it creates a new process which runs concurrently with the calling process
-
-// some basic info about fork return value:
 /*
-Explanation:
+ * 01-basic-forking.c — Your first fork() example
+ *
+ * Demonstrates: Creating a child process with fork()
+ * Key concepts: fork() return values, PID, parent vs child execution paths
+ * Compile: gcc -o basic_fork 01-basic-forking.c
+ * Run:     ./basic_fork
+ *
+ * NOTE: This code runs on Linux/macOS only — Windows does not support fork().
+ */
 
-fork() returns a value:
-Negative Value: Fork failed.
-Zero (0): This is the child process.
-Positive Value: This is the parent process, and the value returned is the PID of the child
-PID = Process ID
-*/
+#include <stdio.h>
+#include <stdlib.h>    // for exit(), EXIT_FAILURE
+#include <unistd.h>    // for fork(), getpid()
+#include <sys/wait.h>  // for wait()
 
-// small tip , your new friend for all system call information is :
-// https://man7.org/linux/man-pages/index.html
-// you can search for any system call and get all the information you need
+/*
+ * fork() creates a new process by duplicating the calling process.
+ * After fork(), TWO processes run the same code from the same point.
+ *
+ * Return values:
+ *   Negative : fork failed (system out of resources)
+ *   Zero (0) : you are in the CHILD process
+ *   Positive : you are in the PARENT process, value = child's PID
+ *
+ * Tip: man pages are your best friend — https://man7.org/linux/man-pages/
+ */
 
 
 void check_valid_process(pid_t status);
 
 int main()
 {
+
+    printf("\n");
+    printf("========================================\n");
+    printf("  Your First fork() — Parent vs Child\n");
+    printf("========================================\n\n");
 
     pid_t pid = fork(); // fork() creates a new process
 
@@ -41,21 +49,23 @@ int main()
     else if (pid == 0)
     {
         // Child process
-        printf("This is the child process. PID: %d\n", getpid());
+        printf("[Child]  I am the child process!  My PID: %d, my parent's PID: %d\n", getpid(), getppid());
         return 0;
     }
     else
     {
         // Parent process
-        printf("This is the parent process. PID: %d, Child PID: %d\n", getpid(), pid);
+        printf("[Parent] I am the parent process! My PID: %d, fork() returned child PID: %d\n", getpid(), pid);
+        // NOTE: No wait() here on purpose! The parent exits without reaping the child.
+        // This creates a zombie process — the next example (01.5-forking-zombies.c) explains why.
+        // The fix is shown in 03-basic-fork-thefix.c.
         return 0;
     }
-    
-    pid_t status = wait(NULL);
-    //the proccesses that ended, are zombies, why?
-    // cus the parent process, has to "wait" for the child process to end
-    // only when it has waited on the children, the children are removed from the process table of the operating system
-    // and they are not zombies anymore
+
+    // This code is unreachable — both branches return above.
+    // The wait() call below never executes, which is the point:
+    // students should notice the missing wait() and understand its consequences.
+    wait(NULL);
     return 0;
 }
 
@@ -64,7 +74,7 @@ void check_valid_process(pid_t status)
 {
     if (status < 0)
     {
-        perror("Failed To open procceses");
+        perror("Process creation failed");
         exit(EXIT_FAILURE);
     }
 }

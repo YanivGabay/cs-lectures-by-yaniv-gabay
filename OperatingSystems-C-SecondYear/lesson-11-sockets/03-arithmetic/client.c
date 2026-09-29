@@ -1,3 +1,10 @@
+/*
+ * client.c — Arithmetic client — sends expressions to server
+ *
+ * Key concepts: Connects to arithmetic server, sends expressions, shows results
+ * Compile: gcc -o arith_client client.c
+ * Run:     ./prog
+ */
 // File: arith_client.c
 
 #include <stdio.h>
@@ -14,6 +21,10 @@ const int  BUFLEN = 1024;        // Max buffer size for data
 const char * SERVER_PORT = "3890"; // Port server is listening on
 
 int main(int argc, char *argv[]) {
+    printf("\n");
+    printf("══════════════════════════════════════\n");
+    printf("  Arithmetic client — sends expressi\n");
+    printf("══════════════════════════════════════\n\n");
     int rc; // Return code
     int my_socket;
     char rbuf[BUFLEN + 1];

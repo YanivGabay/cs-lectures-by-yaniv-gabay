@@ -1,3 +1,9 @@
+/*
+ * 00-some-includes.c — Reference: essential POSIX headers for systems programming
+ *
+ * This file is a quick reference for the #include directives you'll need.
+ * Not a runnable program — just a reference.
+ */
 //
 /*
 

@@ -1,3 +1,10 @@
+/*
+ * calculator_exec.c — Parent program that fork+exec's the calculator
+ *
+ * Key concepts: fork+exec pattern, parent passes args to child via exec
+ * Compile: gcc -o calc_exec calculator_exec.c
+ * Run:     ./prog
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -5,7 +12,12 @@
 #include <sys/wait.h>
 
 int main() {
-    const int EXAMPLE = 1; // Change this to test different exec variants
+    printf("\n");
+    printf("========================================\n");
+    printf("  fork() + exec() — Launch Calculator\n");
+    printf("========================================\n\n");
+    printf("[Parent PID %d] Will fork, then exec the calculator program.\n\n", getpid());
+    const int EXAMPLE = 1;
 
     pid_t pid = fork();
     if (pid == -1) {
@@ -14,8 +26,7 @@ int main() {
     }
 
     if (pid == 0) {
-        // Child process
-        printf("Child process executing the calculator program...\n");
+        printf("[Child  PID %d] Replacing myself with ./calculator via exec...\n", getpid());
         int status;
 
         switch (EXAMPLE) {
@@ -41,9 +52,10 @@ int main() {
         }
     } else {
         // Parent process
-        printf("Parent process waiting for the child to complete...\n");
-        wait(NULL); // Wait for the child to finish
-        printf("Parent process finished.\n");
+        printf("[Parent PID %d] Waiting for child PID %d to complete...\n", getpid(), pid);
+        wait(NULL);
+        printf("[Parent PID %d] Child finished. The calculator ran in a separate process.\n\n", getpid());
+        printf("========================================\n");
     }
 
     return 0;

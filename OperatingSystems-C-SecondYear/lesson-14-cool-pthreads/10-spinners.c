@@ -1,3 +1,10 @@
+/*
+ * 10-spinners.c — Multiple concurrent spinner animations
+ *
+ * Key concepts: Thread-per-spinner, ANSI escape codes, usleep timing
+ * Compile: gcc -o spinners 10-spinners.c -lpthread
+ * Run:     ./prog
+ */
 // File: multithreaded_spinner_animation.c
 // Compile with: gcc -Wall -pthread -o multithreaded_spinner_animation multithreaded_spinner_animation.c
 
@@ -95,6 +102,10 @@ void* controller_thread(void* arg) {
 }
 
 int main() {
+    printf("\n");
+    printf("══════════════════════════════════════\n");
+    printf("  Concurrent Spinner Animations\n");
+    printf("══════════════════════════════════════\n\n");
     pthread_t spinners[NUM_SPINNERS];
     pthread_t controller;
     spinner_info_t spinner_infos[NUM_SPINNERS];

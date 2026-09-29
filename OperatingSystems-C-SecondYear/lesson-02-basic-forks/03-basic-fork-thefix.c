@@ -1,24 +1,33 @@
+/*
+ * 03-basic-fork-thefix.c — Correct way to fork in a loop
+ *
+ * Demonstrates: Fixing the fork-in-a-loop bug from 02-basic-fork-mistake.c
+ * Key concepts: Child must exit() after its work, parent must wait() for each child
+ * Compile: gcc -o fork_fix 03-basic-fork-thefix.c
+ * Run:     ./fork_fix
+ *
+ * Two fixes applied:
+ *   1. Child calls exit(0) so it doesn't continue the loop
+ *   2. Parent calls wait(NULL) to reap each child before forking the next
+ */
+
 #include <stdio.h>
-#include <stdlib.h> // for exit()
-#include <unistd.h> // for fork()
-#include <sys/wait.h> // for wait()
+#include <stdlib.h>    // for exit(), EXIT_FAILURE
+#include <unistd.h>    // for fork(), getpid()
+#include <sys/wait.h>  // for wait()
 
-
-// Function to check if the process creation was valid
 void check_valid_process(pid_t status);
 
 
-//this is the "solution" to the problem
-/*
-the fixes:
-1. we added a wait() function to the parent process, so it will wait for the child process to finish
-2. we added an exit() function to the child process, so it will not continue to fork
-
-*/
-
-
 int main() {
-    const int RUNS = 5;  // Number of times to run the fork process
+    printf("\n");
+    printf("========================================\n");
+    printf("  FIX: fork() in a loop (with exit+wait)\n");
+    printf("========================================\n");
+    printf("  Fixes: child calls exit(), parent\n");
+    printf("  calls wait() before next fork.\n");
+
+    const int RUNS = 5;
     pid_t status;
     for (int i = 0; i < RUNS; i++) {
         printf("\n--- Run %d ---\n", i + 1);
@@ -31,22 +40,20 @@ int main() {
             return 1;
         } else if (pid == 0) {
             // Child process
-            printf("This is the child process. PID: %d\n", getpid());
-            exit(0);  // Exit the child process to prevent further forking
+            printf("[Child  PID %d] Hello from child (run %d)! I will exit(0) now.\n", getpid(), i + 1);
+            exit(0);  // FIX #1: Child exits here — won't continue the for-loop
         } else {
             // Parent process
-            printf("This is the parent process. PID: %d, Child PID: %d\n", getpid(), pid);
-            //from man 7 
-            // https://man7.org/linux/man-pages/man2/waitpid.2.html
-            //wait(): on success, returns the process ID of the terminated
-            //child; on failure, -1 is returned.
-            status = wait(NULL);  // Wait for the child process to complete
+            printf("[Parent PID %d] Created child PID %d. Waiting for it...\n", getpid(), pid);
+            // FIX #2: Parent waits for child to finish before next iteration
+            // wait(NULL) returns child PID on success, -1 on failure
+            status = wait(NULL);
             if (status < 0) {
                 perror("Failed to wait for child process");
                 exit(EXIT_FAILURE);
             }
             else {
-                printf("status value of exited procees: %d\n" ,status)
+                printf("[Parent PID %d] wait() returned %d — child has been reaped.\n", getpid(), status);
             }
         }
     }

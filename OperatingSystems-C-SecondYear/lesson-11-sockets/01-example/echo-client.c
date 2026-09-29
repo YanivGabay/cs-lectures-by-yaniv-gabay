@@ -1,3 +1,10 @@
+/*
+ * echo-client.c — TCP echo client — sends messages, receives echoes
+ *
+ * Key concepts: socket, connect, send, recv, client-server pattern
+ * Compile: gcc -o client echo-client.c
+ * Run:     ./prog
+ */
 // File: echo_client.c
 
 //run this:
@@ -17,6 +24,10 @@ const int BUFLEN = 1024;       // Max buffer size for data
 const char SERVER_PORT[] = "3879"; // Port server is listening on
 
 int main(int argc, char *argv[]) {
+    printf("\n");
+    printf("══════════════════════════════════════\n");
+    printf("  TCP echo client — sends messages, \n");
+    printf("══════════════════════════════════════\n\n");
     int rc; // Return code
     int my_socket;
     int i;
@@ -60,8 +71,7 @@ int main(int argc, char *argv[]) {
         perror("connect failed");
         close(my_socket);
     }
-    printf("client connected to server\n");
-    printf("addr_info_res->ai_addr: %s\n", addr_info_res->ai_addr);
+    printf("[Client] Connected to %s:%s\n", argv[1], SERVER_PORT);
 
     /*
     rc = connect(my_socket, addr_info_res->ai_addr, addr_info_res->ai_addrlen);
@@ -76,7 +86,7 @@ int main(int argc, char *argv[]) {
     // Free the address info as it's no longer needed
     freeaddrinfo(addr_info_res);
 
-    printf("Echo client: connected to server.\n");
+    printf("[Client] Ready to send echo messages.\n");
 
     // Initialize the write buffer
     strcpy(wbuf, "Hello");
@@ -90,7 +100,7 @@ int main(int argc, char *argv[]) {
             close(my_socket);
             exit(EXIT_FAILURE);
         }
-        printf("Echo client: sent '%s' to server.\n", wbuf);
+        printf("[Client] Sent: \"%s\" (%d bytes)\n", wbuf, rc);
 
         // Receive the echoed message from the server
         rc = read(my_socket, rbuf, BUFLEN);
@@ -99,11 +109,11 @@ int main(int argc, char *argv[]) {
             close(my_socket);
             exit(EXIT_FAILURE);
         } else if (rc == 0) {
-            printf("Echo client: server closed the connection.\n");
+            printf("[Client] Server closed the connection (read returned 0).\n");
             break;
         }
 
-        printf("Echo client: received '%s' from server.\n", rbuf);
+        printf("[Client] Received echo: \"%s\" (%d bytes)\n", rbuf, rc);
 
         // Modify the message for the next iteration
         strcat(wbuf, "!");
@@ -112,7 +122,7 @@ int main(int argc, char *argv[]) {
 
     // Close the socket
     close(my_socket);
-    printf("Echo client: connection closed.\n");
+    printf("[Client] All done. Connection closed.\n");
 
     return EXIT_SUCCESS;
 }

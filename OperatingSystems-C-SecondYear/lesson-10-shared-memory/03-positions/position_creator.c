@@ -1,3 +1,10 @@
+/*
+ * position_creator.c — Position struct in shared memory — creator
+ *
+ * Key concepts: Shared memory with structs, shmget with sizeof
+ * Compile: gcc -o pos_create position_creator.c
+ * Run:     ./prog
+ */
 // position_creator.c
 #include <stdio.h>
 #include <stdlib.h>
@@ -23,7 +30,7 @@ typedef struct
 
 void handle_sigint(int sig)
 {
-    printf("\nCaught signal %d, detaching and removing shared memory.\n", sig);
+    printf("\n[Creator] Caught signal %d. Detaching and removing shared memory (shmid=%d).\n", sig, shmid);
     shmdt(pos);
     shmctl(shmid, IPC_RMID, NULL);
     exit(EXIT_SUCCESS);
@@ -31,6 +38,10 @@ void handle_sigint(int sig)
 
 int main()
 {
+    printf("\n");
+    printf("══════════════════════════════════════\n");
+    printf("  Position struct in shared memory —\n");
+    printf("══════════════════════════════════════\n\n");
   
     signal(SIGINT, handle_sigint);
     // Create shared memory segment
@@ -55,8 +66,9 @@ int main()
     pos->x = 0.0;
     pos->y = 0.0;
 
-    printf("Shared memory for Position created and initialized.\n");
-    printf("Press Ctrl+C to terminate the creator.\n");
+    printf("[Creator PID %d] Shared memory created (shmid=%d, key=0x%x).\n", getpid(), shmid, SHM_KEY);
+    printf("[Creator] Position initialized to (%.1f, %.1f).\n", pos->x, pos->y);
+    printf("[Creator] Press Ctrl+C to clean up and exit.\n");
 
     // Keep the creator running to maintain the shared memory
     while (1)

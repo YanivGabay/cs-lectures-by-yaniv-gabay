@@ -1,3 +1,10 @@
+/*
+ * producer.c — Shared array producer — writes values to shared array
+ *
+ * Key concepts: Writing to shared memory array, synchronization concerns
+ * Compile: gcc -o arr_prod producer.c
+ * Run:     ./prog
+ */
 // array_producer.c
 #include <stdio.h>
 #include <stdlib.h>
@@ -23,6 +30,10 @@ void handle_sigint(int sig) {
 }
 
 int main() {
+    printf("\n");
+    printf("══════════════════════════════════════\n");
+    printf("  Shared array producer — writes val\n");
+    printf("══════════════════════════════════════\n\n");
     // Register signal handler
     signal(SIGINT, handle_sigint);
 

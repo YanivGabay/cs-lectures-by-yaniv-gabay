@@ -1,9 +1,18 @@
-#include <stdio.h>
-#include <unistd.h>
-#include <signal.h>
+/*
+ * 03-sig_alarm.c — Using alarm() for a countdown timer
+ *
+ * Demonstrates: SIGALRM delivery after a timed delay
+ * Key concepts: alarm(seconds) schedules a SIGALRM, only one alarm active at a time
+ * Compile: gcc -o alarm 03-sig_alarm.c
+ * Run:     ./alarm   (waits 5 seconds, then prints and exits)
+ */
 
-// Signal handler for SIGALRM
-void handle_alarm(int sig) ;
+#include <stdio.h>
+#include <stdlib.h>    // for exit()
+#include <unistd.h>    // for alarm()
+#include <signal.h>    // for signal(), SIGALRM
+
+void handle_alarm(int sig);
 
 int main() {
     int countdown = 5;
@@ -12,18 +21,23 @@ int main() {
     signal(SIGALRM, handle_alarm);
 
     // Set the alarm for 5 seconds
-    printf("Countdown timer: %d seconds. Wait for it...\n", countdown);
+    printf("\n");
+    printf("========================================\n");
+    printf("  SIGALRM — Timer Countdown\n");
+    printf("========================================\n\n");
+    printf("[Main PID %d] Setting alarm(%d) — SIGALRM will fire in %d seconds.\n\n", getpid(), countdown, countdown);
     alarm(countdown);
 
-    // Keep the program running
+    printf("  Waiting for the alarm...\n");
+    fflush(stdout);
     while (1) {
-        // Do nothing, waiting for the alarm signal
+        sleep(1);
     }
 
     return 0;
 }
 
 void handle_alarm(int sig) {
-    printf("Time's up! Alarm triggered (SIGALRM).\n");
+    printf("\n[Signal Handler] SIGALRM received (signal %d) — time's up! Exiting.\n", sig);
     exit(0); // Exit the program
 }

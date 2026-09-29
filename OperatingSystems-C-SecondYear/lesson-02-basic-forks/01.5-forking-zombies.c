@@ -1,3 +1,12 @@
+/*
+ * 01.5-forking-zombies.c — Understanding zombie and orphan processes
+ *
+ * Demonstrates: What happens when parent doesn't wait() on children
+ * Key concepts: Zombie processes, orphan adoption by init (PID 1), process table cleanup
+ * Compile: gcc -o zombies 01.5-forking-zombies.c
+ * Run:     ./zombies   (then check with: ps aux | grep Z)
+ */
+
 #include <stdio.h>
 
 /*

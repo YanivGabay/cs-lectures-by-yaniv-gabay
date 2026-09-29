@@ -1,3 +1,10 @@
+/*
+ * scoreboard_updater.c — Scoreboard updater — modifies team scores in shared memory
+ *
+ * Key concepts: Updating shared struct fields, multiple programs sharing data
+ * Compile: gcc -o sb_update scoreboard_updater.c
+ * Run:     ./prog
+ */
 // scoreboard_updater.c
 #include <stdio.h>
 #include <stdlib.h>
@@ -24,6 +31,10 @@ void handle_sigint(int sig) {
 }
 
 int main(int argc, char *argv[]) {
+    printf("\n");
+    printf("══════════════════════════════════════\n");
+    printf("  Scoreboard updater — modifies team\n");
+    printf("══════════════════════════════════════\n\n");
     if(argc != 2) {
         fprintf(stderr, "Usage: %s <Player Name>\n", argv[0]);
         exit(EXIT_FAILURE);
