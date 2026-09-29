@@ -7,7 +7,7 @@ interface Env {
 
 export class TerminalContainer extends Container {
   defaultPort = 8080;
-  sleepAfter = "10m";
+  sleepAfter = "5m";
   enableInternet = false;
 }
 
@@ -25,10 +25,9 @@ export default {
       return Response.json({ status: "ok" }, { headers: corsHeaders(env) });
     }
 
-    // WebSocket upgrade — each connection gets its own container by session ID
+    // WebSocket upgrade — route to a shared container (multiple sessions inside one container)
     if (request.headers.get("Upgrade") === "websocket") {
-      const sessionId = crypto.randomUUID();
-      const container = env.TERMINAL.getByName(sessionId);
+      const container = env.TERMINAL.getByName("shared");
       await container.startAndWaitForPorts();
       return container.fetch(request);
     }

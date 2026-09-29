@@ -6,7 +6,7 @@ import pty from 'node-pty';
 
 const PORT = parseInt(process.env.PORT || '8080');
 const MAX_SESSIONS = parseInt(process.env.MAX_SESSIONS || '5');
-const SESSION_TIMEOUT_MS = parseInt(process.env.SESSION_TIMEOUT || '300000');
+const SESSION_TIMEOUT_MS = parseInt(process.env.SESSION_TIMEOUT || '180000');
 
 const sessions = new Map();
 
@@ -124,6 +124,14 @@ wss.on('connection', (ws) => {
     } else if (msg.type === 'resize') {
       if (ptyProcess && msg.cols && msg.rows) {
         try { ptyProcess.resize(msg.cols, msg.rows); } catch {}
+      }
+
+    } else if (msg.type === 'signal') {
+      // Send signal to the PTY process group (Ctrl+C = SIGINT)
+      if (ptyProcess) {
+        const sig = msg.signal || 'SIGINT';
+        try { process.kill(ptyProcess.pid, sig); } catch {}
+        log(sessionId, `Sent ${sig} to PID ${ptyProcess.pid}`);
       }
     }
   });
