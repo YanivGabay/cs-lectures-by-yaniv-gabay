@@ -1,0 +1,344 @@
+---
+import { Code } from 'astro:components';
+
+interface Props {
+  code: string;
+  filename: string;
+  lang?: string;
+  compileCmd?: string;
+  output?: string;
+  collapsed?: boolean;
+  needsInput?: boolean;
+}
+
+const { code, filename, lang = 'c', compileCmd, output, collapsed = false, needsInput = false } = Astro.props;
+const lineCount = code.split('\n').length;
+const shouldCollapse = collapsed || lineCount > 80;
+const id = filename.replace(/[^a-zA-Z0-9]/g, '-');
+---
+
+<div class="code-block-wrapper group" id={`code-${id}`}>
+  {/* Header bar */}
+  <div class="flex items-center justify-between px-4 py-2.5 bg-surface-100 dark:bg-surface-800 border-b border-surface-200 dark:border-surface-700 rounded-t-xl">
+    <div class="flex items-center gap-3">
+      <div class="flex gap-1.5">
+        <div class="w-3 h-3 rounded-full bg-red-400/80"></div>
+        <div class="w-3 h-3 rounded-full bg-yellow-400/80"></div>
+        <div class="w-3 h-3 rounded-full bg-green-400/80"></div>
+      </div>
+      <span class="text-sm font-medium text-surface-700 dark:text-surface-300 font-mono">{filename}</span>
+      <span class="text-xs text-surface-400 dark:text-surface-500">{lineCount} lines</span>
+    </div>
+    <div class="flex items-center gap-2">
+      {shouldCollapse && (
+        <button
+          class="expand-btn text-xs px-2 py-1 rounded text-surface-700 dark:text-surface-400 hover:bg-surface-200 dark:hover:bg-surface-700 transition-colors"
+          data-target={`code-content-${id}`}
+          aria-expanded={!shouldCollapse}
+        >
+          <span class="expand-text">Expand</span>
+          <span class="collapse-text hidden">Collapse</span>
+        </button>
+      )}
+      <button
+        class="edit-btn text-xs px-2 py-1 rounded text-surface-700 dark:text-surface-400 hover:bg-surface-200 dark:hover:bg-surface-700 transition-colors"
+        data-target={`code-${id}`}
+      >
+        <span class="edit-text">Edit</span>
+        <span class="viewing-text hidden text-accent-500">Viewing</span>
+      </button>
+      <button
+        class="copy-btn text-xs px-2 py-1 rounded text-surface-700 dark:text-surface-400 hover:bg-surface-200 dark:hover:bg-surface-700 transition-colors"
+        data-code={code}
+        aria-label="Copy code"
+      >
+        <span class="copy-text">Copy</span>
+        <span class="copied-text hidden text-primary-600 dark:text-primary-400">Copied!</span>
+      </button>
+    </div>
+  </div>
+
+  {/* Code content */}
+  <div
+    id={`code-content-${id}`}
+    class:list={[
+      'overflow-x-auto',
+      shouldCollapse && 'max-h-[400px] overflow-y-auto collapsed',
+    ]}
+  >
+    <Code code={code} lang={lang} theme="github-dark" />
+  </div>
+
+  {/* Editor (hidden by default) */}
+  <div class="code-editor hidden" id={`editor-${id}`}>
+    <textarea
+      class="w-full bg-[#0d1117] text-[#e6edf3] p-4 text-[13px] leading-relaxed border-none outline-none resize-y"
+      style={`font-family: var(--font-mono); min-height: 200px; height: ${Math.min(lineCount * 22, 500)}px; tab-size: 4;`}
+      spellcheck="false"
+      data-original={code}
+    >{code}</textarea>
+    <div class="flex items-center justify-between px-4 py-2 bg-[#0d1117] border-t border-surface-700">
+      <span class="text-xs text-surface-500">Editing — changes are local only</span>
+      <button class="reset-btn text-xs px-2 py-1 rounded text-yellow-400 hover:bg-surface-800 transition-colors">
+        Reset to Original
+      </button>
+    </div>
+  </div>
+
+  {/* Output panel */}
+  {output && (
+    <div class="terminal-output">
+      <div class="text-xs text-surface-500 mb-2 uppercase tracking-wider flex items-center gap-2">
+        <span>Expected Output</span>
+        <span class="text-[10px] normal-case opacity-60">click Run to execute live</span>
+      </div>
+      <pre class="whitespace-pre-wrap text-green-400">{output}</pre>
+    </div>
+  )}
+
+  {/* Action bar */}
+  <div class="flex items-center justify-between px-4 py-2.5 bg-surface-100 dark:bg-surface-850 border-t border-surface-200 dark:border-surface-700 rounded-b-xl">
+    <div class="flex items-center gap-3 min-w-0">
+      {needsInput && (
+        <span class="hidden sm:inline-flex items-center gap-1 text-[10px] text-yellow-600 dark:text-yellow-400 whitespace-nowrap">
+          <svg class="w-3 h-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
+          </svg>
+          Interactive
+        </span>
+      )}
+    </div>
+    <button
+      class="open-terminal-btn inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold bg-primary-600 text-white hover:bg-primary-700 active:bg-primary-800 transition-colors shadow-sm hover:shadow"
+      data-filename={filename}
+      data-code={code}
+      data-compile={compileCmd || `gcc -o prog ${filename}`}
+      data-interactive={needsInput ? 'true' : 'false'}
+    >
+      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z" />
+      </svg>
+      {needsInput ? 'Run (Interactive)' : 'Run'}
+    </button>
+  </div>
+
+  {/* Terminal will be injected here */}
+  <div class="terminal-slot" data-filename={filename} data-code={code}></div>
+</div>
+
+<script>
+  document.querySelectorAll('.copy-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const code = (btn as HTMLElement).dataset.code || '';
+      await navigator.clipboard.writeText(code);
+      const copyText = btn.querySelector('.copy-text') as HTMLElement;
+      const copiedText = btn.querySelector('.copied-text') as HTMLElement;
+      copyText.classList.add('hidden');
+      copiedText.classList.remove('hidden');
+      setTimeout(() => {
+        copyText.classList.remove('hidden');
+        copiedText.classList.add('hidden');
+      }, 2000);
+    });
+  });
+
+  document.querySelectorAll('.expand-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const targetId = (btn as HTMLElement).dataset.target!;
+      const target = document.getElementById(targetId)!;
+      const isCollapsed = target.classList.contains('collapsed');
+      target.classList.toggle('collapsed', !isCollapsed);
+      target.classList.toggle('max-h-[400px]', !isCollapsed);
+      target.classList.toggle('overflow-y-auto', !isCollapsed);
+      const expandText = btn.querySelector('.expand-text') as HTMLElement;
+      const collapseText = btn.querySelector('.collapse-text') as HTMLElement;
+      expandText.classList.toggle('hidden', isCollapsed);
+      collapseText.classList.toggle('hidden', !isCollapsed);
+    });
+  });
+
+  // Edit toggle
+  document.querySelectorAll('.edit-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const el = btn as HTMLElement;
+      const wrapperId = el.dataset.target!;
+      const wrapper = document.getElementById(wrapperId)!;
+      const codeView = wrapper.querySelector('[id^="code-content-"]') as HTMLElement;
+      const editor = wrapper.querySelector('.code-editor') as HTMLElement;
+      const editText = el.querySelector('.edit-text') as HTMLElement;
+      const viewingText = el.querySelector('.viewing-text') as HTMLElement;
+
+      const isEditing = !editor.classList.contains('hidden');
+      codeView.classList.toggle('hidden', !isEditing);
+      editor.classList.toggle('hidden', isEditing);
+      editText.classList.toggle('hidden', !isEditing);
+      viewingText.classList.toggle('hidden', isEditing);
+    });
+  });
+
+  // Reset button
+  document.querySelectorAll('.reset-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const editor = btn.closest('.code-editor')!;
+      const textarea = editor.querySelector('textarea') as HTMLTextAreaElement;
+      textarea.value = textarea.dataset.original || '';
+    });
+  });
+
+  // Terminal: import xterm directly here so it's guaranteed to be in the bundle
+  import { Terminal } from '@xterm/xterm';
+  import { FitAddon } from '@xterm/addon-fit';
+
+  function getTerminalUrl(): string {
+    const meta = document.querySelector('meta[name="terminal-url"]') as HTMLMetaElement | null;
+    return meta?.content || localStorage.getItem('terminal-url') || '';
+  }
+
+  function launchTerminal(container: HTMLElement, files: {name: string, content: string}[], autoRun: string, isInteractive: boolean) {
+    const target = container.querySelector('.terminal-target') as HTMLElement;
+    const statusEl = container.querySelector('.terminal-status') as HTMLElement;
+    const killBtn = container.querySelector('.terminal-kill') as HTMLElement;
+    const closeBtn = container.querySelector('.terminal-close') as HTMLElement;
+
+    const term = new Terminal({
+      theme: {
+        background: '#0f172a',
+        foreground: '#e2e8f0',
+        cursor: '#22d3ee',
+        selectionBackground: '#334155',
+      },
+      fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
+      fontSize: 13,
+      lineHeight: 1.4,
+      cursorBlink: true,
+    });
+
+    const fitAddon = new FitAddon();
+    term.loadAddon(fitAddon);
+    term.open(target);
+
+    setTimeout(() => {
+      fitAddon.fit();
+
+      const url = getTerminalUrl();
+      if (!url) {
+        term.writeln('\x1b[1;31mTerminal server not configured.\x1b[0m');
+        term.writeln('Run: \x1b[33mlocalStorage.setItem("terminal-url","ws://localhost:8090")\x1b[0m then reload.');
+        return;
+      }
+
+      statusEl.textContent = 'Connecting...';
+      const ws = new WebSocket(url);
+
+      ws.onopen = () => {
+        statusEl.textContent = 'Starting...';
+        ws.send(JSON.stringify({ type: 'start', files, cols: term.cols, rows: term.rows }));
+      };
+
+      // States: 'waiting' -> 'compiling' -> 'compiled'
+      let state = autoRun ? 'waiting' : 'done';
+      let promptCount = 0;
+
+      ws.onmessage = (event) => {
+        const msg = JSON.parse(event.data);
+        if (msg.type === 'ready') {
+          statusEl.textContent = 'Connected';
+          killBtn.classList.remove('hidden');
+        } else if (msg.type === 'output') {
+          term.write(msg.data);
+
+          if (msg.data.includes('$ ') || msg.data.includes('# ')) {
+            promptCount++;
+
+            if (state === 'waiting' && promptCount === 1) {
+              // First prompt: shell is ready, send compile command
+              state = 'compiling';
+              setTimeout(() => ws.send(JSON.stringify({ type: 'input', data: autoRun + '\n' })), 100);
+            } else if (state === 'compiling' && promptCount >= 2) {
+              // Second prompt: compile finished — run it
+              state = 'compiled';
+              const outputName = autoRun.match(/-o\s+(\S+)/)?.[1] || 'prog';
+              setTimeout(() => ws.send(JSON.stringify({ type: 'input', data: `./${outputName}\n` })), 50);
+            }
+          }
+        } else if (msg.type === 'exit') {
+          if (msg.data) term.write(msg.data);
+          statusEl.textContent = 'Disconnected';
+          killBtn.classList.add('hidden');
+        } else if (msg.type === 'error') {
+          term.writeln(`\x1b[1;31m${msg.data}\x1b[0m`);
+          statusEl.textContent = 'Error';
+        }
+      };
+
+      ws.onclose = () => { statusEl.textContent = 'Disconnected'; killBtn.classList.add('hidden'); };
+      ws.onerror = () => { term.writeln('\x1b[1;31mConnection failed.\x1b[0m'); statusEl.textContent = 'Error'; };
+
+      term.onData((data) => { if (ws.readyState === 1) ws.send(JSON.stringify({ type: 'input', data })); });
+      term.onResize(({ cols, rows }) => { if (ws.readyState === 1) ws.send(JSON.stringify({ type: 'resize', cols, rows })); });
+
+      let fitTimeout: ReturnType<typeof setTimeout>;
+      const ro = new ResizeObserver(() => {
+        clearTimeout(fitTimeout);
+        fitTimeout = setTimeout(() => {
+          const scrollY = window.scrollY;
+          fitAddon.fit();
+          window.scrollTo(0, scrollY);
+        }, 100);
+      });
+      ro.observe(target);
+
+      killBtn.addEventListener('click', () => { if (ws.readyState === 1) ws.send(JSON.stringify({ type: 'signal', signal: 'SIGINT' })); });
+      closeBtn.addEventListener('click', () => { ws.close(); ro.disconnect(); term.dispose(); container.remove(); });
+    }, 150);
+  }
+
+  // Expose globally so "Open Full Terminal" on lesson pages can use it
+  (window as any).__launchTerminal = launchTerminal;
+
+  document.querySelectorAll('.open-terminal-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const el = btn as HTMLElement;
+      const filename = el.dataset.filename || 'main.c';
+      const compileCmd = el.dataset.compile || `gcc -o prog ${filename}`;
+      const isInteractive = el.dataset.interactive === 'true';
+      const wrapper = el.closest('.code-block-wrapper')!;
+
+      const editor = wrapper.querySelector('.code-editor textarea') as HTMLTextAreaElement | null;
+      const code = (editor && !editor.closest('.code-editor')!.classList.contains('hidden'))
+        ? editor.value
+        : (el.dataset.code || '');
+      const slot = wrapper.querySelector('.terminal-slot') as HTMLElement;
+
+      if (slot.querySelector('.terminal-container')) {
+        const existing = slot.querySelector('.terminal-container') as HTMLElement;
+        existing.classList.toggle('hidden');
+        return;
+      }
+
+      const termDiv = document.createElement('div');
+      termDiv.className = 'terminal-container';
+      termDiv.innerHTML = `
+        <div class="flex items-center justify-between px-4 py-2 bg-surface-900 border-t border-surface-700">
+          <div class="flex items-center gap-2">
+            <div class="flex gap-1.5">
+              <div class="w-3 h-3 rounded-full bg-red-500"></div>
+              <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+              <div class="w-3 h-3 rounded-full bg-green-500"></div>
+            </div>
+            <span class="text-sm font-mono text-surface-400">Terminal</span>
+            <span class="terminal-status text-xs text-surface-500"></span>
+          </div>
+          <div class="flex items-center gap-2">
+            <button class="terminal-kill text-xs px-2 py-1 rounded text-red-400 hover:bg-surface-800 transition-colors hidden">Ctrl+C</button>
+            <button class="terminal-close text-xs px-2 py-1 rounded text-surface-400 hover:bg-surface-800 transition-colors">Close</button>
+          </div>
+        </div>
+        <div class="terminal-target bg-surface-950" style="height:350px;"></div>
+      `;
+      slot.appendChild(termDiv);
+
+      launchTerminal(termDiv, [{ name: filename, content: code }], compileCmd, isInteractive);
+    });
+  });
+</script>

@@ -1,0 +1,128 @@
+@import "tailwindcss";
+@import "@xterm/xterm/css/xterm.css";
+
+@theme {
+  --color-primary-50: #ecfdf5;
+  --color-primary-100: #d1fae5;
+  --color-primary-200: #a7f3d0;
+  --color-primary-300: #6ee7b7;
+  --color-primary-400: #34d399;
+  --color-primary-500: #10b981;
+  --color-primary-600: #059669;
+  --color-primary-700: #047857;
+  --color-primary-800: #065f46;
+  --color-primary-900: #064e3b;
+
+  --color-accent-400: #22d3ee;
+  --color-accent-500: #06b6d4;
+  --color-accent-600: #0891b2;
+
+  --color-surface-50: #f8fafc;
+  --color-surface-100: #f1f5f9;
+  --color-surface-200: #e2e8f0;
+  --color-surface-300: #cbd5e1;
+  --color-surface-400: #94a3b8;
+  --color-surface-500: #64748b;
+  --color-surface-600: #475569;
+  --color-surface-700: #334155;
+  --color-surface-800: #1e293b;
+  --color-surface-850: #172033;
+  --color-surface-900: #0f172a;
+  --color-surface-950: #020617;
+
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+}
+
+@layer base {
+  html {
+    scroll-behavior: auto;
+  }
+
+  html.dark {
+    color-scheme: dark;
+  }
+
+  body {
+    @apply bg-surface-50 text-surface-900 dark:bg-surface-950 dark:text-surface-100;
+    @apply transition-colors duration-200;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+
+  ::selection {
+    @apply bg-primary-500/30;
+  }
+}
+
+@layer components {
+  .code-block-wrapper {
+    @apply rounded-xl border border-surface-200 dark:border-surface-700;
+    @apply shadow-sm transition-shadow;
+    overflow: visible;
+  }
+
+  .code-block-wrapper:hover {
+    @apply shadow-md;
+  }
+
+  .code-block-wrapper pre {
+    @apply !rounded-none !m-0;
+    @apply text-sm leading-relaxed;
+  }
+
+  .code-block-wrapper code {
+    font-family: var(--font-mono);
+    @apply text-[13px];
+    counter-reset: line;
+  }
+
+  .code-block-wrapper code .line::before {
+    counter-increment: line;
+    content: counter(line);
+    @apply inline-block w-8 mr-4 text-right text-surface-400 dark:text-surface-600 select-none;
+    font-size: 12px;
+  }
+
+  .terminal-output {
+    font-family: var(--font-mono);
+    @apply bg-surface-950 text-green-400 px-5 py-4 text-sm leading-relaxed;
+    @apply border-t border-surface-800;
+  }
+
+  .terminal-output .prompt {
+    @apply text-surface-500;
+  }
+
+  .terminal-output .cmd {
+    @apply text-accent-400 font-semibold;
+  }
+
+  .tag {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+    @apply bg-primary-100 text-primary-800 dark:bg-primary-900/50 dark:text-primary-300;
+  }
+
+  .card {
+    @apply rounded-2xl border border-surface-200 dark:border-surface-700;
+    @apply bg-white dark:bg-surface-800;
+    @apply shadow-sm hover:shadow-lg transition-all duration-300;
+    position: relative;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center gap-2 px-6 py-3 rounded-xl;
+    @apply bg-primary-600 text-white font-semibold;
+    @apply hover:bg-primary-700 active:bg-primary-800;
+    @apply transition-colors duration-150;
+    @apply shadow-sm hover:shadow-md;
+  }
+
+  /* Smooth page transitions */
+  main {
+    @apply animate-[fadeIn_0.2s_ease-out];
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+}

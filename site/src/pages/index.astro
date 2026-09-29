@@ -1,0 +1,176 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import CourseCard from '../components/CourseCard.astro';
+---
+
+<BaseLayout title="Home" currentPath="/">
+  {/* Hero */}
+  <section class="relative overflow-hidden">
+    <div class="absolute inset-0 bg-gradient-to-br from-primary-600/5 via-transparent to-accent-500/5 dark:from-primary-600/10 dark:to-accent-500/10"></div>
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-28">
+      <div class="max-w-3xl">
+        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400 text-sm font-medium mb-6">
+          <span class="w-2 h-2 rounded-full bg-primary-500 animate-pulse"></span>
+          Hadassah Academic College
+        </div>
+        <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold text-surface-900 dark:text-white leading-tight">
+          Computer Science
+          <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-accent-500">
+            Lectures
+          </span>
+        </h1>
+        <p class="mt-6 text-lg sm:text-xl text-surface-700 dark:text-surface-300 leading-relaxed max-w-2xl">
+          Hands-on code examples and materials from CS courses taught by Yaniv Gabay.
+          From first loops to operating system internals — learn by reading real, working code.
+        </p>
+        <div class="mt-8 flex flex-wrap gap-4">
+          <a href="/os/" class="btn-primary">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z" />
+            </svg>
+            Start Learning
+          </a>
+          <a
+            href="https://github.com/YanivGabay/cs-lectures-by-yaniv-gabay"
+            target="_blank"
+            rel="noopener"
+            class="inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-surface-300 dark:border-surface-600 text-surface-700 dark:text-surface-300 font-semibold hover:bg-surface-100 dark:hover:bg-surface-800 transition-colors"
+          >
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+            </svg>
+            View on GitHub
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {/* Stats */}
+  <section class="border-y border-surface-200 dark:border-surface-800 bg-surface-50 dark:bg-surface-900/50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-6 text-center">
+        <div>
+          <div class="text-3xl font-bold text-primary-600 dark:text-primary-400">3</div>
+          <div class="text-sm text-surface-700 dark:text-surface-400 mt-1">Courses</div>
+        </div>
+        <div>
+          <div class="text-3xl font-bold text-primary-600 dark:text-primary-400">40+</div>
+          <div class="text-sm text-surface-700 dark:text-surface-400 mt-1">Lessons</div>
+        </div>
+        <div>
+          <div class="text-3xl font-bold text-primary-600 dark:text-primary-400">200+</div>
+          <div class="text-sm text-surface-700 dark:text-surface-400 mt-1">Code Examples</div>
+        </div>
+        <div>
+          <div class="text-3xl font-bold text-primary-600 dark:text-primary-400">15k+</div>
+          <div class="text-sm text-surface-700 dark:text-surface-400 mt-1">Lines of Code</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {/* Courses */}
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
+    <div class="text-center mb-12">
+      <h2 class="text-3xl font-bold text-surface-900 dark:text-white">Courses</h2>
+      <p class="mt-3 text-surface-700 dark:text-surface-400 max-w-xl mx-auto">
+        Three semesters of hands-on CS education, from your first loop to kernel-level programming.
+      </p>
+    </div>
+
+    <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <CourseCard
+        title="Operating Systems & C"
+        subtitle="Second Year Course"
+        description="Systems programming in C — processes, signals, IPC, sockets, threads, and synchronization. Based on Yoram Biberman's curriculum with hands-on examples that build real intuition for how operating systems work."
+        href="/os/"
+        lessonCount={15}
+        exampleCount={88}
+        language="C"
+        difficulty="Advanced"
+        featured={true}
+      />
+      <CourseCard
+        title="Modular Programming"
+        subtitle="First Year, Semester 2"
+        description="Data structures and algorithms in C++ — backtracking, strings, pointers, dynamic allocation, linked lists, binary trees, BSTs, and function pointers. Heavy exam prep coverage."
+        href="/modular/"
+        lessonCount={17}
+        exampleCount={100}
+        language="C++"
+        difficulty="Intermediate"
+        comingSoon={true}
+      />
+      <CourseCard
+        title="Intro to Computer Science"
+        subtitle="First Year, Semester 1"
+        description="Foundations of programming in C++ — loops, arrays, functions, 2D arrays, enums, recursion. Includes a complete tic-tac-toe project and visual sorting demonstrations."
+        href="/intro/"
+        lessonCount={7}
+        exampleCount={57}
+        language="C++"
+        difficulty="Beginner"
+        comingSoon={true}
+      />
+    </div>
+  </section>
+
+  {/* Learning Path */}
+  <section class="bg-surface-100 dark:bg-surface-900/50 border-y border-surface-200 dark:border-surface-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
+      <div class="text-center mb-12">
+        <h2 class="text-3xl font-bold text-surface-900 dark:text-white">Learning Path</h2>
+        <p class="mt-3 text-surface-700 dark:text-surface-400">Follow the natural progression across courses</p>
+      </div>
+
+      <div class="max-w-3xl mx-auto">
+        <div class="relative">
+          <div class="absolute left-8 top-0 bottom-0 w-px bg-surface-300 dark:bg-surface-700"></div>
+
+          <div class="relative flex items-start gap-6 mb-12">
+            <div class="flex-shrink-0 w-16 h-16 rounded-2xl bg-green-100 dark:bg-green-900/30 flex items-center justify-center z-10">
+              <span class="text-2xl font-bold text-green-700 dark:text-green-400">1</span>
+            </div>
+            <div class="pt-2">
+              <h3 class="font-semibold text-lg text-surface-900 dark:text-white">Intro to CS</h3>
+              <p class="text-surface-700 dark:text-surface-400 text-sm mt-1">
+                Loops, arrays, functions, recursion — your first steps in C++
+              </p>
+            </div>
+          </div>
+
+          <div class="relative flex items-start gap-6 mb-12">
+            <div class="flex-shrink-0 w-16 h-16 rounded-2xl bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center z-10">
+              <span class="text-2xl font-bold text-yellow-700 dark:text-yellow-400">2</span>
+            </div>
+            <div class="pt-2">
+              <h3 class="font-semibold text-lg text-surface-900 dark:text-white">Modular Programming</h3>
+              <p class="text-surface-700 dark:text-surface-400 text-sm mt-1">
+                Pointers, dynamic memory, linked lists, trees, and function pointers
+              </p>
+            </div>
+          </div>
+
+          <div class="relative flex items-start gap-6">
+            <div class="flex-shrink-0 w-16 h-16 rounded-2xl bg-red-100 dark:bg-red-900/30 flex items-center justify-center z-10 ring-2 ring-primary-500/50">
+              <span class="text-2xl font-bold text-red-700 dark:text-red-400">3</span>
+            </div>
+            <div class="pt-2">
+              <h3 class="font-semibold text-lg text-surface-900 dark:text-white">Operating Systems & C</h3>
+              <p class="text-surface-700 dark:text-surface-400 text-sm mt-1">
+                Systems programming — processes, signals, IPC, sockets, threads
+              </p>
+              <a href="/os/" class="inline-flex items-center gap-1 mt-2 text-sm text-primary-600 dark:text-primary-400 hover:underline font-medium">
+                Start here
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                </svg>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

@@ -1,0 +1,351 @@
+---
+import fs from 'node:fs';
+import path from 'node:path';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import CodeBlock from '../../components/CodeBlock.astro';
+import { OS_COURSE, lessons } from '../../data/os-lessons';
+import type { Lesson } from '../../data/os-lessons';
+
+export function getStaticPaths() {
+  return lessons.map((lesson) => ({
+    params: { lesson: lesson.slug },
+    props: { lesson },
+  }));
+}
+
+interface Props {
+  lesson: Lesson;
+}
+
+const { lesson } = Astro.props;
+
+const currentIndex = lessons.findIndex((l) => l.slug === lesson.slug);
+const prevLesson = currentIndex > 0 ? lessons[currentIndex - 1] : null;
+const nextLesson = currentIndex < lessons.length - 1 ? lessons[currentIndex + 1] : null;
+
+const prereqLessons = lesson.prerequisites
+  .map((num) => lessons.find((l) => l.number === num))
+  .filter(Boolean);
+
+const repoBase = path.resolve(process.cwd(), '..', OS_COURSE.basePath, lesson.folder);
+
+function readExampleCode(example: { file: string }): string {
+  const filePath = path.join(repoBase, example.file);
+  try {
+    return fs.readFileSync(filePath, 'utf-8');
+  } catch {
+    return `// File not found: ${example.file}`;
+  }
+}
+
+let capturedOutputs: Record<string, string> = {};
+try {
+  const outputPath = path.resolve(process.cwd(), 'src/data/captured-outputs.json');
+  capturedOutputs = JSON.parse(fs.readFileSync(outputPath, 'utf-8'));
+} catch {}
+
+function getCapturedOutput(example: { file: string }): string | undefined {
+  const key = `${lesson.folder}/${example.file}`;
+  return capturedOutputs[key];
+}
+
+const diffColors: Record<string, string> = {
+  beginner: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
+  intermediate: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
+  advanced: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
+};
+---
+
+<BaseLayout
+  title={`Lesson ${lesson.number}: ${lesson.title}`}
+  description={lesson.description}
+  currentPath="/os"
+>
+  {/* Lesson Header */}
+  <section class="border-b border-surface-200 dark:border-surface-800">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* Breadcrumb */}
+      <nav class="flex items-center gap-2 text-sm text-surface-700 dark:text-surface-400 mb-6">
+        <a href="/os/" class="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">OS & C</a>
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+        </svg>
+        <span class="text-surface-900 dark:text-white">Lesson {lesson.number}</span>
+      </nav>
+
+      <div class="flex items-start justify-between gap-4">
+        <div>
+          <div class="flex items-center gap-3 mb-2">
+            <span class="text-sm font-mono text-surface-700 dark:text-surface-500">Lesson {lesson.number}</span>
+            <span class={`text-xs px-2 py-0.5 rounded-full font-medium ${diffColors[lesson.difficulty]}`}>
+              {lesson.difficulty}
+            </span>
+            <span class="text-xs text-surface-700 dark:text-surface-500 px-2 py-0.5 rounded-full bg-surface-100 dark:bg-surface-800">
+              {lesson.phase}
+            </span>
+          </div>
+          <h1 class="text-2xl sm:text-3xl font-bold text-surface-900 dark:text-white">
+            {lesson.title}
+          </h1>
+          <p class="mt-3 text-surface-700 dark:text-surface-300 leading-relaxed max-w-2xl">
+            {lesson.description}
+          </p>
+        </div>
+
+        {/* Completion toggle */}
+        <button
+          class="lesson-complete-btn flex-shrink-0 mt-2 flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-surface-300 dark:border-surface-600 text-sm font-medium text-surface-700 dark:text-surface-300 hover:border-primary-500 hover:text-primary-600 dark:hover:text-primary-400 transition-all"
+          data-lesson={lesson.number}
+          data-course="os"
+        >
+          <svg class="check-empty w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <svg class="check-filled w-5 h-5 hidden text-primary-600 dark:text-primary-400" fill="currentColor" viewBox="0 0 24 24">
+            <path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm13.36-1.814a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clip-rule="evenodd" />
+          </svg>
+          <span class="btn-text">Mark Complete</span>
+        </button>
+      </div>
+
+      {/* Tags & Prerequisites */}
+      <div class="mt-5 flex flex-wrap items-center gap-4">
+        <div class="flex flex-wrap gap-1.5">
+          {lesson.tags.map((tag) => (
+            <span class="tag">{tag}</span>
+          ))}
+        </div>
+        {prereqLessons.length > 0 && (
+          <div class="flex items-center gap-2 text-sm text-surface-700 dark:text-surface-400">
+            <span>Prerequisites:</span>
+            {prereqLessons.map((p) => (
+              <a href={`/os/${p!.slug}/`} class="text-primary-600 dark:text-primary-400 hover:underline">
+                {p!.number}. {p!.title}
+              </a>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Table of Contents */}
+      {lesson.examples.length > 0 && (
+        <nav class="mt-6 p-4 rounded-xl bg-surface-100 dark:bg-surface-800/50 border border-surface-200 dark:border-surface-700">
+          <h2 class="text-sm font-semibold text-surface-900 dark:text-white mb-3">
+            {lesson.examples.length} Examples
+          </h2>
+          <ol class="grid gap-1 sm:grid-cols-2">
+            {lesson.examples.map((ex, i) => (
+              <li>
+                <a
+                  href={`#example-${i}`}
+                  class="flex items-center gap-2 px-2 py-1.5 rounded-lg text-sm text-surface-700 dark:text-surface-300 hover:bg-surface-200 dark:hover:bg-surface-700 transition-colors"
+                >
+                  <span class="font-mono text-xs text-surface-700 dark:text-surface-500 w-5">{i + 1}.</span>
+                  <span class="truncate">{ex.title}</span>
+                </a>
+              </li>
+            ))}
+          </ol>
+        </nav>
+      )}
+    </div>
+  </section>
+
+  {/* Code Examples */}
+  <section class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10" data-pagefind-body>
+    <div class="space-y-12">
+      {lesson.examples.map((example, i) => {
+        const code = readExampleCode(example);
+        return (
+          <article id={`example-${i}`} class="scroll-mt-24">
+            <div class="mb-4 flex items-start gap-3">
+              <div class="flex-shrink-0 w-8 h-8 rounded-lg bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center mt-0.5">
+                <span class="text-sm font-bold text-primary-700 dark:text-primary-400 font-mono">{i + 1}</span>
+              </div>
+              <div>
+                <h3 class="text-lg font-bold text-surface-900 dark:text-white">
+                  {example.title}
+                </h3>
+                <p class="mt-0.5 text-sm text-surface-600 dark:text-surface-400 leading-relaxed">
+                  {example.description}
+                </p>
+              </div>
+            </div>
+            <CodeBlock
+              code={code}
+              filename={example.file}
+              compileCmd={example.compileCmd}
+              collapsed={code.split('\n').length > 80}
+              needsInput={example.needsInput}
+              output={getCapturedOutput(example)}
+            />
+          </article>
+        );
+      })}
+
+      {lesson.examples.length === 0 && (
+        <div class="text-center py-16">
+          <div class="text-5xl mb-4">📝</div>
+          <h3 class="text-xl font-semibold text-surface-900 dark:text-white mb-2">Exam Preparation</h3>
+          <p class="text-surface-700 dark:text-surface-400 max-w-md mx-auto">
+            This lesson contains exam questions and solutions. Check the course GitHub repository for the full materials.
+          </p>
+          <a
+            href={`https://github.com/YanivGabay/cs-lectures-by-yaniv-gabay/tree/main/${OS_COURSE.basePath}/${lesson.folder}`}
+            target="_blank"
+            rel="noopener"
+            class="btn-primary mt-6"
+          >
+            View on GitHub
+          </a>
+        </div>
+      )}
+    </div>
+  </section>
+
+  {/* Full lesson terminal */}
+  {lesson.examples.length > 0 && (
+    <section class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pb-10">
+      <div class="card p-6 text-center">
+        <h3 class="text-lg font-semibold text-surface-900 dark:text-white mb-2">
+          Open Full Terminal
+        </h3>
+        <p class="text-sm text-surface-700 dark:text-surface-400 mb-4 max-w-lg mx-auto">
+          Get a Linux terminal with all {lesson.examples.length} files from this lesson pre-loaded. Compile, run, and experiment freely.
+        </p>
+        <button
+          class="open-full-terminal-btn btn-primary"
+          data-lesson-files={JSON.stringify(
+            lesson.examples.map((ex) => ({
+              name: path.basename(ex.file),
+              content: readExampleCode(ex),
+            }))
+          )}
+        >
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m6.75 7.5 3 2.25-3 2.25m4.5 0h3m-9 8.25h13.5A2.25 2.25 0 0 0 21 18V6a2.25 2.25 0 0 0-2.25-2.25H5.25A2.25 2.25 0 0 0 3 6v12a2.25 2.25 0 0 0 2.25 2.25Z" />
+          </svg>
+          Open Terminal with All Files
+        </button>
+        <div class="full-terminal-slot mt-4"></div>
+      </div>
+    </section>
+  )}
+
+  {/* Navigation */}
+  <section class="border-t border-surface-200 dark:border-surface-800">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div class="flex items-center justify-between">
+        {prevLesson ? (
+          <a href={`/os/${prevLesson.slug}/`} class="group flex items-center gap-3 text-sm">
+            <svg class="w-5 h-5 text-surface-700 dark:text-surface-500 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+            </svg>
+            <div>
+              <div class="text-xs text-surface-700 dark:text-surface-500">Previous</div>
+              <div class="font-medium text-surface-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+                {prevLesson.number}. {prevLesson.title}
+              </div>
+            </div>
+          </a>
+        ) : <div />}
+        {nextLesson ? (
+          <a href={`/os/${nextLesson.slug}/`} class="group flex items-center gap-3 text-sm text-right">
+            <div>
+              <div class="text-xs text-surface-700 dark:text-surface-500">Next</div>
+              <div class="font-medium text-surface-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+                {nextLesson.number}. {nextLesson.title}
+              </div>
+            </div>
+            <svg class="w-5 h-5 text-surface-700 dark:text-surface-500 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+            </svg>
+          </a>
+        ) : <div />}
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  document.querySelectorAll('.lesson-complete-btn').forEach(btn => {
+    const el = btn as HTMLElement;
+    const lessonNum = el.dataset.lesson!;
+    const courseId = el.dataset.course!;
+    const key = `progress-${courseId}`;
+
+    let completed: string[] = [];
+    try { completed = JSON.parse(localStorage.getItem(key) || '[]'); } catch {}
+
+    const checkEmpty = el.querySelector('.check-empty') as HTMLElement;
+    const checkFilled = el.querySelector('.check-filled') as HTMLElement;
+    const btnText = el.querySelector('.btn-text') as HTMLElement;
+
+    function updateUI(isComplete: boolean) {
+      checkEmpty.classList.toggle('hidden', isComplete);
+      checkFilled.classList.toggle('hidden', !isComplete);
+      btnText.textContent = isComplete ? 'Completed' : 'Mark Complete';
+      el.classList.toggle('border-primary-500', isComplete);
+      el.classList.toggle('text-primary-600', isComplete);
+      el.classList.toggle('dark:text-primary-400', isComplete);
+    }
+
+    updateUI(completed.includes(lessonNum));
+
+    el.addEventListener('click', () => {
+      let current: string[] = [];
+      try { current = JSON.parse(localStorage.getItem(key) || '[]'); } catch {}
+      const isComplete = current.includes(lessonNum);
+      if (isComplete) {
+        current = current.filter(n => n !== lessonNum);
+      } else {
+        current.push(lessonNum);
+      }
+      localStorage.setItem(key, JSON.stringify(current));
+      updateUI(!isComplete);
+    });
+  });
+
+  document.querySelectorAll('.open-full-terminal-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const el = btn as HTMLElement;
+      const files = JSON.parse(el.dataset.lessonFiles || '[]');
+      const slot = el.closest('.card')!.querySelector('.full-terminal-slot') as HTMLElement;
+
+      if (slot.querySelector('.terminal-container')) {
+        const existing = slot.querySelector('.terminal-container') as HTMLElement;
+        existing.classList.toggle('hidden');
+        return;
+      }
+
+      const termDiv = document.createElement('div');
+      termDiv.className = 'terminal-container';
+      termDiv.dataset.files = JSON.stringify(files);
+      termDiv.dataset.url = '';
+      termDiv.innerHTML = `
+        <div class="flex items-center justify-between px-4 py-2 bg-surface-900 border-t border-surface-700 rounded-t-xl">
+          <div class="flex items-center gap-2">
+            <div class="flex gap-1.5">
+              <div class="w-3 h-3 rounded-full bg-red-500"></div>
+              <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+              <div class="w-3 h-3 rounded-full bg-green-500"></div>
+            </div>
+            <span class="text-sm text-surface-400 font-mono">Terminal</span>
+            <span class="terminal-status text-xs text-surface-500"></span>
+          </div>
+          <div class="flex items-center gap-2">
+            <button class="terminal-kill text-xs px-2 py-1 rounded text-red-400 hover:bg-surface-800 transition-colors hidden">Ctrl+C</button>
+            <button class="terminal-close text-xs px-2 py-1 rounded text-surface-400 hover:bg-surface-800 transition-colors">Close</button>
+          </div>
+        </div>
+        <div class="terminal-target bg-surface-950 rounded-b-xl" style="height:400px;"></div>
+      `;
+
+      slot.appendChild(termDiv);
+
+      if ((window as any).__launchTerminal) {
+        (window as any).__launchTerminal(termDiv, files, '', false);
+      }
+    });
+  });
+</script>

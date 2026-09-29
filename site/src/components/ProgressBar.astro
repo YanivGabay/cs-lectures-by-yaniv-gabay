@@ -1,0 +1,40 @@
+---
+interface Props {
+  totalLessons: number;
+  courseId: string;
+}
+
+const { totalLessons, courseId } = Astro.props;
+---
+
+<div class="progress-tracker" data-course={courseId} data-total={totalLessons}>
+  <div class="flex items-center justify-between mb-2">
+    <span class="text-sm font-medium text-surface-700 dark:text-surface-300">Your Progress</span>
+    <span class="progress-label text-sm text-surface-700 dark:text-surface-400">
+      <span class="progress-count">0</span> / {totalLessons} completed
+    </span>
+  </div>
+  <div class="w-full h-2 rounded-full bg-surface-200 dark:bg-surface-700 overflow-hidden">
+    <div class="progress-fill h-full rounded-full bg-primary-500 transition-all duration-500 ease-out" style="width: 0%"></div>
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll('.progress-tracker').forEach(tracker => {
+    const el = tracker as HTMLElement;
+    const courseId = el.dataset.course!;
+    const total = parseInt(el.dataset.total!, 10);
+    const key = `progress-${courseId}`;
+
+    let completed: string[] = [];
+    try { completed = JSON.parse(localStorage.getItem(key) || '[]'); } catch {}
+
+    const count = completed.length;
+    const pct = total > 0 ? Math.round((count / total) * 100) : 0;
+
+    const countEl = el.querySelector('.progress-count') as HTMLElement;
+    const fillEl = el.querySelector('.progress-fill') as HTMLElement;
+    countEl.textContent = String(count);
+    fillEl.style.width = `${pct}%`;
+  });
+</script>

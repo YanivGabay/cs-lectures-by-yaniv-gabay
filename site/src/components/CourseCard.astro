@@ -1,0 +1,89 @@
+---
+interface Props {
+  title: string;
+  subtitle: string;
+  description: string;
+  href: string;
+  lessonCount: number;
+  exampleCount: number;
+  language: string;
+  difficulty: string;
+  featured?: boolean;
+  comingSoon?: boolean;
+}
+
+const { title, subtitle, description, href, lessonCount, exampleCount, language, difficulty, featured = false, comingSoon = false } = Astro.props;
+const Element = comingSoon ? 'div' : 'a';
+---
+
+<Element
+  {...(!comingSoon && { href })}
+  class:list={[
+    'card block p-6 sm:p-8 group relative overflow-hidden',
+    featured && 'ring-2 ring-primary-500/50',
+    comingSoon && 'opacity-50 cursor-default',
+    !comingSoon && 'hover:-translate-y-1',
+  ]}
+>
+  {featured && (
+    <div class="absolute top-4 right-4">
+      <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-primary-100 text-primary-800 dark:bg-primary-900/50 dark:text-primary-300">
+        Featured
+      </span>
+    </div>
+  )}
+  {comingSoon && (
+    <div class="absolute top-4 right-4">
+      <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-surface-200 text-surface-600 dark:bg-surface-700 dark:text-surface-400">
+        Coming Soon
+      </span>
+    </div>
+  )}
+
+  <div class="mb-4">
+    <h3 class="text-xl sm:text-2xl font-bold text-surface-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+      {title}
+    </h3>
+    <p class="text-sm text-surface-500 dark:text-surface-400 mt-1">{subtitle}</p>
+  </div>
+
+  <p class="text-surface-600 dark:text-surface-300 text-sm leading-relaxed mb-6">
+    {description}
+  </p>
+
+  <div class="flex flex-wrap gap-4 text-sm">
+    <div class="flex items-center gap-1.5 text-surface-500 dark:text-surface-400">
+      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+      </svg>
+      {lessonCount} lessons
+    </div>
+    <div class="flex items-center gap-1.5 text-surface-500 dark:text-surface-400">
+      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" />
+      </svg>
+      {exampleCount} examples
+    </div>
+    <div class="flex items-center gap-1.5 text-surface-500 dark:text-surface-400">
+      <span class="font-mono text-xs px-1.5 py-0.5 rounded bg-surface-100 dark:bg-surface-700">{language}</span>
+    </div>
+    <div class="flex items-center gap-1.5">
+      <span class:list={[
+        'text-xs px-2 py-0.5 rounded-full font-medium',
+        difficulty === 'Beginner' && 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
+        difficulty === 'Intermediate' && 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
+        difficulty === 'Advanced' && 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
+      ]}>
+        {difficulty}
+      </span>
+    </div>
+  </div>
+
+  {!comingSoon && (
+    <div class="absolute right-6 bottom-6 opacity-0 group-hover:opacity-100 transition-all">
+      <svg class="w-5 h-5 text-primary-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+      </svg>
+    </div>
+  )}
+</Element>
