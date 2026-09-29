@@ -69,20 +69,9 @@ const id = filename.replace(/[^a-zA-Z0-9]/g, '-');
     <Code code={code} lang={lang} theme="github-dark" />
   </div>
 
-  {/* Editor (hidden by default) */}
-  <div class="code-editor hidden" id={`editor-${id}`}>
-    <div class="relative">
-      <div class="absolute top-0 left-0 w-10 h-full bg-[#161b22] border-r border-[#30363d] flex flex-col items-end pt-4 pr-2 text-[11px] text-[#484f58] select-none font-mono leading-[22px] overflow-hidden line-numbers-col"></div>
-      <textarea
-        class="w-full bg-[#0d1117] text-[#e6edf3] py-4 pl-14 pr-4 text-[13px] leading-[22px] border-none outline-none resize-y"
-        style={`font-family: var(--font-mono); min-height: 200px; height: ${Math.min(lineCount * 22 + 32, 500)}px; tab-size: 4;`}
-        spellcheck="false"
-        autocomplete="off"
-        autocorrect="off"
-        autocapitalize="off"
-        data-original={code}
-      >{code}</textarea>
-    </div>
+  {/* Editor (hidden by default) — CodeMirror loaded on demand */}
+  <div class="code-editor hidden" id={`editor-${id}`} data-original={code}>
+    <div class="cm-host" style={`min-height: 200px; max-height: 500px; overflow: auto; background: #0d1117;`}></div>
     <div class="flex items-center justify-between px-4 py-2 bg-[#161b22] border-t border-[#30363d]">
       <span class="text-xs text-[#484f58]">Editing — changes sent to terminal on Run</span>
       <button class="reset-btn text-xs px-2 py-1 rounded text-yellow-400 hover:bg-[#30363d] transition-colors">
@@ -163,66 +152,105 @@ const id = filename.replace(/[^a-zA-Z0-9]/g, '-');
     });
   });
 
+  // CodeMirror lazy loader
+  let cmLoaded: Promise<any> | null = null;
+  const editorInstances = new Map<HTMLElement, any>();
+
+  function loadCodeMirror(): Promise<any> {
+    if (cmLoaded) return cmLoaded;
+    cmLoaded = new Promise((resolve) => {
+      const css = document.createElement('link');
+      css.rel = 'stylesheet';
+      css.href = 'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/codemirror.min.css';
+      document.head.appendChild(css);
+
+      const themeCss = document.createElement('link');
+      themeCss.rel = 'stylesheet';
+      themeCss.href = 'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/theme/material-darker.min.css';
+      document.head.appendChild(themeCss);
+
+      const script = document.createElement('script');
+      script.src = 'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/codemirror.min.js';
+      script.onload = () => {
+        const mode = document.createElement('script');
+        mode.src = 'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.18/mode/clike/clike.min.js';
+        mode.onload = () => resolve((window as any).CodeMirror);
+        document.head.appendChild(mode);
+      };
+      document.head.appendChild(script);
+    });
+    return cmLoaded;
+  }
+
+  async function initEditor(editorDiv: HTMLElement): Promise<any> {
+    if (editorInstances.has(editorDiv)) return editorInstances.get(editorDiv);
+
+    const CodeMirror = await loadCodeMirror();
+    const host = editorDiv.querySelector('.cm-host') as HTMLElement;
+    const code = editorDiv.dataset.original || '';
+
+    const cm = CodeMirror(host, {
+      value: code,
+      mode: 'text/x-csrc',
+      theme: 'material-darker',
+      lineNumbers: true,
+      tabSize: 4,
+      indentWithTabs: false,
+      lineWrapping: false,
+      matchBrackets: true,
+      autoCloseBrackets: true,
+    });
+
+    cm.setSize(null, Math.min(cm.lineCount() * 22 + 16, 500));
+    editorInstances.set(editorDiv, cm);
+    return cm;
+  }
+
+  function getEditorCode(wrapper: HTMLElement): string | null {
+    const editorDiv = wrapper.querySelector('.code-editor') as HTMLElement | null;
+    if (!editorDiv || editorDiv.classList.contains('hidden')) return null;
+    const cm = editorInstances.get(editorDiv);
+    return cm ? cm.getValue() : null;
+  }
+
   // Edit toggle
   document.querySelectorAll('.edit-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
+    btn.addEventListener('click', async () => {
       const el = btn as HTMLElement;
       const wrapperId = el.dataset.target!;
       const wrapper = document.getElementById(wrapperId)!;
       const codeView = wrapper.querySelector('[id^="code-content-"]') as HTMLElement;
-      const editor = wrapper.querySelector('.code-editor') as HTMLElement;
+      const editorDiv = wrapper.querySelector('.code-editor') as HTMLElement;
       const editText = el.querySelector('.edit-text') as HTMLElement;
       const viewingText = el.querySelector('.viewing-text') as HTMLElement;
 
-      const isEditing = !editor.classList.contains('hidden');
-      codeView.classList.toggle('hidden', !isEditing);
-      editor.classList.toggle('hidden', isEditing);
-      editText.classList.toggle('hidden', !isEditing);
-      viewingText.classList.toggle('hidden', isEditing);
-    });
-  });
+      const isEditing = !editorDiv.classList.contains('hidden');
 
-  // Line numbers for editor
-  function updateLineNumbers(textarea: HTMLTextAreaElement) {
-    const col = textarea.closest('.relative')?.querySelector('.line-numbers-col') as HTMLElement | null;
-    if (!col) return;
-    const lines = textarea.value.split('\n').length;
-    col.innerHTML = Array.from({ length: lines }, (_, i) => `<div>${i + 1}</div>`).join('');
-  }
-
-  // Initialize editors — line numbers, tab key, scroll sync
-  document.querySelectorAll('.code-editor textarea').forEach(ta => {
-    const textarea = ta as HTMLTextAreaElement;
-    updateLineNumbers(textarea);
-
-    textarea.addEventListener('input', () => updateLineNumbers(textarea));
-
-    // Tab key inserts spaces instead of moving focus
-    textarea.addEventListener('keydown', (e) => {
-      if (e.key === 'Tab') {
-        e.preventDefault();
-        const start = textarea.selectionStart;
-        const end = textarea.selectionEnd;
-        textarea.value = textarea.value.substring(0, start) + '    ' + textarea.value.substring(end);
-        textarea.selectionStart = textarea.selectionEnd = start + 4;
-        updateLineNumbers(textarea);
+      if (!isEditing) {
+        // Switching to edit mode — load CodeMirror
+        codeView.classList.add('hidden');
+        editorDiv.classList.remove('hidden');
+        editText.classList.add('hidden');
+        viewingText.classList.remove('hidden');
+        const cm = await initEditor(editorDiv);
+        cm.refresh();
+        cm.focus();
+      } else {
+        // Switching back to view mode
+        codeView.classList.remove('hidden');
+        editorDiv.classList.add('hidden');
+        editText.classList.remove('hidden');
+        viewingText.classList.add('hidden');
       }
-    });
-
-    // Sync scroll between textarea and line numbers
-    textarea.addEventListener('scroll', () => {
-      const col = textarea.closest('.relative')?.querySelector('.line-numbers-col') as HTMLElement | null;
-      if (col) col.scrollTop = textarea.scrollTop;
     });
   });
 
   // Reset button
   document.querySelectorAll('.reset-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      const editor = btn.closest('.code-editor')!;
-      const textarea = editor.querySelector('textarea') as HTMLTextAreaElement;
-      textarea.value = textarea.dataset.original || '';
-      updateLineNumbers(textarea);
+      const editorDiv = btn.closest('.code-editor') as HTMLElement;
+      const cm = editorInstances.get(editorDiv);
+      if (cm) cm.setValue(editorDiv.dataset.original || '');
     });
   });
 
@@ -346,11 +374,9 @@ const id = filename.replace(/[^a-zA-Z0-9]/g, '-');
       const wrapper = el.closest('.code-block-wrapper')!;
       const slot = wrapper.querySelector('.terminal-slot') as HTMLElement;
 
-      // Always get the latest code — from editor if open, otherwise original
-      const editor = wrapper.querySelector('.code-editor textarea') as HTMLTextAreaElement | null;
-      const code = (editor && !editor.closest('.code-editor')!.classList.contains('hidden'))
-        ? editor.value
-        : (el.dataset.code || '');
+      // Always get the latest code — from CodeMirror editor if open, otherwise original
+      const editedCode = getEditorCode(wrapper);
+      const code = editedCode !== null ? editedCode : (el.dataset.code || '');
 
       // Destroy existing terminal — always start fresh with current code
       const existing = slot.querySelector('.terminal-container');

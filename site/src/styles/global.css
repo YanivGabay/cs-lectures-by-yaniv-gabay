@@ -82,6 +82,18 @@
     font-size: 12px;
   }
 
+  .cm-host .CodeMirror {
+    height: auto;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  .cm-host .CodeMirror-scroll {
+    min-height: 200px;
+    max-height: 500px;
+  }
+
   .terminal-output {
     font-family: var(--font-mono);
     @apply bg-surface-950 text-green-400 px-5 py-4 text-sm leading-relaxed;
