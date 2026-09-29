@@ -13,10 +13,12 @@ config.json
 build/Debug/
 build/
 
+# Astro dev artifacts
+.astro/
+
 # Site
 site/node_modules/
 site/dist/
-site/.astro/
 
 # Database files
 *.db
