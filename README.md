@@ -1,6 +1,6 @@
 # Introduction to Computer Science, Modular Programming And Operating Systems
 
-Welcome to my GitHub repository for the courses i teached in the HAC College.
+Welcome to my GitHub repository for the courses I taught at HAC College.
 This repository contains the materials and examples we covered throughout the semesters.
 
 Please see the [Hebrew version](#hebrew-version) below.
@@ -19,7 +19,7 @@ Some examples are based on Yoram's materials, while others are my own.
 The operating systems course is more advanced and focuses on operating systems and C programming , and is based on Yoram's book:
 [Yoram Biberman's book](https://www.academia.edu/1750088/_system_programming_-_)
 
-i highly reccomend to check all Yoram's materials and books at:
+I highly recommend checking all of Yoram's materials and books at:
 [Yoram Biberman's Profile at HAC](https://cs.hac.ac.il/staff/yoramb/heb_index.htm)
 
 ## Repository Structure
@@ -35,10 +35,16 @@ Here's how everything is organized:
 - **OS - C language - 2nd Year Course**
   - Contains advanced materials and examples for second-year students focusing on operating systems and C programming.
 
+- **AdvancedCPP**
+  - Supplementary workshop covering modern C++ topics: classes, templates, smart pointers, STL, and polymorphism.
+
+- **Extras**
+  - Additional materials on Git, OOP fundamentals, and modern C++ bridging Intro2Cs and ModularProgramming.
+
 ## How to Use
 
 To dive into the materials, you can clone this repository or browse the files directly on GitHub.
-If your new to git, you can clone this into your computer very easily by running the following command in your terminal:
+If you're new to git, you can clone this into your computer very easily by running the following command in your terminal:
 
 I recommend to navigate to the folder where you want to save the files and run the command from there.
 
@@ -100,6 +106,12 @@ Thank you for visiting, and happy learning!
 - **OS - שפת C - קורס שנה שנייה**
   - מכיל חומרים מתקדמים ודוגמאות לסטודנטים בשנה השנייה המתמקדים במערכות הפעלה ובתכנות בשפת C.
 
+- **AdvancedCPP**
+  - סדנה משלימה הכוללת נושאים מתקדמים ב-C++ מודרני: מחלקות, תבניות, מצביעים חכמים, STL ופולימורפיזם.
+
+- **Extras**
+  - חומרים נוספים על Git, יסודות OOP ו-C++ מודרני, המגשרים בין מבוא למדעי המחשב לתכנות מודולרי.
+
 ## איך להשתמש
 
 כדי לגשת לחומרים מהמחשב שלכם, אתם יכולים לשכפל את מאגר זה או לחלופין, לעיין בקבצים ישירות ב-GitHub.
@@ -122,4 +134,4 @@ git clone https://github.com/YanivGabay/cs-lectures-by-yaniv-gabay
 אם יש לכם שאלות או שאתם צריכים מידע נוסף, אל תהססו לפנות אלי בכתובת <yanivga@edu.hac.ac.il>.
 
 תודה שביקרתם, ולמידה נעימה!
-<div>
+</div>

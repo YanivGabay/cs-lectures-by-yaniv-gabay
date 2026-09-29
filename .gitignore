@@ -1,16 +1,24 @@
-*.json
 *.exe
+*.o
+*.out
 tempCodeRunnerFile.cc
+tempCodeRunnerFile.py
+tempCodeRunnerFile.c
 test.txt
 input.txt
 output.txt
 *.txt.txt
-*.txt
 .env
 config.json
-*.o
-*.out
 build/Debug/
 build/
-tempCodeRunnerFile.py
-tempCodeRunnerFile.c
+
+# Site
+site/node_modules/
+site/dist/
+site/.astro/
+
+# Terminal server
+terminal-server/cloudflare/node_modules/
+terminal-server/local/node_modules/
+terminal-server/node_modules/
