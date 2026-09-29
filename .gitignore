@@ -18,6 +18,11 @@ site/node_modules/
 site/dist/
 site/.astro/
 
+# Database files
+*.db
+*.db-shm
+*.db-wal
+
 # Terminal server
 terminal-server/cloudflare/node_modules/
 terminal-server/local/node_modules/
