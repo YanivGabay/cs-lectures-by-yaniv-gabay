@@ -51,6 +51,10 @@
   ::selection {
     @apply bg-primary-500/30;
   }
+
+  :focus-visible {
+    @apply outline-none ring-2 ring-primary-500/70 ring-offset-2 ring-offset-white dark:ring-offset-surface-950;
+  }
 }
 
 @layer components {
@@ -96,7 +100,7 @@
 
   .terminal-output {
     font-family: var(--font-mono);
-    @apply bg-surface-950 text-green-400 px-5 py-4 text-sm leading-relaxed;
+    @apply bg-surface-950 text-emerald-300 px-5 py-4 text-sm leading-relaxed;
     @apply border-t border-surface-800;
   }
 
@@ -126,6 +130,44 @@
     @apply hover:bg-primary-700 active:bg-primary-800;
     @apply transition-colors duration-150;
     @apply shadow-sm hover:shadow-md;
+  }
+
+  /* Syscall tooltips */
+  .syscall-hint {
+    @apply border-b border-dashed border-primary-500/40 cursor-help;
+    transition: border-color 0.15s;
+  }
+
+  .syscall-hint:hover {
+    @apply border-primary-500;
+  }
+
+  .syscall-tooltip {
+    @apply fixed bg-surface-800 text-white rounded-xl shadow-2xl p-4 max-w-sm z-[100];
+    @apply text-sm leading-relaxed;
+    @apply border border-surface-700;
+    pointer-events: auto;
+  }
+
+  .syscall-tooltip code {
+    @apply text-accent-400 text-xs;
+    font-family: var(--font-mono);
+  }
+
+  .syscall-tooltip .st-sig {
+    @apply block mb-2 pb-2 border-b border-surface-700;
+  }
+
+  .syscall-tooltip .st-returns {
+    @apply text-surface-300 mt-1;
+  }
+
+  .syscall-tooltip .st-pitfall {
+    @apply text-yellow-400 mt-2 text-xs;
+  }
+
+  .syscall-tooltip .st-man {
+    @apply block mt-2 text-xs text-primary-400 hover:text-primary-300;
   }
 
   /* Smooth page transitions */

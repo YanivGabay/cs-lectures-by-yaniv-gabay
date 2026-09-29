@@ -32,7 +32,7 @@ const id = filename.replace(/[^a-zA-Z0-9]/g, '-');
     <div class="flex items-center gap-2">
       {shouldCollapse && (
         <button
-          class="expand-btn text-xs px-2 py-1 rounded text-surface-700 dark:text-surface-400 hover:bg-surface-200 dark:hover:bg-surface-700 transition-colors"
+          class="expand-btn text-xs px-2.5 py-1 rounded-md border border-surface-300 dark:border-surface-600 text-surface-700 dark:text-surface-400 hover:bg-surface-200 dark:hover:bg-surface-700 transition-colors"
           data-target={`code-content-${id}`}
           aria-expanded={!shouldCollapse}
         >
@@ -41,14 +41,14 @@ const id = filename.replace(/[^a-zA-Z0-9]/g, '-');
         </button>
       )}
       <button
-        class="edit-btn text-xs px-2 py-1 rounded text-surface-700 dark:text-surface-400 hover:bg-surface-200 dark:hover:bg-surface-700 transition-colors"
+        class="edit-btn text-xs px-2.5 py-1 rounded-md border border-surface-300 dark:border-surface-600 text-surface-700 dark:text-surface-400 hover:bg-surface-200 dark:hover:bg-surface-700 transition-colors"
         data-target={`code-${id}`}
       >
         <span class="edit-text">Edit</span>
         <span class="viewing-text hidden text-accent-500">Viewing</span>
       </button>
       <button
-        class="copy-btn text-xs px-2 py-1 rounded text-surface-700 dark:text-surface-400 hover:bg-surface-200 dark:hover:bg-surface-700 transition-colors"
+        class="copy-btn text-xs px-2.5 py-1 rounded-md border border-surface-300 dark:border-surface-600 text-surface-700 dark:text-surface-400 hover:bg-surface-200 dark:hover:bg-surface-700 transition-colors"
         data-code={code}
         aria-label="Copy code"
       >
@@ -87,7 +87,7 @@ const id = filename.replace(/[^a-zA-Z0-9]/g, '-');
         <span>Expected Output</span>
         <span class="text-[10px] normal-case opacity-60">click Run to execute live</span>
       </div>
-      <pre class="whitespace-pre-wrap text-green-400">{output}</pre>
+      <pre class="whitespace-pre-wrap text-emerald-300">{output}</pre>
     </div>
   )}
 
@@ -104,16 +104,20 @@ const id = filename.replace(/[^a-zA-Z0-9]/g, '-');
       )}
     </div>
     <button
-      class="open-terminal-btn inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold bg-primary-600 text-white hover:bg-primary-700 active:bg-primary-800 transition-colors shadow-sm hover:shadow"
+      class="open-terminal-btn inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold bg-primary-600 text-white hover:bg-primary-700 active:bg-primary-800 transition-colors shadow-sm hover:shadow disabled:opacity-60 disabled:cursor-wait"
       data-filename={filename}
       data-code={code}
       data-compile={compileCmd || `gcc -o prog ${filename}`}
       data-interactive={needsInput ? 'true' : 'false'}
     >
-      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+      <svg class="run-play w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
         <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z" />
       </svg>
-      {needsInput ? 'Run (Interactive)' : 'Run'}
+      <svg class="run-spinner hidden w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+      </svg>
+      <span class="run-label">{needsInput ? 'Run (Interactive)' : 'Run'}</span>
     </button>
   </div>
 
@@ -258,12 +262,15 @@ const id = filename.replace(/[^a-zA-Z0-9]/g, '-');
   import { Terminal } from '@xterm/xterm';
   import { FitAddon } from '@xterm/addon-fit';
 
+  // Syscall tooltips
+  import { syscallReference } from '../data/syscall-reference';
+
   function getTerminalUrl(): string {
     const meta = document.querySelector('meta[name="terminal-url"]') as HTMLMetaElement | null;
     return meta?.content || localStorage.getItem('terminal-url') || '';
   }
 
-  function launchTerminal(container: HTMLElement, files: {name: string, content: string}[], autoRun: string, isInteractive: boolean) {
+  function launchTerminal(container: HTMLElement, files: {name: string, content: string}[], autoRun: string, isInteractive: boolean, onReady?: () => void) {
     const target = container.querySelector('.terminal-target') as HTMLElement;
     const statusEl = container.querySelector('.terminal-status') as HTMLElement;
     const killBtn = container.querySelector('.terminal-kill') as HTMLElement;
@@ -313,6 +320,7 @@ const id = filename.replace(/[^a-zA-Z0-9]/g, '-');
         if (msg.type === 'ready') {
           statusEl.textContent = 'Connected';
           killBtn.classList.remove('hidden');
+          if (onReady) onReady();
         } else if (msg.type === 'output') {
           term.write(msg.data);
 
@@ -367,12 +375,22 @@ const id = filename.replace(/[^a-zA-Z0-9]/g, '-');
 
   document.querySelectorAll('.open-terminal-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      const el = btn as HTMLElement;
+      const el = btn as HTMLButtonElement;
       const filename = el.dataset.filename || 'main.c';
       const compileCmd = el.dataset.compile || `gcc -o prog ${filename}`;
       const isInteractive = el.dataset.interactive === 'true';
       const wrapper = el.closest('.code-block-wrapper')!;
       const slot = wrapper.querySelector('.terminal-slot') as HTMLElement;
+
+      // Loading state
+      const playIcon = el.querySelector('.run-play') as HTMLElement;
+      const spinnerIcon = el.querySelector('.run-spinner') as HTMLElement;
+      const label = el.querySelector('.run-label') as HTMLElement;
+      const origLabel = label.textContent;
+      el.disabled = true;
+      playIcon?.classList.add('hidden');
+      spinnerIcon?.classList.remove('hidden');
+      label.textContent = 'Starting...';
 
       // Always get the latest code — from CodeMirror editor if open, otherwise original
       const editedCode = getEditorCode(wrapper);
@@ -404,7 +422,105 @@ const id = filename.replace(/[^a-zA-Z0-9]/g, '-');
       `;
       slot.appendChild(termDiv);
 
-      launchTerminal(termDiv, [{ name: filename, content: code }], compileCmd, isInteractive);
+      launchTerminal(termDiv, [{ name: filename, content: code }], compileCmd, isInteractive, () => {
+        // Restore Run button
+        el.disabled = false;
+        playIcon?.classList.remove('hidden');
+        spinnerIcon?.classList.add('hidden');
+        label.textContent = origLabel || 'Run';
+      });
     });
   });
+
+  // --- Syscall tooltip initialization ---
+  (function initSyscallTooltips() {
+    const names = Object.keys(syscallReference);
+    if (!names.length) return;
+
+    // Build regex that matches syscall names followed by ( in code
+    const pattern = new RegExp(`\\b(${names.join('|')})(?=\\s*\\()`, 'g');
+
+    // Create reusable tooltip element
+    let tooltip: HTMLDivElement | null = null;
+    let hideTimer: ReturnType<typeof setTimeout>;
+
+    function getTooltip(): HTMLDivElement {
+      if (tooltip) return tooltip;
+      tooltip = document.createElement('div');
+      tooltip.className = 'syscall-tooltip';
+      tooltip.hidden = true;
+      document.body.appendChild(tooltip);
+
+      tooltip.addEventListener('mouseenter', () => clearTimeout(hideTimer));
+      tooltip.addEventListener('mouseleave', () => {
+        hideTimer = setTimeout(() => { tooltip!.hidden = true; }, 150);
+      });
+
+      return tooltip;
+    }
+
+    function showTooltip(el: HTMLElement) {
+      const name = el.dataset.syscall;
+      if (!name) return;
+      const info = syscallReference[name];
+      if (!info) return;
+
+      clearTimeout(hideTimer);
+      const tt = getTooltip();
+
+      let html = `<code class="st-sig">${info.signature}</code>`;
+      html += `<div>${info.description}</div>`;
+      html += `<div class="st-returns"><strong>Returns:</strong> ${info.returns}</div>`;
+      if (info.pitfall) {
+        html += `<div class="st-pitfall">⚠ ${info.pitfall}</div>`;
+      }
+      html += `<a href="${info.man}" target="_blank" rel="noopener" class="st-man">man page →</a>`;
+      tt.innerHTML = html;
+      tt.hidden = false;
+
+      const rect = el.getBoundingClientRect();
+      tt.style.left = `${Math.min(rect.left, window.innerWidth - 360)}px`;
+      tt.style.top = `${rect.bottom + 6}px`;
+    }
+
+    function hideTooltipDelayed() {
+      hideTimer = setTimeout(() => {
+        if (tooltip) tooltip.hidden = true;
+      }, 200);
+    }
+
+    // Walk all code lines and wrap syscall names
+    document.querySelectorAll('.code-block-wrapper code .line').forEach(line => {
+      const walker = document.createTreeWalker(line, NodeFilter.SHOW_TEXT);
+      const textNodes: Text[] = [];
+      let node: Text | null;
+      while ((node = walker.nextNode() as Text | null)) {
+        textNodes.push(node);
+      }
+
+      for (const textNode of textNodes) {
+        const text = textNode.textContent || '';
+        pattern.lastIndex = 0;
+        const match = pattern.exec(text);
+        if (!match) continue;
+
+        const before = text.substring(0, match.index);
+        const matched = match[1];
+        const after = text.substring(match.index + matched.length);
+
+        const span = document.createElement('span');
+        span.className = 'syscall-hint';
+        span.dataset.syscall = matched;
+        span.textContent = matched;
+        span.addEventListener('mouseenter', () => showTooltip(span));
+        span.addEventListener('mouseleave', hideTooltipDelayed);
+
+        const parent = textNode.parentNode!;
+        if (before) parent.insertBefore(document.createTextNode(before), textNode);
+        parent.insertBefore(span, textNode);
+        if (after) parent.insertBefore(document.createTextNode(after), textNode);
+        parent.removeChild(textNode);
+      }
+    });
+  })();
 </script>

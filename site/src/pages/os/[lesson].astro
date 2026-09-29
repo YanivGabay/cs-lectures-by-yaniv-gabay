@@ -3,6 +3,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import CodeBlock from '../../components/CodeBlock.astro';
+import DiffView from '../../components/DiffView.astro';
+import ForkVisualizer from '../../components/ForkVisualizer.astro';
 import { OS_COURSE, lessons } from '../../data/os-lessons';
 import type { Lesson } from '../../data/os-lessons';
 
@@ -182,9 +184,24 @@ const diffColors: Record<string, string> = {
 
       {/* Main content column */}
       <div class="min-w-0">
+        {/* Fork visualization (lesson 02) */}
+        {lesson.visualization === 'fork-tree' && (
+          <div class="mb-10">
+            <ForkVisualizer />
+          </div>
+        )}
+
         <div class="space-y-12">
       {lesson.examples.map((example, i) => {
         const code = readExampleCode(example);
+
+        // Skip if this example is the "fix" side of a diff pair (already shown above)
+        const isFixInPair = lesson.diffPairs?.some(p => p.fixIndex === i);
+        if (isFixInPair) return null;
+
+        // Check if this is the "mistake" side of a diff pair
+        const diffPair = lesson.diffPairs?.find(p => p.mistakeIndex === i);
+
         return (
           <article id={`example-${i}`} class="scroll-mt-24">
             <div class="mb-4 flex items-start gap-3">
@@ -193,21 +210,33 @@ const diffColors: Record<string, string> = {
               </div>
               <div>
                 <h3 class="text-lg font-bold text-surface-900 dark:text-white">
-                  {example.title}
+                  {diffPair ? `${example.title} vs ${lesson.examples[diffPair.fixIndex].title}` : example.title}
                 </h3>
                 <p class="mt-0.5 text-sm text-surface-600 dark:text-surface-400 leading-relaxed">
-                  {example.description}
+                  {diffPair ? `${example.description} Compare side-by-side with the fix below.` : example.description}
                 </p>
               </div>
             </div>
-            <CodeBlock
-              code={code}
-              filename={example.file}
-              compileCmd={example.compileCmd}
-              collapsed={code.split('\n').length > 80}
-              needsInput={example.needsInput}
-              output={getCapturedOutput(example)}
-            />
+
+            {diffPair ? (
+              <DiffView
+                leftCode={code}
+                rightCode={readExampleCode(lesson.examples[diffPair.fixIndex])}
+                leftFilename={example.file}
+                rightFilename={lesson.examples[diffPair.fixIndex].file}
+                leftLabel="Bug"
+                rightLabel="Fix"
+              />
+            ) : (
+              <CodeBlock
+                code={code}
+                filename={example.file}
+                compileCmd={example.compileCmd}
+                collapsed={code.split('\n').length > 80}
+                needsInput={example.needsInput}
+                output={getCapturedOutput(example)}
+              />
+            )}
           </article>
         );
       })}

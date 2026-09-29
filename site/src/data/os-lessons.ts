@@ -17,6 +17,8 @@ export interface Lesson {
   prerequisites: string[];
   phase: string;
   examples: Example[];
+  diffPairs?: Array<{ mistakeIndex: number; fixIndex: number }>;
+  visualization?: string;
 }
 
 export const OS_COURSE = {
@@ -154,6 +156,8 @@ export const lessons: Lesson[] = [
     difficulty: 'intermediate',
     prerequisites: ['01', '01.5'],
     phase: 'Processes',
+    visualization: 'fork-tree',
+    diffPairs: [{ mistakeIndex: 3, fixIndex: 4 }],
     examples: [
       {
         file: '00-some-includes.c',

@@ -1,0 +1,119 @@
+---
+---
+
+<div class="card p-6 mb-8">
+  <h3 class="text-lg font-semibold text-surface-900 dark:text-white mb-2">How fork() Works</h3>
+  <p class="text-sm text-surface-600 dark:text-surface-400 mb-4">
+    When <code class="font-mono text-xs bg-surface-100 dark:bg-surface-800 px-1 py-0.5 rounded">fork()</code> is called, the OS duplicates the current process. Both parent and child continue from the same point, but with different return values.
+  </p>
+
+  <div class="fork-viz-container">
+    <svg viewBox="0 0 700 280" class="w-full max-w-3xl mx-auto" role="img" aria-label="Fork process lifecycle diagram">
+      <defs>
+        <marker id="fv-arrow" viewBox="0 0 10 7" refX="9" refY="3.5" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
+          <polygon points="0 0, 10 3.5, 0 7" class="fv-arrow-fill" />
+        </marker>
+      </defs>
+
+      {/* Row 1: main() starts */}
+      <g class="fv-node" style="--delay: 0s">
+        <rect x="275" y="10" width="150" height="42" rx="8" class="fv-rect-blue" />
+        <text x="350" y="28" text-anchor="middle" class="fv-text" font-size="11">main() starts</text>
+        <text x="350" y="42" text-anchor="middle" class="fv-text-sub" font-size="10">PID 1234</text>
+      </g>
+
+      {/* Arrow: main → fork() */}
+      <line x1="350" y1="52" x2="350" y2="75" class="fv-edge" style="--delay: 0.3s" marker-end="url(#fv-arrow)" />
+
+      {/* Fork label */}
+      <g class="fv-node" style="--delay: 0.4s">
+        <rect x="300" y="75" width="100" height="28" rx="14" class="fv-rect-accent" />
+        <text x="350" y="94" text-anchor="middle" class="fv-text" font-size="11">fork()</text>
+      </g>
+
+      {/* Arrows: fork → parent, fork → child */}
+      <line x1="320" y1="103" x2="180" y2="140" class="fv-edge" style="--delay: 0.6s" marker-end="url(#fv-arrow)" />
+      <line x1="380" y1="103" x2="520" y2="140" class="fv-edge" style="--delay: 0.6s" marker-end="url(#fv-arrow)" />
+
+      {/* Row 2: Parent and Child */}
+      <g class="fv-node" style="--delay: 0.8s">
+        <rect x="95" y="140" width="170" height="42" rx="8" class="fv-rect-blue" />
+        <text x="180" y="158" text-anchor="middle" class="fv-text" font-size="11">Parent (PID 1234)</text>
+        <text x="180" y="172" text-anchor="middle" class="fv-text-sub" font-size="10">fork() returned 1235</text>
+      </g>
+
+      <g class="fv-node" style="--delay: 0.8s">
+        <rect x="435" y="140" width="170" height="42" rx="8" class="fv-rect-green" />
+        <text x="520" y="158" text-anchor="middle" class="fv-text" font-size="11">Child (PID 1235)</text>
+        <text x="520" y="172" text-anchor="middle" class="fv-text-sub" font-size="10">fork() returned 0</text>
+      </g>
+
+      {/* Row 3: Actions */}
+      <line x1="180" y1="182" x2="180" y2="210" class="fv-edge" style="--delay: 1.1s" marker-end="url(#fv-arrow)" />
+      <line x1="520" y1="182" x2="520" y2="210" class="fv-edge" style="--delay: 1.1s" marker-end="url(#fv-arrow)" />
+
+      <g class="fv-node" style="--delay: 1.3s">
+        <rect x="105" y="210" width="150" height="28" rx="6" class="fv-rect-blue-light" />
+        <text x="180" y="229" text-anchor="middle" class="fv-text" font-size="10">wait(NULL) — blocks</text>
+      </g>
+
+      <g class="fv-node" style="--delay: 1.3s">
+        <rect x="445" y="210" width="150" height="28" rx="6" class="fv-rect-green-light" />
+        <text x="520" y="229" text-anchor="middle" class="fv-text" font-size="10">does work, then exit(0)</text>
+      </g>
+
+      {/* Arrow: child exits → parent resumes */}
+      <path d="M 520 238 Q 520 260 350 260 Q 180 260 180 250" class="fv-edge" style="--delay: 1.6s" fill="none" marker-end="url(#fv-arrow)" />
+
+      <g class="fv-node" style="--delay: 1.8s">
+        <rect x="290" y="252" width="120" height="22" rx="4" class="fv-rect-gray" />
+        <text x="350" y="267" text-anchor="middle" class="fv-text-sub" font-size="9">child reaped ✓</text>
+      </g>
+    </svg>
+  </div>
+</div>
+
+<style>
+  .fv-rect-blue { fill: #3b82f6; }
+  .fv-rect-green { fill: #22c55e; }
+  .fv-rect-accent { fill: #f59e0b; }
+  .fv-rect-blue-light { fill: #3b82f6; opacity: 0.7; }
+  .fv-rect-green-light { fill: #22c55e; opacity: 0.7; }
+  .fv-rect-gray { fill: #6b7280; opacity: 0.5; }
+  .fv-text { fill: white; font-family: system-ui, sans-serif; font-weight: 600; }
+  .fv-text-sub { fill: rgba(255,255,255,0.75); font-family: var(--font-mono, monospace); }
+  .fv-arrow-fill { fill: #94a3b8; }
+  .fv-edge { stroke: #94a3b8; stroke-width: 1.5; }
+
+  :global(html.dark) .fv-edge { stroke: #64748b; }
+  :global(html.dark) .fv-arrow-fill { fill: #64748b; }
+
+  .fv-node, .fv-edge {
+    opacity: 0;
+  }
+
+  .fork-viz-container.animate .fv-node,
+  .fork-viz-container.animate .fv-edge {
+    animation: fvAppear 0.4s ease-out forwards;
+    animation-delay: var(--delay, 0s);
+  }
+
+  @keyframes fvAppear {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
+
+<script is:inline>
+  (function() {
+    var container = document.querySelector('.fork-viz-container');
+    if (!container) return;
+    var observer = new IntersectionObserver(function(entries) {
+      if (entries[0].isIntersecting) {
+        container.classList.add('animate');
+        observer.disconnect();
+      }
+    }, { threshold: 0.2 });
+    observer.observe(container);
+  })();
+</script>

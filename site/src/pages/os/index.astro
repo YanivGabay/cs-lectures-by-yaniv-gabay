@@ -76,7 +76,8 @@ const phases = [
           return (
             <a
               href={`#phase-${phase.name.toLowerCase().replace(/\s+/g, '-')}`}
-              class={`flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl ${phase.color} font-medium text-sm hover:opacity-80 transition-opacity`}
+              data-phase={phase.name.toLowerCase().replace(/\s+/g, '-')}
+              class={`flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl ${phase.color} font-medium text-sm hover:opacity-80 transition-all`}
             >
               <span class="font-bold">{phase.icon}</span>
               <span>{phase.name}</span>
@@ -163,4 +164,30 @@ const phases = [
       </div>
     </div>
   </section>
+<script is:inline>
+  (function() {
+    var sections = document.querySelectorAll('[id^="phase-"]');
+    var pills = document.querySelectorAll('[data-phase]');
+    if (!sections.length || !pills.length) return;
+
+    var observer = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          var id = entry.target.id.replace('phase-', '');
+          pills.forEach(function(pill) {
+            if (pill.dataset.phase === id) {
+              pill.style.outline = '2px solid currentColor';
+              pill.style.outlineOffset = '2px';
+            } else {
+              pill.style.outline = '';
+              pill.style.outlineOffset = '';
+            }
+          });
+        }
+      });
+    }, { rootMargin: '-80px 0px -60% 0px' });
+
+    sections.forEach(function(s) { observer.observe(s); });
+  })();
+</script>
 </BaseLayout>

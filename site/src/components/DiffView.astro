@@ -1,0 +1,89 @@
+---
+import { Code } from 'astro:components';
+
+interface Props {
+  leftCode: string;
+  rightCode: string;
+  leftFilename: string;
+  rightFilename: string;
+  leftLabel?: string;
+  rightLabel?: string;
+}
+
+const { leftCode, rightCode, leftFilename, rightFilename, leftLabel = 'Bug', rightLabel = 'Fix' } = Astro.props;
+
+const leftLines = leftCode.split('\n');
+const rightLines = rightCode.split('\n');
+const maxLines = Math.max(leftLines.length, rightLines.length);
+const leftDiff: number[] = [];
+const rightDiff: number[] = [];
+
+for (let i = 0; i < maxLines; i++) {
+  if ((leftLines[i] || '') !== (rightLines[i] || '')) {
+    if (i < leftLines.length) leftDiff.push(i);
+    if (i < rightLines.length) rightDiff.push(i);
+  }
+}
+---
+
+<div class="diff-view rounded-xl border border-surface-200 dark:border-surface-700 overflow-hidden mb-4">
+  <div class="px-4 py-2.5 bg-surface-100 dark:bg-surface-800 border-b border-surface-200 dark:border-surface-700">
+    <div class="flex items-center justify-between">
+      <span class="text-sm font-medium text-surface-700 dark:text-surface-300">Side-by-Side Comparison</span>
+      <span class="text-xs text-surface-500">Changed lines are highlighted</span>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2">
+    {/* Left (bug) */}
+    <div class="border-b lg:border-b-0 lg:border-r border-surface-200 dark:border-surface-700">
+      <div class="flex items-center gap-2 px-4 py-2 bg-red-50 dark:bg-red-950/30 border-b border-surface-200 dark:border-surface-700">
+        <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-400 font-semibold">{leftLabel}</span>
+        <span class="text-xs font-mono text-surface-600 dark:text-surface-400">{leftFilename}</span>
+      </div>
+      <div class="diff-code-left overflow-x-auto" data-diff-lines={leftDiff.join(',')}>
+        <Code code={leftCode} lang="c" theme="github-dark" />
+      </div>
+    </div>
+
+    {/* Right (fix) */}
+    <div>
+      <div class="flex items-center gap-2 px-4 py-2 bg-green-50 dark:bg-green-950/30 border-b border-surface-200 dark:border-surface-700">
+        <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-400 font-semibold">{rightLabel}</span>
+        <span class="text-xs font-mono text-surface-600 dark:text-surface-400">{rightFilename}</span>
+      </div>
+      <div class="diff-code-right overflow-x-auto" data-diff-lines={rightDiff.join(',')}>
+        <Code code={rightCode} lang="c" theme="github-dark" />
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function highlightDiffLines() {
+    document.querySelectorAll('[data-diff-lines]').forEach(container => {
+      const el = container as HTMLElement;
+      const linesStr = el.dataset.diffLines || '';
+      if (!linesStr) return;
+      const diffLines = new Set(linesStr.split(',').map(Number));
+      const isLeft = el.classList.contains('diff-code-left');
+
+      el.querySelectorAll('code .line').forEach((line, i) => {
+        if (diffLines.has(i)) {
+          const lineEl = line as HTMLElement;
+          if (isLeft) {
+            lineEl.style.background = 'rgba(248, 113, 113, 0.1)';
+            lineEl.style.borderLeft = '3px solid #f87171';
+            lineEl.style.paddingLeft = '8px';
+          } else {
+            lineEl.style.background = 'rgba(74, 222, 128, 0.1)';
+            lineEl.style.borderLeft = '3px solid #4ade80';
+            lineEl.style.paddingLeft = '8px';
+          }
+        }
+      });
+    });
+  }
+
+  highlightDiffLines();
+</script>

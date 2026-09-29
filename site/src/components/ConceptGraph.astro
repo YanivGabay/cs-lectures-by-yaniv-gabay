@@ -48,6 +48,25 @@ const edges: Edge[] = [
   { from: '14', to: '15' },
 ];
 
+const prereqs: Record<string, string[]> = {
+  '01': [],
+  '01.5': ['01'],
+  '02': ['01', '01.5'],
+  '03': ['02'],
+  '04': ['02'],
+  '05': ['04'],
+  '06': ['03'],
+  '07': ['06'],
+  '08': ['04'],
+  '09': ['08'],
+  '10': ['09'],
+  '11': ['10'],
+  '12': ['11'],
+  '13': ['12'],
+  '14': ['13'],
+  '15': ['14'],
+};
+
 const phaseColors: Record<string, { bg: string; border: string; text: string }> = {
   foundation: { bg: 'var(--cg-blue-bg)',   border: 'var(--cg-blue-border)',   text: 'var(--cg-blue-text)' },
   processes:  { bg: 'var(--cg-green-bg)',  border: 'var(--cg-green-border)',  text: 'var(--cg-green-text)' },
@@ -150,7 +169,7 @@ rows.forEach((row, ri) => {
         if (!pos) return null;
         const colors = phaseColors[node.phase];
         return (
-          <a href={`/os/${node.slug}/`} class="cg-node-link">
+          <a href={`/os/${node.slug}/`} class="cg-node-link" data-lesson-id={node.id} data-prereqs={JSON.stringify(prereqs[node.id] || [])}>
             <rect
               x={pos.x}
               y={pos.y}
@@ -216,11 +235,21 @@ rows.forEach((row, ri) => {
     font-family: system-ui, sans-serif;
   }
   .cg-node-rect {
-    transition: filter 0.15s;
+    transition: filter 0.15s, stroke-width 0.15s;
   }
   .cg-node-link:hover .cg-node-rect {
     filter: brightness(1.1);
     stroke-width: 2.5;
+  }
+  .cg-node-link.cg-completed .cg-node-rect {
+    stroke-width: 2.5;
+  }
+  .cg-node-link.cg-ready .cg-node-rect {
+    animation: cgPulse 2s ease-in-out infinite;
+  }
+  @keyframes cgPulse {
+    0%, 100% { filter: brightness(1); }
+    50% { filter: brightness(1.2); }
   }
 
   /* Light mode colors */
@@ -269,3 +298,30 @@ rows.forEach((row, ri) => {
     --cg-purple-text: #d8b4fe;
   }
 </style>
+
+<script is:inline>
+  (function() {
+    var completed = [];
+    try { completed = JSON.parse(localStorage.getItem('progress-os') || '[]'); } catch(e) {}
+
+    document.querySelectorAll('.cg-node-link[data-lesson-id]').forEach(function(link) {
+      var id = link.getAttribute('data-lesson-id');
+      var prereqsStr = link.getAttribute('data-prereqs') || '[]';
+      var nodePrereqs = [];
+      try { nodePrereqs = JSON.parse(prereqsStr); } catch(e) {}
+
+      if (completed.indexOf(id) !== -1) {
+        link.classList.add('cg-completed');
+        var rect = link.querySelector('.cg-node-rect');
+        if (rect) rect.style.filter = 'drop-shadow(0 0 6px #22c55e)';
+      } else {
+        var allMet = nodePrereqs.length === 0 || nodePrereqs.every(function(p) { return completed.indexOf(p) !== -1; });
+        if (allMet) {
+          link.classList.add('cg-ready');
+        } else {
+          link.style.opacity = '0.4';
+        }
+      }
+    });
+  })();
+</script>
