@@ -1,0 +1,22 @@
+FROM alpine:3.20
+
+RUN apk add --no-cache \
+    gcc \
+    musl-dev \
+    linux-headers \
+    make \
+    bash \
+    coreutils \
+    less \
+    nano \
+    man-pages \
+    mandoc \
+    && adduser -D -s /bin/bash student
+
+COPY bashrc /home/student/.bashrc
+RUN chown student:student /home/student/.bashrc
+
+USER student
+WORKDIR /home/student
+
+CMD ["/bin/bash"]

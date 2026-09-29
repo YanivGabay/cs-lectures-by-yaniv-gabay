@@ -1,0 +1,34 @@
+{
+  "name": "cs-lectures-terminal",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-04-15",
+
+  "containers": [
+    {
+      "class_name": "TerminalContainer",
+      "image": "./Dockerfile",
+      "instance_type": "basic",
+      "max_instances": 10
+    }
+  ],
+
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "TERMINAL",
+        "class_name": "TerminalContainer"
+      }
+    ]
+  },
+
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": ["TerminalContainer"]
+    }
+  ],
+
+  "vars": {
+    "ALLOWED_ORIGINS": "https://cs-lectures.pages.dev"
+  }
+}

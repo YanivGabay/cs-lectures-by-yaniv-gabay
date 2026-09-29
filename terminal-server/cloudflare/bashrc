@@ -1,0 +1,17 @@
+export PS1='\[\033[1;32m\]student\[\033[0m\]:\[\033[1;34m\]\w\[\033[0m\]\$ '
+export TERM=xterm-256color
+alias ls='ls --color=auto'
+alias ll='ls -la'
+alias compile='gcc -Wall -Wextra -o prog'
+alias compilep='gcc -Wall -Wextra -lpthread -o prog'
+
+echo -e "\033[1;36m=== CS Lectures Terminal ===\033[0m"
+echo -e "Compile:  \033[33mgcc -o prog file.c\033[0m"
+echo -e "With threads: \033[33mgcc -o prog file.c -lpthread\033[0m"
+echo -e "Run:      \033[33m./prog\033[0m"
+echo ""
+if ls *.c >/dev/null 2>&1; then
+  echo -e "Files available:"
+  ls --color=auto *.c *.h 2>/dev/null
+  echo ""
+fi
