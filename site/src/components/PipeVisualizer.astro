@@ -1,0 +1,194 @@
+---
+---
+
+<div class="card p-6 mb-8">
+  <h3 class="text-lg font-semibold text-surface-900 dark:text-white mb-2">How Pipes Work</h3>
+  <p class="text-sm text-surface-600 dark:text-surface-400 mb-4">
+    <code class="font-mono text-xs bg-surface-100 dark:bg-surface-800 px-1 py-0.5 rounded">pipe(fd)</code> creates a one-way data channel.
+    After <code class="font-mono text-xs bg-surface-100 dark:bg-surface-800 px-1 py-0.5 rounded">fork()</code>, the parent writes to <code class="font-mono text-xs bg-surface-100 dark:bg-surface-800 px-1 py-0.5 rounded">fd[1]</code> and the child reads from <code class="font-mono text-xs bg-surface-100 dark:bg-surface-800 px-1 py-0.5 rounded">fd[0]</code>. Each side closes the end it doesn't use.
+  </p>
+
+  <div class="pipe-viz-container">
+    <svg viewBox="0 0 800 340" class="w-full max-w-3xl mx-auto" role="img" aria-label="Pipe communication lifecycle diagram">
+      <defs>
+        <marker id="pv-arrow" viewBox="0 0 10 7" refX="9" refY="3.5" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
+          <polygon points="0 0, 10 3.5, 0 7" class="pv-arrow-fill" />
+        </marker>
+        <linearGradient id="pv-pipe-grad" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" class="pv-pipe-stop-left" />
+          <stop offset="100%" class="pv-pipe-stop-right" />
+        </linearGradient>
+      </defs>
+
+      {/* ===== Stage 1: pipe() creates ===== */}
+      <g class="pv-node" style="--delay: 0s">
+        <rect x="275" y="8" width="250" height="36" rx="8" class="pv-rect-accent" />
+        <text x="400" y="22" text-anchor="middle" class="pv-text" font-size="10">Stage 1</text>
+        <text x="400" y="34" text-anchor="middle" class="pv-text" font-size="12">pipe(fd) — create channel</text>
+      </g>
+
+      {/* Pipe tube */}
+      <g class="pv-node" style="--delay: 0.3s">
+        <rect x="200" y="58" width="400" height="32" rx="16" fill="url(#pv-pipe-grad)" class="pv-pipe-body" />
+        <text x="400" y="79" text-anchor="middle" class="pv-text-sub" font-size="10">kernel pipe buffer</text>
+        {/* fd labels */}
+        <circle cx="210" cy="74" r="14" class="pv-fd-circle" />
+        <text x="210" y="78" text-anchor="middle" class="pv-text" font-size="9">fd[0]</text>
+        <text x="210" y="105" text-anchor="middle" class="pv-label" font-size="9">read end</text>
+        <circle cx="590" cy="74" r="14" class="pv-fd-circle" />
+        <text x="590" y="78" text-anchor="middle" class="pv-text" font-size="9">fd[1]</text>
+        <text x="590" y="105" text-anchor="middle" class="pv-label" font-size="9">write end</text>
+      </g>
+
+      {/* ===== Stage 2: fork() ===== */}
+      <g class="pv-node" style="--delay: 0.7s">
+        <rect x="325" y="118" width="150" height="28" rx="14" class="pv-rect-accent" />
+        <text x="400" y="137" text-anchor="middle" class="pv-text" font-size="11">fork()</text>
+      </g>
+
+      {/* Arrows from fork to parent/child */}
+      <line x1="350" y1="146" x2="180" y2="168" class="pv-edge" style="--delay: 0.9s" marker-end="url(#pv-arrow)" />
+      <line x1="450" y1="146" x2="620" y2="168" class="pv-edge" style="--delay: 0.9s" marker-end="url(#pv-arrow)" />
+
+      {/* Parent box */}
+      <g class="pv-node" style="--delay: 1.1s">
+        <rect x="80" y="168" width="200" height="42" rx="8" class="pv-rect-blue" />
+        <text x="180" y="186" text-anchor="middle" class="pv-text" font-size="11">Parent Process</text>
+        <text x="180" y="200" text-anchor="middle" class="pv-text-sub" font-size="9">has fd[0] and fd[1]</text>
+      </g>
+
+      {/* Child box */}
+      <g class="pv-node" style="--delay: 1.1s">
+        <rect x="520" y="168" width="200" height="42" rx="8" class="pv-rect-green" />
+        <text x="620" y="186" text-anchor="middle" class="pv-text" font-size="11">Child Process</text>
+        <text x="620" y="200" text-anchor="middle" class="pv-text-sub" font-size="9">has fd[0] and fd[1]</text>
+      </g>
+
+      {/* ===== Stage 3: Close unused ends ===== */}
+      <line x1="180" y1="210" x2="180" y2="234" class="pv-edge" style="--delay: 1.4s" marker-end="url(#pv-arrow)" />
+      <line x1="620" y1="210" x2="620" y2="234" class="pv-edge" style="--delay: 1.4s" marker-end="url(#pv-arrow)" />
+
+      {/* Parent: close fd[0], keep fd[1] */}
+      <g class="pv-node" style="--delay: 1.6s">
+        <rect x="80" y="234" width="200" height="36" rx="6" class="pv-rect-blue-light" />
+        <text x="180" y="249" text-anchor="middle" class="pv-text" font-size="9">close(fd[0]) — writer only</text>
+        <text x="180" y="262" text-anchor="middle" class="pv-text-sub" font-size="9">writes to fd[1] →</text>
+      </g>
+
+      {/* Child: close fd[1], keep fd[0] */}
+      <g class="pv-node" style="--delay: 1.6s">
+        <rect x="520" y="234" width="200" height="36" rx="6" class="pv-rect-green-light" />
+        <text x="620" y="249" text-anchor="middle" class="pv-text" font-size="9">close(fd[1]) — reader only</text>
+        <text x="620" y="262" text-anchor="middle" class="pv-text-sub" font-size="9">← reads from fd[0]</text>
+      </g>
+
+      {/* ===== Stage 4: Data flow ===== */}
+      {/* The pipe with data flowing */}
+      <g class="pv-node" style="--delay: 2.0s">
+        <rect x="200" y="285" width="400" height="28" rx="14" fill="url(#pv-pipe-grad)" class="pv-pipe-body" />
+
+        {/* Flow arrow inside pipe */}
+        <line x1="300" y1="299" x2="500" y2="299" class="pv-flow-arrow" marker-end="url(#pv-arrow)" />
+
+        {/* Data label */}
+        <text x="400" y="303" text-anchor="middle" class="pv-text" font-size="9">"Hello from parent!"</text>
+      </g>
+
+      {/* Connection lines from processes to pipe */}
+      <line x1="180" y1="270" x2="550" y2="285" class="pv-edge" style="--delay: 1.9s" marker-end="url(#pv-arrow)" />
+      <line x1="250" y1="299" x2="620" y2="270" class="pv-edge pv-edge-dashed" style="--delay: 2.1s" />
+
+      {/* Write label at parent side */}
+      <g class="pv-node" style="--delay: 2.2s">
+        <text x="300" y="330" text-anchor="middle" class="pv-label" font-size="9">write(fd[1], "Hello...", len)</text>
+      </g>
+
+      {/* Read label at child side */}
+      <g class="pv-node" style="--delay: 2.2s">
+        <text x="550" y="330" text-anchor="middle" class="pv-label" font-size="9">read(fd[0], buf, sizeof(buf))</text>
+      </g>
+
+      {/* Animated data packets */}
+      <g class="pv-node" style="--delay: 2.3s">
+        <rect class="pv-data-packet pv-packet-1" x="280" y="292" width="14" height="14" rx="3" />
+        <rect class="pv-data-packet pv-packet-2" x="280" y="292" width="14" height="14" rx="3" />
+        <rect class="pv-data-packet pv-packet-3" x="280" y="292" width="14" height="14" rx="3" />
+      </g>
+    </svg>
+  </div>
+</div>
+
+<style>
+  .pv-rect-blue { fill: #3b82f6; }
+  .pv-rect-green { fill: #22c55e; }
+  .pv-rect-accent { fill: #f59e0b; }
+  .pv-rect-blue-light { fill: #3b82f6; opacity: 0.7; }
+  .pv-rect-green-light { fill: #22c55e; opacity: 0.7; }
+  .pv-text { fill: white; font-family: system-ui, sans-serif; font-weight: 600; }
+  .pv-text-sub { fill: rgba(255,255,255,0.75); font-family: var(--font-mono, monospace); }
+  .pv-label { fill: #94a3b8; font-family: var(--font-mono, monospace); }
+  .pv-arrow-fill { fill: #94a3b8; }
+  .pv-edge { stroke: #94a3b8; stroke-width: 1.5; }
+  .pv-edge-dashed { stroke-dasharray: 4 3; }
+  .pv-flow-arrow { stroke: #fbbf24; stroke-width: 2; }
+
+  .pv-fd-circle { fill: #1e293b; stroke: #94a3b8; stroke-width: 1.5; }
+
+  .pv-pipe-body { opacity: 0.6; }
+  .pv-pipe-stop-left { stop-color: #22c55e; }
+  .pv-pipe-stop-right { stop-color: #3b82f6; }
+
+  .pv-data-packet { fill: #fbbf24; }
+  .pv-packet-1 { animation: pvFlowData 2s ease-in-out 2.5s infinite; }
+  .pv-packet-2 { animation: pvFlowData 2s ease-in-out 3.0s infinite; }
+  .pv-packet-3 { animation: pvFlowData 2s ease-in-out 3.5s infinite; }
+
+  :global(html.dark) .pv-edge { stroke: #64748b; }
+  :global(html.dark) .pv-arrow-fill { fill: #64748b; }
+  :global(html.dark) .pv-fd-circle { fill: #0f172a; stroke: #64748b; }
+  :global(html.dark) .pv-label { fill: #64748b; }
+
+  .pv-node, .pv-edge {
+    opacity: 0;
+  }
+
+  .pipe-viz-container.animate .pv-node,
+  .pipe-viz-container.animate .pv-edge {
+    animation: pvAppear 0.4s ease-out forwards;
+    animation-delay: var(--delay, 0s);
+  }
+
+  .pipe-viz-container.animate .pv-data-packet {
+    opacity: 1;
+  }
+
+  .pv-data-packet {
+    opacity: 0;
+  }
+
+  @keyframes pvAppear {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes pvFlowData {
+    0%   { transform: translateX(0);   opacity: 0; }
+    10%  { opacity: 1; }
+    80%  { opacity: 1; }
+    100% { transform: translateX(200px); opacity: 0; }
+  }
+</style>
+
+<script is:inline>
+  (function() {
+    var container = document.querySelector('.pipe-viz-container');
+    if (!container) return;
+    var observer = new IntersectionObserver(function(entries) {
+      if (entries[0].isIntersecting) {
+        container.classList.add('animate');
+        observer.disconnect();
+      }
+    }, { threshold: 0.2 });
+    observer.observe(container);
+  })();
+</script>

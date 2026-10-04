@@ -433,6 +433,7 @@ export const lessons: Lesson[] = [
     difficulty: 'intermediate',
     prerequisites: ['02', '04'],
     phase: 'IPC',
+    visualization: 'pipe',
     examples: [
       {
         file: '01-basics.c',
@@ -755,6 +756,7 @@ export const lessons: Lesson[] = [
     difficulty: 'advanced',
     prerequisites: ['02'],
     phase: 'Threads',
+    visualization: 'threads',
     examples: [
       {
         file: '01-pthread_create.c',

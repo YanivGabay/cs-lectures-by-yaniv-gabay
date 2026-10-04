@@ -1,0 +1,243 @@
+---
+---
+
+<div class="card p-6 mb-8">
+  <h3 class="text-lg font-semibold text-surface-900 dark:text-white mb-2">Threads & Race Conditions</h3>
+  <p class="text-sm text-surface-600 dark:text-surface-400 mb-4">
+    Multiple threads share the same memory. Without synchronization, concurrent access to shared data causes <strong class="text-red-500">race conditions</strong>. A <strong class="text-primary-500">mutex</strong> ensures only one thread accesses the data at a time.
+  </p>
+
+  <div class="thread-viz-container">
+    <svg viewBox="0 0 800 420" class="w-full max-w-4xl mx-auto" role="img" aria-label="Thread race condition and mutex visualization">
+      <defs>
+        <marker id="tv-arrow" viewBox="0 0 10 7" refX="9" refY="3.5" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
+          <polygon points="0 0, 10 3.5, 0 7" class="tv-arrow-fill" />
+        </marker>
+        <filter id="tv-glow-red">
+          <feGaussianBlur stdDeviation="3" result="blur" />
+          <feFlood flood-color="#ef4444" flood-opacity="0.5" result="color" />
+          <feComposite in="color" in2="blur" operator="in" result="shadow" />
+          <feMerge><feMergeNode in="shadow"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+        <filter id="tv-glow-green">
+          <feGaussianBlur stdDeviation="3" result="blur" />
+          <feFlood flood-color="#22c55e" flood-opacity="0.5" result="color" />
+          <feComposite in="color" in2="blur" operator="in" result="shadow" />
+          <feMerge><feMergeNode in="shadow"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+      </defs>
+
+      {/* ========== LEFT SIDE: Without Mutex ========== */}
+      <text x="200" y="22" text-anchor="middle" class="tv-heading" font-size="13">Without Mutex</text>
+
+      {/* Stage 1: Main thread */}
+      <g class="tv-node" style="--delay: 0s">
+        <rect x="135" y="32" width="130" height="36" rx="8" class="tv-rect-blue" />
+        <text x="200" y="48" text-anchor="middle" class="tv-text" font-size="11">main()</text>
+        <text x="200" y="60" text-anchor="middle" class="tv-text-sub" font-size="9">pthread_create × 3</text>
+      </g>
+
+      {/* Arrows: main → 3 threads */}
+      <line x1="160" y1="68" x2="80" y2="98" class="tv-edge" style="--delay: 0.3s" marker-end="url(#tv-arrow)" />
+      <line x1="200" y1="68" x2="200" y2="98" class="tv-edge" style="--delay: 0.35s" marker-end="url(#tv-arrow)" />
+      <line x1="240" y1="68" x2="320" y2="98" class="tv-edge" style="--delay: 0.4s" marker-end="url(#tv-arrow)" />
+
+      {/* Stage 2: Three worker threads */}
+      <g class="tv-node" style="--delay: 0.5s">
+        <rect x="25" y="100" width="110" height="32" rx="6" class="tv-rect-t0" />
+        <text x="80" y="120" text-anchor="middle" class="tv-text" font-size="10">Thread 0</text>
+      </g>
+      <g class="tv-node" style="--delay: 0.55s">
+        <rect x="145" y="100" width="110" height="32" rx="6" class="tv-rect-t1" />
+        <text x="200" y="120" text-anchor="middle" class="tv-text" font-size="10">Thread 1</text>
+      </g>
+      <g class="tv-node" style="--delay: 0.6s">
+        <rect x="265" y="100" width="110" height="32" rx="6" class="tv-rect-t2" />
+        <text x="320" y="120" text-anchor="middle" class="tv-text" font-size="10">Thread 2</text>
+      </g>
+
+      {/* Arrows: all threads → shared counter (simultaneous) */}
+      <line x1="80" y1="132" x2="160" y2="170" class="tv-edge" style="--delay: 0.8s" marker-end="url(#tv-arrow)" />
+      <line x1="200" y1="132" x2="200" y2="170" class="tv-edge" style="--delay: 0.8s" marker-end="url(#tv-arrow)" />
+      <line x1="320" y1="132" x2="240" y2="170" class="tv-edge" style="--delay: 0.8s" marker-end="url(#tv-arrow)" />
+
+      {/* Stage 3: Shared counter — race condition */}
+      <g class="tv-node tv-race" style="--delay: 1.0s">
+        <rect x="140" y="172" width="120" height="44" rx="8" class="tv-rect-danger" filter="url(#tv-glow-red)" />
+        <text x="200" y="190" text-anchor="middle" class="tv-text" font-size="11">count++</text>
+        <text x="200" y="206" text-anchor="middle" class="tv-text-sub" font-size="9">Expected: 3  Got: 1</text>
+      </g>
+
+      {/* All read 0 simultaneously */}
+      <g class="tv-node" style="--delay: 1.2s">
+        <text x="60" y="162" text-anchor="middle" class="tv-label-bad" font-size="9">read 0</text>
+        <text x="200" y="162" text-anchor="middle" class="tv-label-bad" font-size="9">read 0</text>
+        <text x="340" y="162" text-anchor="middle" class="tv-label-bad" font-size="9">read 0</text>
+      </g>
+
+      {/* RACE CONDITION label */}
+      <g class="tv-node" style="--delay: 1.4s">
+        <rect x="128" y="224" width="144" height="24" rx="4" class="tv-rect-warning" />
+        <text x="200" y="240" text-anchor="middle" class="tv-text-warn" font-size="10">⚠ RACE CONDITION</text>
+      </g>
+
+      {/* ========== RIGHT SIDE: With Mutex ========== */}
+      <text x="600" y="22" text-anchor="middle" class="tv-heading" font-size="13">With Mutex</text>
+
+      {/* Stage 1: Main thread */}
+      <g class="tv-node" style="--delay: 1.6s">
+        <rect x="535" y="32" width="130" height="36" rx="8" class="tv-rect-blue" />
+        <text x="600" y="48" text-anchor="middle" class="tv-text" font-size="11">main()</text>
+        <text x="600" y="60" text-anchor="middle" class="tv-text-sub" font-size="9">pthread_create × 3</text>
+      </g>
+
+      {/* Arrows: main → 3 threads */}
+      <line x1="560" y1="68" x2="480" y2="98" class="tv-edge" style="--delay: 1.8s" marker-end="url(#tv-arrow)" />
+      <line x1="600" y1="68" x2="600" y2="98" class="tv-edge" style="--delay: 1.85s" marker-end="url(#tv-arrow)" />
+      <line x1="640" y1="68" x2="720" y2="98" class="tv-edge" style="--delay: 1.9s" marker-end="url(#tv-arrow)" />
+
+      {/* Stage 2: Three worker threads */}
+      <g class="tv-node" style="--delay: 2.0s">
+        <rect x="425" y="100" width="110" height="32" rx="6" class="tv-rect-t0" />
+        <text x="480" y="120" text-anchor="middle" class="tv-text" font-size="10">Thread 0</text>
+      </g>
+      <g class="tv-node" style="--delay: 2.05s">
+        <rect x="545" y="100" width="110" height="32" rx="6" class="tv-rect-t1" />
+        <text x="600" y="120" text-anchor="middle" class="tv-text" font-size="10">Thread 1</text>
+      </g>
+      <g class="tv-node" style="--delay: 2.1s">
+        <rect x="665" y="100" width="110" height="32" rx="6" class="tv-rect-t2" />
+        <text x="720" y="120" text-anchor="middle" class="tv-text" font-size="10">Thread 2</text>
+      </g>
+
+      {/* Sequential access — thread 0 goes first */}
+      <line x1="480" y1="132" x2="560" y2="170" class="tv-edge" style="--delay: 2.3s" marker-end="url(#tv-arrow)" />
+      <g class="tv-node" style="--delay: 2.3s">
+        <text x="505" y="155" text-anchor="middle" class="tv-label-good" font-size="8">lock</text>
+      </g>
+
+      {/* Mutex + Counter — correct */}
+      <g class="tv-node" style="--delay: 2.4s">
+        <rect x="540" y="172" width="120" height="44" rx="8" class="tv-rect-safe" filter="url(#tv-glow-green)" />
+        <text x="600" y="190" text-anchor="middle" class="tv-text" font-size="11">count++</text>
+        <text x="600" y="206" text-anchor="middle" class="tv-text-sub" font-size="9">Expected: 3  Got: 3 ✓</text>
+      </g>
+
+      {/* Lock icon */}
+      <g class="tv-node" style="--delay: 2.5s">
+        <rect x="573" y="148" width="22" height="18" rx="3" fill="#059669" />
+        <rect x="578" y="140" width="12" height="12" rx="6" fill="none" stroke="#059669" stroke-width="2.5" />
+        <text x="584" y="162" text-anchor="middle" fill="white" font-size="8" font-weight="bold">🔒</text>
+      </g>
+
+      {/* Sequential arrows: Thread 0 → unlock → Thread 1 → unlock → Thread 2 */}
+      <g class="tv-node" style="--delay: 2.7s">
+        <text x="480" y="232" text-anchor="middle" class="tv-label-good" font-size="8">0→1</text>
+        <text x="600" y="232" text-anchor="middle" class="tv-label-good" font-size="8">1→2</text>
+        <text x="720" y="232" text-anchor="middle" class="tv-label-good" font-size="8">2→3</text>
+      </g>
+
+      {/* Thread 1 and 2 wait their turn */}
+      <g class="tv-node" style="--delay: 2.5s">
+        <text x="600" y="146" text-anchor="middle" class="tv-label-wait" font-size="8">waits...</text>
+        <text x="720" y="146" text-anchor="middle" class="tv-label-wait" font-size="8">waits...</text>
+      </g>
+
+      {/* SAFE label */}
+      <g class="tv-node" style="--delay: 2.9s">
+        <rect x="540" y="224" width="120" height="24" rx="4" class="tv-rect-success" />
+        <text x="600" y="240" text-anchor="middle" class="tv-text-safe" font-size="10">✓ THREAD SAFE</text>
+      </g>
+
+      {/* ========== BOTTOM: Summary ========== */}
+      <g class="tv-node" style="--delay: 3.2s">
+        <rect x="50" y="275" width="700" height="1" class="tv-divider" />
+      </g>
+
+      <g class="tv-node" style="--delay: 3.4s">
+        <text x="200" y="300" text-anchor="middle" class="tv-summary" font-size="11">Without protection:</text>
+        <text x="200" y="318" text-anchor="middle" class="tv-summary-detail" font-size="10">All threads read count=0 at the same time</text>
+        <text x="200" y="334" text-anchor="middle" class="tv-summary-detail" font-size="10">All write count=1 → 2 increments lost</text>
+      </g>
+
+      <g class="tv-node" style="--delay: 3.6s">
+        <text x="600" y="300" text-anchor="middle" class="tv-summary" font-size="11">With pthread_mutex_lock:</text>
+        <text x="600" y="318" text-anchor="middle" class="tv-summary-detail" font-size="10">Only one thread enters critical section</text>
+        <text x="600" y="334" text-anchor="middle" class="tv-summary-detail" font-size="10">count goes 0→1→2→3 correctly</text>
+      </g>
+    </svg>
+  </div>
+</div>
+
+<style>
+  .tv-rect-blue { fill: #3b82f6; }
+  .tv-rect-t0 { fill: #22c55e; }
+  .tv-rect-t1 { fill: #14b8a6; }
+  .tv-rect-t2 { fill: #06b6d4; }
+  .tv-rect-danger { fill: #dc2626; }
+  .tv-rect-safe { fill: #059669; }
+  .tv-rect-warning { fill: #dc2626; opacity: 0.15; }
+  .tv-rect-success { fill: #059669; opacity: 0.15; }
+  .tv-divider { fill: none; stroke: #cbd5e1; stroke-dasharray: 4 4; }
+
+  .tv-text { fill: white; font-family: system-ui, sans-serif; font-weight: 600; }
+  .tv-text-sub { fill: rgba(255,255,255,0.75); font-family: var(--font-mono, monospace); }
+  .tv-text-warn { fill: #ef4444; font-family: system-ui, sans-serif; font-weight: 700; }
+  .tv-text-safe { fill: #22c55e; font-family: system-ui, sans-serif; font-weight: 700; }
+  .tv-heading { fill: #64748b; font-family: system-ui, sans-serif; font-weight: 700; letter-spacing: 0.05em; }
+  .tv-label-bad { fill: #ef4444; font-family: var(--font-mono, monospace); font-weight: 600; }
+  .tv-label-good { fill: #22c55e; font-family: var(--font-mono, monospace); font-weight: 600; }
+  .tv-label-wait { fill: #94a3b8; font-family: var(--font-mono, monospace); font-style: italic; }
+  .tv-summary { fill: #334155; font-family: system-ui, sans-serif; font-weight: 600; }
+  .tv-summary-detail { fill: #64748b; font-family: var(--font-mono, monospace); }
+  .tv-arrow-fill { fill: #94a3b8; }
+  .tv-edge { stroke: #94a3b8; stroke-width: 1.5; }
+
+  :global(html.dark) .tv-edge { stroke: #64748b; }
+  :global(html.dark) .tv-arrow-fill { fill: #64748b; }
+  :global(html.dark) .tv-heading { fill: #94a3b8; }
+  :global(html.dark) .tv-summary { fill: #e2e8f0; }
+  :global(html.dark) .tv-summary-detail { fill: #94a3b8; }
+  :global(html.dark) .tv-divider { stroke: #334155; }
+  :global(html.dark) .tv-rect-warning { fill: #dc2626; opacity: 0.2; }
+  :global(html.dark) .tv-rect-success { fill: #059669; opacity: 0.2; }
+
+  .tv-node, .tv-edge {
+    opacity: 0;
+  }
+
+  .thread-viz-container.animate .tv-node,
+  .thread-viz-container.animate .tv-edge {
+    animation: tvAppear 0.4s ease-out forwards;
+    animation-delay: var(--delay, 0s);
+  }
+
+  .thread-viz-container.animate .tv-race rect {
+    animation: tvAppear 0.4s ease-out forwards, tvPulseRed 1.5s ease-in-out 1.5s 3;
+    animation-delay: var(--delay, 0s);
+  }
+
+  @keyframes tvAppear {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes tvPulseRed {
+    0%, 100% { filter: url(#tv-glow-red); }
+    50% { filter: url(#tv-glow-red) brightness(1.3); }
+  }
+</style>
+
+<script is:inline>
+  (function() {
+    var container = document.querySelector('.thread-viz-container');
+    if (!container) return;
+    var observer = new IntersectionObserver(function(entries) {
+      if (entries[0].isIntersecting) {
+        container.classList.add('animate');
+        observer.disconnect();
+      }
+    }, { threshold: 0.2 });
+    observer.observe(container);
+  })();
+</script>

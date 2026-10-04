@@ -5,6 +5,8 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import CodeBlock from '../../components/CodeBlock.astro';
 import DiffView from '../../components/DiffView.astro';
 import ForkVisualizer from '../../components/ForkVisualizer.astro';
+import PipeVisualizer from '../../components/PipeVisualizer.astro';
+import ThreadVisualizer from '../../components/ThreadVisualizer.astro';
 import { OS_COURSE, lessons } from '../../data/os-lessons';
 import type { Lesson } from '../../data/os-lessons';
 
@@ -184,10 +186,20 @@ const diffColors: Record<string, string> = {
 
       {/* Main content column */}
       <div class="min-w-0">
-        {/* Fork visualization (lesson 02) */}
+        {/* Visualizations */}
         {lesson.visualization === 'fork-tree' && (
           <div class="mb-10">
             <ForkVisualizer />
+          </div>
+        )}
+        {lesson.visualization === 'pipe' && (
+          <div class="mb-10">
+            <PipeVisualizer />
+          </div>
+        )}
+        {lesson.visualization === 'threads' && (
+          <div class="mb-10">
+            <ThreadVisualizer />
           </div>
         )}
 
