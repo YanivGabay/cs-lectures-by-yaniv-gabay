@@ -59,7 +59,7 @@ int main() {
             exit(EXIT_FAILURE);
         }
 
-        printf("Child received message of type 2: %s\n", buf.mtext);
+        printf("[Child] Received message (type %ld): \"%s\"\n", buf.mtype, buf.mtext);
         exit(EXIT_SUCCESS);
     } else {         // Parent Process: Sender
         // Send message of type 1
@@ -69,7 +69,7 @@ int main() {
             perror("msgsnd type 1");
             exit(EXIT_FAILURE);
         }
-        printf("Parent sent message of type 1: %s\n", buf.mtext);
+        printf("[Parent] Sent message (type %ld): \"%s\"\n", buf.mtype, buf.mtext);
 
         // Send message of type 2
         buf.mtype = 2;
@@ -78,7 +78,7 @@ int main() {
             perror("msgsnd type 2");
             exit(EXIT_FAILURE);
         }
-        printf("Parent sent message of type 2: %s\n", buf.mtext);
+        printf("[Parent] Sent message (type %ld): \"%s\"\n", buf.mtype, buf.mtext);
 
         // Wait for child to finish
         wait(NULL);

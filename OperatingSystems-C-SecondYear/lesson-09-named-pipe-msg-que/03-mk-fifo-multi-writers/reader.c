@@ -34,7 +34,7 @@ int main() {
         }
     }
 
-    printf("Reader: FIFO '%s' created/opened for reading.\n", FIFO_NAME);
+    printf("[Reader] FIFO '%s' created/opened for reading.\n", FIFO_NAME);
 
     // Open the FIFO for reading using fopen
     fp = fopen(FIFO_NAME, "r");
@@ -43,17 +43,17 @@ int main() {
         exit(EXIT_FAILURE);
     }
 
-    printf("Reader: FIFO opened. Waiting for messages...\n");
+    printf("[Reader] FIFO opened. Waiting for messages...\n");
 
     while (fgets(buffer, BUFFER_SIZE, fp) != NULL) {
         // Remove newline character
         buffer[strcspn(buffer, "\n")] = '\0';
 
-        printf("Reader: Received -> %s\n", buffer);
+        printf("[Reader] Received -> \"%s\"\n", buffer);
 
         // Optional: Exit condition if a specific message is received
         if (strcmp(buffer, "exit") == 0) {
-            printf("Reader: Exit signal received. Exiting.\n");
+            printf("[Reader] Exit signal received. Exiting.\n");
             break;
         }
     }

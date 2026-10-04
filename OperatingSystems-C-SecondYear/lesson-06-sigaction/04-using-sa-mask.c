@@ -53,7 +53,7 @@ int main() {
         perror("Error: sigaction for SIGUSR1 failed");
         exit(EXIT_FAILURE);
     }
-    printf("[Setup] SIGUSR1 handler registered (sa_mask includes SIGUSR2)\n");
+    printf("[Main] SIGUSR1 handler registered (sa_mask includes SIGUSR2)\n");
 
     // Setup handler for SIGUSR2
     sa_usr2.sa_handler = handle_sigusr2;
@@ -64,17 +64,17 @@ int main() {
         perror("Error: sigaction for SIGUSR2 failed");
         exit(EXIT_FAILURE);
     }
-    printf("[Setup] SIGUSR2 handler registered (sa_mask empty)\n\n");
+    printf("[Main] SIGUSR2 handler registered (sa_mask empty)\n\n");
 
-    printf("[Info]  Process PID: %d\n", getpid());
-    printf("[Test]  Step 1: kill -SIGUSR1 %d   (starts 5s handler)\n", getpid());
-    printf("[Test]  Step 2: kill -SIGUSR2 %d   (within 5s — will be blocked!)\n", getpid());
-    printf("[Test]  Watch: SIGUSR2 handler runs AFTER SIGUSR1 handler finishes.\n\n");
+    printf("[Main] Process PID: %d\n", getpid());
+    printf("[Main] Step 1: kill -SIGUSR1 %d   (starts 5s handler)\n", getpid());
+    printf("[Main] Step 2: kill -SIGUSR2 %d   (within 5s — will be blocked!)\n", getpid());
+    printf("[Main] Watch: SIGUSR2 handler runs AFTER SIGUSR1 handler finishes.\n\n");
 
     // Infinite loop to keep the program running
     int tick = 0;
     while (1) {
-        printf("  [Tick %d] Waiting for signals... (PID %d)\n", ++tick, getpid());
+        printf("[Main] Tick %d — Waiting for signals... (PID %d)\n", ++tick, getpid());
         sleep(2);
     }
 

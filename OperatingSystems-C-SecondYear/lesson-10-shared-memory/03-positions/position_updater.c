@@ -32,7 +32,7 @@ void handle_sigint(int sig) {
     if(shmdt(pos) == -1) {
         perror("shmdt failed");
     }
-    printf("\nPosition updater detached and exiting.\n");
+    printf("\n[Updater] Detached and exiting.\n");
     exit(0);
 }
 
@@ -58,7 +58,7 @@ int main() {
         exit(EXIT_FAILURE);
     }
 
-    printf("Position updater started. Updating position every second.\n");
+    printf("[Updater PID %d] Started. Updating position every second.\n", getpid());
 
     // Update position in a loop
     while(1) {
@@ -66,7 +66,7 @@ int main() {
         pos->x += 1.0;
         pos->y += 1.0;
 
-        printf("Updated Position: x = %.2f, y = %.2f\n", pos->x, pos->y);
+        printf("[Updater] Position: x = %.2f, y = %.2f\n", pos->x, pos->y);
 
         sleep(1);
     }

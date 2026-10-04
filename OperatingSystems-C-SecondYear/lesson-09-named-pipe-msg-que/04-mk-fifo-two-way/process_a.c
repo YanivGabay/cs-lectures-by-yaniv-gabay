@@ -43,7 +43,7 @@ int main() {
         }
     }
 
-    printf("Process A (%d): FIFOs '%s' and '%s' created/opened.\n", pid, FIFO_A_TO_B, FIFO_B_TO_A);
+    printf("[Process A PID %d] FIFOs '%s' and '%s' created/opened.\n", pid, FIFO_A_TO_B, FIFO_B_TO_A);
 
     // Open FIFO_A_TO_B for writing
     fp_write = fopen(FIFO_A_TO_B, "w");
@@ -60,10 +60,10 @@ int main() {
         exit(EXIT_FAILURE);
     }
 
-    printf("Process A (%d): Communication established. Type 'exit' to quit.\n", pid);
+    printf("[Process A PID %d] Communication established. Type 'exit' to quit.\n", pid);
 
     while (1) {
-        printf("Process A: You: ");
+        printf("[Process A] You: ");
         fflush(stdout);
 
         // Read input from the user
@@ -98,13 +98,13 @@ int main() {
         // Remove newline character
         buffer[strcspn(buffer, "\n")] = '\0';
 
-        printf("Process A: Received -> %s\n", buffer);
+        printf("[Process A] Received from B -> \"%s\"\n", buffer);
     }
 
     // Close the FIFOs
     fclose(fp_write);
     fclose(fp_read);
 
-    printf("Process A (%d): Exiting.\n", pid);
+    printf("[Process A PID %d] Exiting.\n", pid);
     return 0;
 }

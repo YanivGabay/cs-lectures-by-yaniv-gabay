@@ -42,10 +42,10 @@ int main() {
         exit(EXIT_FAILURE);
     }
 
-    printf("Sender: Enter messages to send. Type 'exit' to quit.\n");
+    printf("[Sender] Connected to queue (msgid: %d). Enter messages. Type 'exit' to quit.\n", msgid);
 
     while (1) {
-        printf("Sender: ");
+        printf("[Sender] > ");
         fflush(stdout);
         fgets(buf.mtext, sizeof(buf.mtext), stdin);
         buf.mtext[strcspn(buf.mtext, "\n")] = '\0'; // Remove newline
@@ -63,7 +63,7 @@ int main() {
         }
 
         if (buf.mtype == MSG_TYPE_EXIT) {
-            printf("Sender: Exit message sent. Exiting.\n");
+            printf("[Sender] Exit message sent (type %d). Exiting.\n", MSG_TYPE_EXIT);
             break;
         }
     }

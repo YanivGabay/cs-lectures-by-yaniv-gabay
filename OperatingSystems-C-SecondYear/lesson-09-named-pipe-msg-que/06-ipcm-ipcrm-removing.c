@@ -59,7 +59,9 @@ int main() {
         exit(EXIT_FAILURE);
     }
 
-    printf("Message Queue created with msgid: %d\n", msgid);
+    printf("[Main] Message Queue created with msgid: %d\n", msgid);
+    printf("[Main] NOTE: This program does NOT delete the queue!\n");
+    printf("[Main] Run 'ipcs -q' to see it, 'ipcrm -q %d' to remove it.\n", msgid);
 
     // Program ends without deleting the message queue
     return 0;

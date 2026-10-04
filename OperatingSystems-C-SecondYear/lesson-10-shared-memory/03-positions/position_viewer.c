@@ -25,7 +25,7 @@ void handle_sigint(int sig) {
     if(shmdt(pos) == -1) {
         perror("shmdt failed");
     }
-    printf("\nPosition viewer detached and exiting.\n");
+    printf("\n[Viewer] Detached and exiting.\n");
     exit(0);
 }
 
@@ -51,11 +51,11 @@ int main() {
         exit(EXIT_FAILURE);
     }
 
-    printf("Position viewer started. Reading position every second.\n");
+    printf("[Viewer PID %d] Started. Reading position every second.\n", getpid());
 
     // Read position in a loop
     while(1) {
-        printf("Current Position: x = %.2f, y = %.2f\n", pos->x, pos->y);
+        printf("[Viewer] Position: x = %.2f, y = %.2f\n", pos->x, pos->y);
         sleep(1);
     }
 

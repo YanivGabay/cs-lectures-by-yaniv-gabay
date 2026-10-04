@@ -20,17 +20,17 @@
 // kill -SIGUSR1 <pid>
 
 void handle_sigusr1(int signum, siginfo_t *info, void *context) {
-    printf("\n  ── Signal Received ──────────────────\n");
-    printf("  Signal:       %d (SIGUSR1)\n", signum);
-    printf("  Sender PID:   %d\n", info->si_pid);
-    printf("  Sender UID:   %d\n", info->si_uid);
-    printf("  Signal code:  %d\n", info->si_code);
-    printf("  Value (int):  %d\n", info->si_value.sival_int);
-    printf("  Errno:        %d\n", info->si_errno);
-    printf("  Address:      %p\n", info->si_addr);
-    printf("  User time:    %ld\n", info->si_utime);
-    printf("  System time:  %ld\n", info->si_stime);
-    printf("  ────────────────────────────────────\n\n");
+    printf("\n[Handler] ── Signal Received ──────────────────\n");
+    printf("[Handler] Signal:       %d (SIGUSR1)\n", signum);
+    printf("[Handler] Sender PID:   %d\n", info->si_pid);
+    printf("[Handler] Sender UID:   %d\n", info->si_uid);
+    printf("[Handler] Signal code:  %d\n", info->si_code);
+    printf("[Handler] Value (int):  %d\n", info->si_value.sival_int);
+    printf("[Handler] Errno:        %d\n", info->si_errno);
+    printf("[Handler] Address:      %p\n", info->si_addr);
+    printf("[Handler] User time:    %ld\n", info->si_utime);
+    printf("[Handler] System time:  %ld\n", info->si_stime);
+    printf("[Handler] ────────────────────────────────────\n\n");
 }
 
 int main() {
@@ -51,15 +51,15 @@ int main() {
         exit(EXIT_FAILURE);
     }
 
-    printf("[Setup] Using SA_SIGINFO flag — handler gets siginfo_t struct\n");
-    printf("[Setup] siginfo_t provides: sender PID, UID, signal code, etc.\n\n");
-    printf("[Info]  Process PID: %d\n", getpid());
-    printf("[Test]  Run: kill -SIGUSR1 %d\n\n", getpid());
+    printf("[Main] Using SA_SIGINFO flag — handler gets siginfo_t struct\n");
+    printf("[Main] siginfo_t provides: sender PID, UID, signal code, etc.\n\n");
+    printf("[Main] Process PID: %d\n", getpid());
+    printf("[Main] Run: kill -SIGUSR1 %d\n\n", getpid());
 
     // Infinite loop to keep the program running
     int tick = 0;
     while (1) {
-        printf("  [Tick %d] Waiting for SIGUSR1...\n", ++tick);
+        printf("[Main] Tick %d — Waiting for SIGUSR1...\n", ++tick);
         sleep(3);
     }
 

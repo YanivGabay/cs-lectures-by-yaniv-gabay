@@ -21,7 +21,7 @@ int *shared_array;
 
 void handle_sigint(int sig)
 {
-    printf("\nCaught signal %d, detaching and removing shared memory.\n", sig);
+    printf("\n[Creator] Caught signal %d, detaching and removing shared memory (shmid=%d).\n", sig, shmid);
     shmdt(shared_array);
     shmctl(shmid, IPC_RMID, NULL);
     exit(EXIT_SUCCESS);
@@ -59,8 +59,8 @@ int main()
         shared_array[i] = 0;
     }
 
-    printf("[Creator PID %d] Shared memory", getpid() for integer array created and initialized.\n");
-    printf("Press Ctrl+C to terminate the creator.\n");
+    printf("[Creator PID %d] Shared memory for integer array created and initialized (shmid=%d).\n", getpid(), shmid);
+    printf("[Creator] Press Ctrl+C to terminate and clean up.\n");
 
     // Keep the creator running to maintain the shared memory
     while (1)

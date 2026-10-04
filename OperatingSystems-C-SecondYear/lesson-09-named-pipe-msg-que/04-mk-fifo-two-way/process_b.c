@@ -41,7 +41,7 @@ int main() {
         }
     }
 
-    printf("Process B (%d): FIFOs '%s' and '%s' created/opened.\n", pid, FIFO_A_TO_B, FIFO_B_TO_A);
+    printf("[Process B PID %d] FIFOs '%s' and '%s' created/opened.\n", pid, FIFO_A_TO_B, FIFO_B_TO_A);
 
     // Open FIFO_A_TO_B for reading
     fp_read = fopen(FIFO_A_TO_B, "r");
@@ -58,7 +58,7 @@ int main() {
         exit(EXIT_FAILURE);
     }
 
-    printf("Process B (%d): Communication established.\n", pid);
+    printf("[Process B PID %d] Communication established.\n", pid);
 
     while (1) {
         // Read the message from FIFO_A_TO_B
@@ -70,11 +70,11 @@ int main() {
         // Remove newline character
         buffer[strcspn(buffer, "\n")] = '\0';
 
-        printf("Process B (%d): Received -> %s\n", pid, buffer);
+        printf("[Process B PID %d] Received from A -> \"%s\"\n", pid, buffer);
 
         // Exit condition
         if (strcmp(buffer, "exit") == 0) {
-            printf("Process B (%d): Exit signal received. Exiting.\n", pid);
+            printf("[Process B PID %d] Exit signal received. Exiting.\n", pid);
             break;
         }
 

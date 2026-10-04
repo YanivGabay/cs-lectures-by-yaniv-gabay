@@ -40,7 +40,7 @@ int main() {
         perror("Error: sigaction for SIGINT failed");
         exit(EXIT_FAILURE);
     }
-    printf("[Setup] Registered handle_sigint  for SIGINT  (signal 2)\n");
+    printf("[Main] Registered handle_sigint  for SIGINT  (signal 2)\n");
 
     // Setup handler for SIGTERM
     sa_term.sa_handler = handle_sigterm;
@@ -51,16 +51,16 @@ int main() {
         perror("Error: sigaction for SIGTERM failed");
         exit(EXIT_FAILURE);
     }
-    printf("[Setup] Registered handle_sigterm for SIGTERM (signal 15)\n\n");
+    printf("[Main] Registered handle_sigterm for SIGTERM (signal 15)\n\n");
 
-    printf("[Info]  Process PID: %d\n", getpid());
-    printf("[Info]  Ctrl+C sends SIGINT  — our handler catches it (won't exit)\n");
-    printf("[Info]  To exit: run 'kill %d' from another terminal (sends SIGTERM)\n\n", getpid());
+    printf("[Main]  Process PID: %d\n", getpid());
+    printf("[Main]  Ctrl+C sends SIGINT  — our handler catches it (won't exit)\n");
+    printf("[Main]  To exit: run 'kill %d' from another terminal (sends SIGTERM)\n\n", getpid());
 
     // Infinite loop to keep the program running
     int tick = 0;
     while (1) {
-        printf("  [Tick %d] Waiting for signals... (PID %d)\n", ++tick, getpid());
+        printf("[Main] Tick %d — Waiting for signals... (PID %d)\n", ++tick, getpid());
         sleep(3);
     }
 

@@ -41,7 +41,7 @@ int main() {
         exit(EXIT_FAILURE);
     }
 
-    printf("Receiver: Waiting for messages...\n");
+    printf("[Receiver] Connected to queue (msgid: %d). Waiting for messages...\n", msgid);
 
     while (1) {
         // Receive any message
@@ -52,11 +52,11 @@ int main() {
 
         // Check for exit message
         if (buf.mtype == MSG_TYPE_EXIT) {
-            printf("Receiver: Exit message received. Exiting.\n");
+            printf("[Receiver] Exit message received (type %ld). Cleaning up queue.\n", buf.mtype);
             break;
         }
 
-        printf("Receiver: Received message: %s\n", buf.mtext);
+        printf("[Receiver] Received (type %ld): \"%s\"\n", buf.mtype, buf.mtext);
     }
 
     // Cleanup: Remove the message queue

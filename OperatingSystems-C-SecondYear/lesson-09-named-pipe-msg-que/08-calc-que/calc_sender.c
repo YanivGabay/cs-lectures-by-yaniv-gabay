@@ -63,7 +63,7 @@ int main() {
         exit(EXIT_FAILURE);
     }
 
-    printf("Calculator Sender: Enter operations in the format <op> <num1> <num2>\n");
+    printf("[Calc Client] Enter operations in the format <op> <num1> <num2>\n");
     printf("Example: + 5 3\n");
     printf("Type 'e' to terminate the receiver.\n");
 
@@ -98,7 +98,7 @@ int main() {
                 exit(EXIT_FAILURE);
             }
 
-            printf("Calculator Sender: Exit message sent. Exiting.\n");
+            printf("[Calc Client] Exit message sent. Exiting.\n");
             break;
         }
 
@@ -127,7 +127,7 @@ int main() {
             exit(EXIT_FAILURE);
         }
 
-        printf("Calculator Sender: Calculation request sent.\n");
+        printf("[Calc Client] Calculation request sent.\n");
 
         // Wait for the calculation response
         if (msgrcv(msgid, &buf, sizeof(buf.data), MSG_TYPE_CALC_RESPONSE, 0) == -1) {
@@ -140,10 +140,10 @@ int main() {
 
         // Display the result or error
         if (res.status == '0') {
-            printf("Calculator Sender: Result = %.2lf\n", res.result);
+            printf("[Calc Client] Result = %.2lf\n", res.result);
         }
         else {
-            printf("Calculator Sender: Error in calculation.\n");
+            printf("[Calc Client] Error in calculation.\n");
         }
     }
 

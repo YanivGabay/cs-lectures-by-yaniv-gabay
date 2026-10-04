@@ -36,7 +36,7 @@ int main() {
         exit(EXIT_FAILURE);
     }
 
-    printf("Viewing Scoreboard:\n");
+    printf("[Viewer] Viewing Scoreboard:\n");
 
     while(1) {
         system("clear"); // Clear the terminal for better readability

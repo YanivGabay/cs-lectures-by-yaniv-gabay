@@ -59,7 +59,7 @@ int main() {
             perror("Child msgrcv type 1");
             exit(EXIT_FAILURE);
         }
-        printf("Child received from parent: %s\n", buf.mtext);
+        printf("[Child] Received from parent (type %ld): \"%s\"\n", buf.mtype, buf.mtext);
 
         // Send response to parent (type 2)
         buf.mtype = 2;
@@ -68,7 +68,7 @@ int main() {
             perror("Child msgsnd type 2");
             exit(EXIT_FAILURE);
         }
-        printf("Child sent to parent: %s\n", buf.mtext);
+        printf("[Child] Sent to parent (type %ld): \"%s\"\n", buf.mtype, buf.mtext);
 
         exit(EXIT_SUCCESS);
     } else {         // Parent Process
@@ -79,7 +79,7 @@ int main() {
             perror("Parent msgsnd type 1");
             exit(EXIT_FAILURE);
         }
-        printf("Parent sent to child: %s\n", buf.mtext);
+        printf("[Parent] Sent to child (type %ld): \"%s\"\n", buf.mtype, buf.mtext);
 
         // Receive response from child (type 2)
         memset(&buf, 0, sizeof(buf));
@@ -87,7 +87,7 @@ int main() {
             perror("Parent msgrcv type 2");
             exit(EXIT_FAILURE);
         }
-        printf("Parent received from child: %s\n", buf.mtext);
+        printf("[Parent] Received from child (type %ld): \"%s\"\n", buf.mtype, buf.mtext);
 
         // Wait for child to finish
         wait(NULL);

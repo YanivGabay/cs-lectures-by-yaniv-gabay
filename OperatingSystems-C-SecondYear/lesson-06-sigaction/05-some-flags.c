@@ -47,17 +47,17 @@ int main() {
         exit(EXIT_FAILURE);
     }
 
-    printf("[Setup] sa_flags = SA_RESTART | SA_RESETHAND\n");
-    printf("[Setup]   SA_RESTART  — interrupted sleep() auto-restarts\n");
-    printf("[Setup]   SA_RESETHAND — handler reverts to SIG_DFL after first catch\n\n");
-    printf("[Info]  Process PID: %d\n", getpid());
-    printf("[Test]  1st: kill -SIGUSR1 %d  → handler runs, then resets\n", getpid());
-    printf("[Test]  2nd: kill -SIGUSR1 %d  → default action (terminate!)\n\n", getpid());
+    printf("[Main] sa_flags = SA_RESTART | SA_RESETHAND\n");
+    printf("[Main]   SA_RESTART  — interrupted sleep() auto-restarts\n");
+    printf("[Main]   SA_RESETHAND — handler reverts to SIG_DFL after first catch\n\n");
+    printf("[Main] Process PID: %d\n", getpid());
+    printf("[Main] 1st: kill -SIGUSR1 %d  → handler runs, then resets\n", getpid());
+    printf("[Main] 2nd: kill -SIGUSR1 %d  → default action (terminate!)\n\n", getpid());
 
     // Infinite loop to keep the program running and handling signals
     int tick = 0;
     while (1) {
-        printf("  [Tick %d] Waiting for SIGUSR1... (PID %d)\n", ++tick, getpid());
+        printf("[Main] Tick %d — Waiting for SIGUSR1... (PID %d)\n", ++tick, getpid());
         sleep(4);
     }
 

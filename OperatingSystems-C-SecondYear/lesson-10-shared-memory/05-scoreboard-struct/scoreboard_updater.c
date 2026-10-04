@@ -26,7 +26,7 @@ void handle_sigint(int sig) {
     if(scoreboard != (Scoreboard *) -1) {
         shmdt(scoreboard);
     }
-    printf("\nPlayer detached and exiting.\n");
+    printf("\n[Updater] Detached and exiting.\n");
     exit(0);
 }
 
@@ -67,13 +67,13 @@ int main(int argc, char *argv[]) {
             scoreboard->players[i].score = 0;
             player_index = i;
             scoreboard->total_players++;
-            printf("Player '%s' registered with ID %d at index %d.\n", player_name, getpid(), i);
+            printf("[Updater] Player '%s' registered with ID %d at index %d.\n", player_name, getpid(), i);
             break;
         }
     }
 
     if(player_index == -1) {
-        printf("No available slots for new players.\n");
+        printf("[Updater] No available slots for new players.\n");
         shmdt(scoreboard);
         exit(EXIT_FAILURE);
     }
@@ -85,7 +85,7 @@ int main(int argc, char *argv[]) {
         // Increment score randomly
         int increment = rand() % 10;
         scoreboard->players[player_index].score += increment;
-        printf("Player '%s' (ID %d) scored %d points. Total: %d\n",
+        printf("[Updater] Player '%s' (ID %d) scored %d points. Total: %d\n",
                scoreboard->players[player_index].player_name,
                scoreboard->players[player_index].player_id,
                increment,

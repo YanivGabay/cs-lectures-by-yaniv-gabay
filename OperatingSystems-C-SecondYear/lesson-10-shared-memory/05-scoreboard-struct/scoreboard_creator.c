@@ -46,7 +46,7 @@ int main() {
         scoreboard->players[i].score = 0;
     }
 
-    printf("Scoreboard initialized in shared memory.\n");
+    printf("[Creator] Scoreboard initialized in shared memory.\n");
 
     // Detach from shared memory
     if (shmdt(scoreboard) == -1) {

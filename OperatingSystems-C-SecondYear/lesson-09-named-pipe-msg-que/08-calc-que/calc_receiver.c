@@ -64,7 +64,7 @@ int main() {
         exit(EXIT_FAILURE);
     }
 
-    printf("Calculator Receiver: Waiting for calculation requests...\n");
+    printf("[Calc Server] Waiting for calculation requests...\n");
 
     while (1) {
         // Receive any message type (mtype = 0)
@@ -75,7 +75,7 @@ int main() {
 
         // Handle different message types
         if (buf.mtype == MSG_TYPE_EXIT) {
-            printf("Calculator Receiver: Exit message received. Exiting.\n");
+            printf("[Calc Server] Exit message received. Exiting.\n");
             break;
         }
         else if (buf.mtype == MSG_TYPE_CALC_REQUEST) {
@@ -84,7 +84,7 @@ int main() {
             struct calc_response res;
             res.status = '0'; // Assume success
 
-            printf("Calculator Receiver: Received operation '%c' with operands %.2lf and %.2lf\n",
+            printf("[Calc Server] Received operation '%c' with operands %.2lf and %.2lf\n",
                    req.operation, req.operand1, req.operand2);
 
             // Perform calculation
@@ -122,10 +122,10 @@ int main() {
                 exit(EXIT_FAILURE);
             }
 
-            printf("Calculator Receiver: Sent calculation result.\n");
+            printf("[Calc Server] Sent calculation result.\n");
         }
         else {
-            printf("Calculator Receiver: Unknown message type received: %ld\n", buf.mtype);
+            printf("[Calc Server] Unknown message type received: %ld\n", buf.mtype);
         }
     }
 

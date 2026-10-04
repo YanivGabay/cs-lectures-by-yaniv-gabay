@@ -35,7 +35,7 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    printf("Writer %d: FIFO '%s' created/opened for writing.\n", pid, FIFO_NAME);
+    printf("[Writer PID %d] FIFO '%s' created/opened for writing.\n", pid, FIFO_NAME);
 
     // Open the FIFO for writing using fopen
     fp = fopen(FIFO_NAME, "w");
@@ -44,10 +44,10 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    printf("Writer %d: FIFO opened. Enter messages to send. Type 'exit' to quit.\n", pid);
+    printf("[Writer PID %d] FIFO opened. Enter messages to send. Type 'exit' to quit.\n", pid);
 
     while (1) {
-        printf("Writer %d: ", pid);
+        printf("[Writer PID %d] > ", pid);
         fflush(stdout);
 
         // Read input from the user
@@ -63,7 +63,7 @@ int main(int argc, char *argv[]) {
         if (strcmp(buffer, "exit") == 0) {
             // Optionally, send a special message or just exit
             //send to the reader that we are exiting
-            fprintf(fp, "Writer %d: Exiting.\n", pid);
+            fprintf(fp, "[Writer PID %d] Exiting.\n", pid);
             break;
         }
 
@@ -79,7 +79,7 @@ int main(int argc, char *argv[]) {
 
     // Close the FIFO
     fclose(fp);
-    printf("Writer %d: Exiting.\n", pid);
+    printf("[Writer PID %d] Exiting.\n", pid);
 
     return 0;
 }

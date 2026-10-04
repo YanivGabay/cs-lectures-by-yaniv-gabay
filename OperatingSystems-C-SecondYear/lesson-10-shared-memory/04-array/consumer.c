@@ -24,7 +24,7 @@ void handle_sigint(int sig) {
     if(shmdt(shared_array) == -1) {
         perror("shmdt failed");
     }
-    printf("\nArray consumer detached and exiting.\n");
+    printf("\n[Consumer] Detached and exiting.\n");
     exit(0);
 }
 
@@ -50,11 +50,11 @@ int main() {
         exit(EXIT_FAILURE);
     }
 
-    printf("Array consumer started. Reading array every second.\n");
+    printf("[Consumer PID %d] Started. Reading array every second.\n", getpid());
 
     // Read array in a loop
     while(1) {
-        printf("Current Array State:\n");
+        printf("[Consumer] Current Array State:\n");
         for(int i = 0; i < ARRAY_SIZE; i++) {
             printf("shared_array[%d] = %d\n", i, shared_array[i]);
         }

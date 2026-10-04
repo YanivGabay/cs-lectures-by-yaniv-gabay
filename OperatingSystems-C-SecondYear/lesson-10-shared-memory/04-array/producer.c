@@ -25,7 +25,7 @@ void handle_sigint(int sig) {
     if(shmdt(shared_array) == -1) {
         perror("shmdt failed");
     }
-    printf("\nArray producer detached and exiting.\n");
+    printf("\n[Producer] Detached and exiting.\n");
     exit(0);
 }
 
@@ -51,12 +51,12 @@ int main() {
         exit(EXIT_FAILURE);
     }
 
-    printf("Array producer started. Populating array every second.\n");
+    printf("[Producer PID %d] Started. Populating array every second.\n", getpid());
 
     // Populate array in a loop
     while(1) {
         shared_array[current_index] = current_index + 1;
-        printf("Producer: Set shared_array[%d] = %d\n", current_index, shared_array[current_index]);
+        printf("[Producer] Set shared_array[%d] = %d\n", current_index, shared_array[current_index]);
 
         current_index = (current_index + 1) % ARRAY_SIZE;
 

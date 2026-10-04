@@ -14,7 +14,7 @@
 int global_flag = 1;
 
 void handle_sigalrm(int signum) {
-    printf("\n[ALARM] Time's up! Caught SIGALRM (signal %d).\n", signum);
+    printf("\n[Handler] Time's up! Caught SIGALRM (signal %d).\n", signum);
     global_flag = 0;
 }
 
@@ -36,8 +36,8 @@ int main() {
         exit(EXIT_FAILURE);
     }
 
-    printf("[Setup] SIGALRM handler registered.\n");
-    printf("[Setup] alarm(%d) gives you %d seconds per round.\n\n", seconds, seconds);
+    printf("[Main] SIGALRM handler registered.\n");
+    printf("[Main] alarm(%d) gives you %d seconds per round.\n\n", seconds, seconds);
 
     int best = 0;
     for (int i = 0; i < 10; i++) {
@@ -55,7 +55,7 @@ int main() {
             }
             counter++;
         }
-        printf("[Round %d] You entered %d numbers before timeout.\n\n", i + 1, counter);
+        printf("[Main] Round %d: you entered %d numbers before timeout.\n\n", i + 1, counter);
         if(counter > best)
         {
             best = counter;

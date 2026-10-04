@@ -35,16 +35,16 @@ int main() {
         exit(EXIT_FAILURE);
     }
 
-    printf("[Setup] sigaction() registered handler for SIGINT\n");
-    printf("[Setup] sa_handler = sigint_handler, sa_flags = 0\n");
-    printf("[Setup] sa_mask = empty (no signals blocked during handler)\n");
-    printf("[Info]  Process PID: %d\n\n", getpid());
+    printf("[Main] sigaction() registered handler for SIGINT\n");
+    printf("[Main] sa_handler = sigint_handler, sa_flags = 0\n");
+    printf("[Main] sa_mask = empty (no signals blocked during handler)\n");
+    printf("[Main] Process PID: %d\n\n", getpid());
     printf("Press Ctrl+C to trigger SIGINT...\n\n");
 
     // Infinite loop to keep the program running
     int tick = 0;
     while (1) {
-        printf("  [Tick %d] Running... (Ctrl+C to exit)\n", ++tick);
+        printf("[Main] Tick %d — Running... (Ctrl+C to exit)\n", ++tick);
         sleep(2);
     }
 
