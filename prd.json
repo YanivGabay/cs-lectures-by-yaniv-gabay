@@ -14,7 +14,7 @@
       "title": "Finish validation harness and record the honest baseline",
       "description": "Add validate/local-container.sh that builds terminal-server/cloudflare into an image and runs it with --pids-limit 512 --memory 1g --cpus 1 -p 8099:8080 (and a stop command). Fix any harness bugs. Run site.mjs against the live site and security.mjs (DESTRUCTIVE=1 SKIP_NETWORK=1) against the capped local container. Acceptance: both suites run to completion without crashing the host; PASS/FAIL list recorded in progress.txt as the baseline. Validate: bash validate/local-container.sh && (cd validate && node security.mjs; node site.mjs).",
       "priority": 1,
-      "passes": false
+      "passes": true
     },
     {
       "id": "T02",
@@ -65,6 +65,14 @@
       "passes": false
     },
     {
+      "id": "T07b",
+      "phase": "1 — Sandbox",
+      "title": "Billing alert at $10 (manual, Yaniv)",
+      "description": "Manual step — the wrangler OAuth token has no notifications permission. In the Cloudflare dashboard for account Yaniv242@gmail.com's Account: Notifications → Add → 'Usage Based Billing', product Workers/Containers, threshold $10, deliver to yaniv242@gmail.com. Expected normal spend is ~$6.20/month in semester; abuse ceiling ~$60/month. Acceptance: Yaniv confirms the notification exists (record date in progress.txt).",
+      "priority": 7.5,
+      "passes": false
+    },
+    {
       "id": "T08",
       "phase": "2 — Streaming",
       "title": "Shell integration: /etc/cs-bashrc emits prompt and exit-status events",
@@ -92,7 +100,7 @@
       "id": "T11",
       "phase": "3 — UI fixes",
       "title": "Dark mode that works, and readable contrast everywhere",
-      "description": "global.css: @custom-variant dark (&:where(.dark, .dark *)) so dark: utilities follow the toggle (Tailwind v4 defaults to prefers-color-scheme); define --color-primary-950; fix the Next Lesson card (white text on near-white in dark) and every other V03 failure. Acceptance: V02 (toggle flips the visible background under both OS preferences and persists) and V03 (no text under 3:1 on /, /os/, a lesson, /status in both themes) pass against production.",
+      "description": "global.css: @custom-variant dark (&:where(.dark, .dark *)) so dark: utilities follow the toggle (Tailwind v4 defaults to prefers-color-scheme); define --color-primary-950; fix the Next Lesson card (white text on near-white in dark) and every other V03 failure. Acceptance: V02 (toggle flips the visible background under both OS preferences and persists) and V03 (no text under 3:1 on /, /os/, a lesson, /status in both themes) pass against production. Also fix V09: /os/08-pipes/ overflows to 435px on a 390px phone.",
       "priority": 11,
       "passes": false
     },

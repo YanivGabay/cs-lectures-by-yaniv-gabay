@@ -153,13 +153,16 @@ if (DESTRUCTIVE) {
     const c = await openSession();
     c.send(':(){ :|:& };:\r');
     await sleep(8000);
-    const r = await a.run('echo SURVIVED', 15000).catch((e) => e.message);
+    // /bin/echo needs fork+exec — a builtin echo would "survive" even with the process table full
+    const r = await a.run('/bin/echo SURV$((1+1))IVED', 15000).catch((e) => e.message);
     c.close();
-    await sleep(2000);
+    await sleep(4000);
     const ok = await healthy();
+    const left = await a.run("ps -e -o pid= | wc -l", 10000).catch((e) => e.message);
     a.close();
-    assert(r.includes('SURVIVED'), `other session unusable during fork bomb: ${r}`);
+    assert(r.includes('SURV2IVED'), `other session could not start a program during the fork bomb: ${r.slice(0, 120)}`);
     assert(ok, 'server /health is down after fork bomb');
+    assert(Number(left) < 100, `fork bomb processes still alive after the attacker left (${left.trim()} processes)`);
   });
 }
 
@@ -188,3 +191,4 @@ if (BEHIND_WORKER) {
 }
 
 finish();
+process.exit(process.exitCode); // leftover sockets from killed sessions would keep Node alive

@@ -24,3 +24,19 @@ Security, local copy of the production container (uncapped run; aborted by the f
 Site against production: not yet run (T01).
 
 Known from manual checks: dark-mode toggle has no visible effect; Next Lesson card is white-on-white in dark; full terminal shows a bare root prompt with no welcome/files.
+
+## 2026-10-06 — T01 done: full baseline (validate/local-container.sh caps: 512 pids, 1 GiB, 1 CPU)
+
+Security, capped local copy of the current container (DESTRUCTIVE=1 SKIP_NETWORK=1): 3/10
+- FAIL S01 root shell · FAIL S02 no limits · FAIL S03 cross-student file access · FAIL S04 /app writable
+- FAIL S05 background processes survive · PASS S06 traversal (basename; same-name collision) · FAIL S07 300 files/3MB accepted
+- PASS S08 signal message · PASS S09 kill -9 -1 (node is PID 1)
+- FAIL S10 fork bomb: other sessions cannot start programs; 508/512 processes left after attacker disconnects
+  (an earlier version of S10 "passed" because it only ran a bash builtin — fixed to use /bin/echo)
+
+Site, production https://cs-lectures.pages.dev: 3/9
+- PASS V01 19 pages, no JS errors · PASS V04 Run example · PASS V08 Show all + fullscreen
+- FAIL V02 toggle flips .dark class but background never changes (Tailwind v4 dark: = prefers-color-scheme)
+- FAIL V03 contrast < 3:1: "/" search hint (2.2-2.3), example number badges (2.45), status "Operational" (2.93), "Last checked" (2.56)
+- FAIL V05 bare prompt, no welcome · FAIL V06 compile fails (same-named files collide via basename) · FAIL V07 Ctrl+C button
+- FAIL V09 /os/08-pipes/ is 435px wide on a 390px phone
