@@ -2,6 +2,9 @@
 //   Local container:  TERMINAL_URL=ws://localhost:8099 DESTRUCTIVE=1 SKIP_NETWORK=1 node security.mjs
 //   Production:       TERMINAL_URL=wss://cs-lectures-terminal.yaniv242.workers.dev node security.mjs
 import WebSocket from 'ws';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import { check, assert, finish, stripAnsi, sleep, waitFor } from './lib.mjs';
 
 const WS_URL = process.env.TERMINAL_URL || 'ws://localhost:8099';
@@ -12,8 +15,13 @@ const ORIGIN = process.env.ORIGIN || 'https://cs-lectures.pages.dev';
 
 let seq = 0;
 
-function connect(origin = ORIGIN) {
-  const ws = new WebSocket(WS_URL, { headers: { Origin: origin } });
+function presenterKey() {
+  if (process.env.PRESENTER_KEY) return process.env.PRESENTER_KEY;
+  try { return fs.readFileSync(path.join(os.homedir(), '.cs-lectures-presenter-key'), 'utf8').trim(); } catch { return ''; }
+}
+
+function connect(origin = ORIGIN, query = '') {
+  const ws = new WebSocket(WS_URL + query, { headers: { Origin: origin } });
   return new Promise((resolve, reject) => {
     ws.once('open', () => resolve(ws));
     ws.once('unexpected-response', (_req, res) => reject(new Error(`HTTP ${res.statusCode}`)));
@@ -21,14 +29,15 @@ function connect(origin = ORIGIN) {
   });
 }
 
-async function openSession(files = [{ name: 'hello.c', content: 'int main(){return 0;}\n' }], mode = 'lesson') {
-  const ws = await connect();
-  const s = { ws, out: '', error: '', closed: false };
+async function openSession(files = [{ name: 'hello.c', content: 'int main(){return 0;}\n' }], mode = 'lesson', query = '') {
+  const ws = await connect(ORIGIN, query);
+  const s = { ws, out: '', error: '', closed: false, container: null };
   ws.on('message', (d) => {
     try {
       const m = JSON.parse(d);
       if (m.type === 'output') s.out += m.data;
       if (m.type === 'error') s.error += m.data;
+      if (m.type === 'ready') s.container = m.container;
     } catch {}
   });
   ws.on('close', () => { s.closed = true; });
@@ -199,6 +208,26 @@ if (!process.env.SKIP_NETWORK) {
 }
 
 if (BEHIND_WORKER) {
+  await check('S16', '11 students at once all get a working shell', async () => {
+    const opened = await Promise.allSettled(Array.from({ length: 11 }, () => openSession()));
+    const ok = opened.filter((r) => r.status === 'fulfilled').map((r) => r.value);
+    const failed = opened.filter((r) => r.status === 'rejected').map((r) => r.reason.message);
+    const spread = ok.reduce((m, s) => ({ ...m, [s.container]: (m[s.container] || 0) + 1 }), {});
+    ok.forEach((s) => s.close());
+    assert(!failed.length, `${failed.length}/11 failed: ${failed[0]}`);
+    return JSON.stringify(spread);
+  });
+
+  await check('S17', 'the presenter key reaches the reserved container; students never do', async () => {
+    const key = presenterKey();
+    assert(key, 'no presenter key (set PRESENTER_KEY or ~/.cs-lectures-presenter-key)');
+    const p = await openSession(undefined, 'lesson', `?presenter=${encodeURIComponent(key)}`);
+    const s = await openSession(undefined, 'lesson', '?presenter=wrong-key');
+    p.close(); s.close();
+    assert(p.container === 'presenter', `presenter session landed on ${p.container}`);
+    assert(String(s.container).startsWith('pool-'), `wrong key landed on ${s.container}`);
+  });
+
   await check('S12', 'connections from other websites are refused', async () => {
     const err = await connect('https://evil.example.com').then((ws) => { ws.close(); return null; }, (e) => e.message);
     assert(err && /HTTP 403/.test(err), `foreign origin was accepted (${err || 'opened'})`);
@@ -206,10 +235,11 @@ if (BEHIND_WORKER) {
 
   await check('S13', 'connection flooding is rate limited', async () => {
     let limited = 0;
-    for (let i = 0; i < 40 && !limited; i++) {
+    // limit is 100/min per IP (a classroom shares one IP) — 200 attempts must trip it
+    for (let i = 0; i < 200 && !limited; i++) {
       await connect().then((ws) => ws.close(), (e) => { if (/HTTP 429/.test(e.message)) limited++; });
     }
-    assert(limited, '40 rapid connections were all accepted');
+    assert(limited, '200 rapid connections were all accepted');
   });
 }
 

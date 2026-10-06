@@ -1,6 +1,9 @@
 @import "tailwindcss";
 @import "@xterm/xterm/css/xterm.css";
 
+/* dark: utilities follow the site's toggle (html.dark), not the OS setting */
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --color-primary-50: #ecfdf5;
   --color-primary-100: #d1fae5;
@@ -12,6 +15,7 @@
   --color-primary-700: #047857;
   --color-primary-800: #065f46;
   --color-primary-900: #064e3b;
+  --color-primary-950: #022c22;
 
   --color-accent-400: #22d3ee;
   --color-accent-500: #06b6d4;

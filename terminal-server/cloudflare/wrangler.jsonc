@@ -5,30 +5,35 @@
 
   "containers": [
     {
+      // Student pool: pool-0, pool-1, pool-2 (6 sessions each)
       "class_name": "TerminalContainer",
       "image": "./Dockerfile",
       "instance_type": "basic",
-      "max_instances": 10
+      "max_instances": 3
+    },
+    {
+      // Reserved for the lecturer (reached only with PRESENTER_KEY)
+      "class_name": "PresenterContainer",
+      "image": "./Dockerfile",
+      "instance_type": "standard-1",
+      "max_instances": 1
     }
   ],
 
   "durable_objects": {
     "bindings": [
-      {
-        "name": "TERMINAL",
-        "class_name": "TerminalContainer"
-      }
+      { "name": "TERMINAL", "class_name": "TerminalContainer" },
+      { "name": "PRESENTER", "class_name": "PresenterContainer" }
     ]
   },
 
   "migrations": [
-    {
-      "tag": "v1",
-      "new_sqlite_classes": ["TerminalContainer"]
-    }
+    { "tag": "v1", "new_sqlite_classes": ["TerminalContainer"] },
+    { "tag": "v2", "new_sqlite_classes": ["PresenterContainer"] }
   ],
 
-  "vars": {
-    "ALLOWED_ORIGINS": "https://cs-lectures.pages.dev"
-  }
+  // Per client IP; generous because a classroom shares one public IP
+  "ratelimits": [
+    { "name": "CONNECT_LIMITER", "namespace_id": "1001", "simple": { "limit": 100, "period": 60 } }
+  ]
 }

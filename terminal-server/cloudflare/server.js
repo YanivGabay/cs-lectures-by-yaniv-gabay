@@ -188,7 +188,7 @@ wss.on('connection', (ws) => {
         send({ type: 'exit', code: exitCode });
         cleanup('shell exited');
       });
-      send({ type: 'ready', sessionId: sid });
+      send({ type: 'ready', sessionId: sid, container: CONTAINER_NAME });
 
     } else if (msg.type === 'input') {
       if (ptyProcess && typeof msg.data === 'string' && msg.data.length <= MAX_INPUT_CHARS) ptyProcess.write(msg.data);
