@@ -40,3 +40,15 @@ Site, production https://cs-lectures.pages.dev: 3/9
 - FAIL V03 contrast < 3:1: "/" search hint (2.2-2.3), example number badges (2.45), status "Operational" (2.93), "Last checked" (2.56)
 - FAIL V05 bare prompt, no welcome · FAIL V06 compile fails (same-named files collide via basename) · FAIL V07 Ctrl+C button
 - FAIL V09 /os/08-pipes/ is 435px wide on a 390px phone
+
+## 2026-10-06 — T02–T05 done (local hardened container)
+
+security.mjs (capped local, DESTRUCTIVE=1 SKIP_NETWORK=1): 12/12 PASS
+  S01 uid=1001 · S02 limits "64 120 524288 20480 128" · S03 · S04 · S05 · S06 · S07 · S08 · S14 · S15 · S09 · S10
+  After the suite: 6 processes, 0 work dirs, 0 cs* users, 0 IPC objects left.
+site.mjs against local preview + local container: V04, V05, V06, V07 PASS (V04 failed once on the very first run — watch for a cold-start flake).
+
+Learnings:
+- node-pty's forkpty already makes the child a session leader; setsid() would fail with EPERM, so the launcher only calls it when needed.
+- Container root lacks CAP_IPC_OWNER: IPC objects must be removed by running ipcrm AS the owning uid (execFileSync with {uid, gid}).
+- Course bug found: lesson-10 04-array/producer.c (and siblings) pass a const char* SHM_KEY to shmget(); gcc 15 rejects it. To fix in T12/T13 with Yaniv's review.

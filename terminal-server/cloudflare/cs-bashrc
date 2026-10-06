@@ -1,0 +1,16 @@
+# /etc/cs-bashrc — loaded by every sandbox shell (bash --rcfile /etc/cs-bashrc -i)
+
+PS1='\[\e[1;32m\]student\[\e[0m\]:\[\e[1;34m\]\w\[\e[0m\]\$ '
+alias ls='ls --color=auto'
+alias ll='ls -la'
+
+# Shell integration: before every prompt, tell the web page how the last command ended.
+# OSC 777 is invisible in the terminal; the site turns it into "Exited 0" / "Killed by SIGSEGV".
+PROMPT_COMMAND='__cs_status=$?; printf "\033]777;cs;prompt;%d\007" "$__cs_status"'
+
+if [ "$CS_MODE" = lesson ]; then
+  printf '\033[1;36mCS Lectures sandbox\033[0m — your own Linux user; files vanish when you close this terminal.\n\n'
+  printf 'Files:\n'
+  find . -type f \( -name '*.c' -o -name '*.h' \) | sed 's|^\./|  |' | sort
+  printf '\nCompile: \033[33mgcc -o prog file.c\033[0m   threads: add \033[33m-lpthread\033[0m   run: \033[33m./prog\033[0m   stop: \033[33mCtrl+C\033[0m\n\n'
+fi

@@ -22,7 +22,7 @@
       "title": "Container base: tini as PID 1, procps, locked-down filesystem",
       "description": "Dockerfile: install tini and procps; ENTRYPOINT tini so orphaned/zombie processes are reaped (Lesson 02 'orphan adoption by init'); /app owned by root and not writable by others; create group 'students' and /work (0711). Add security probe S14 'orphans are reaped' (spawn a double-forked child that exits; no <defunct> left after 2s). Acceptance: S04 and S14 pass locally.",
       "priority": 2,
-      "passes": false
+      "passes": true
     },
     {
       "id": "T03",
@@ -30,7 +30,7 @@
       "title": "sandbox-launch.c — the C program that contains each student",
       "description": "terminal-server/cloudflare/sandbox/sandbox-launch.c, compiled in the Dockerfile. Args: uid gid workdir mode. Steps, each commented in course style: setrlimit NPROC=64, CPU=120s, AS=512MB, FSIZE=20MB, NOFILE=128, CORE=0; setsid(); chdir(workdir); setgroups(0,NULL); setgid; setuid; verify setuid(0) now fails; execve /bin/bash --rcfile /etc/cs-bashrc -i with a clean env (PATH, HOME=workdir, TERM, LANG, CS_MODE=mode). Print a clear error and exit non-zero on any failure. Acceptance: S01 (uid != 0) and S02 (limits set) pass locally; gcc -Wall -Wextra has no warnings.",
       "priority": 3,
-      "passes": false
+      "passes": true
     },
     {
       "id": "T04",
@@ -38,7 +38,7 @@
       "title": "One Unix user per session, with full cleanup on disconnect",
       "description": "server.js: on start create user cs<sid> (adduser -D -H -G students), /work/<sid> owned by it with 0700; spawn node-pty on sandbox-launch. On close/timeout: pkill -KILL -u, remove that uid's System V message queues, shared memory and semaphores (ipcs/ipcrm), rm -rf the directory, deluser. Add probe S15 'IPC objects removed after disconnect' (create msgget + shmget in a session, disconnect, check ipcs from a new session). Acceptance: S03, S05, S09, S10 (DESTRUCTIVE, capped container) and S15 pass locally.",
       "priority": 4,
-      "passes": false
+      "passes": true
     },
     {
       "id": "T05",
@@ -46,7 +46,7 @@
       "title": "Protocol hardening and a Ctrl+C that actually works",
       "description": "server.js: ws maxPayload 2MB; start accepts at most 60 files and 1MB total, else sends an error and closes; file names keep safe relative folders ([A-Za-z0-9._-] segments, no '..', no absolute paths) so same-named files in different folders don't collide; input messages capped at 64KB; hard session cap 20 minutes (idle timeout stays 3 min); 'signal' messages write ^C / ^\\ / ^Z to the PTY (allowlist SIGINT/SIGQUIT/SIGTSTP) so the terminal delivers the signal to the foreground process group. Acceptance: S06, S07, S08 pass locally.",
       "priority": 5,
-      "passes": false
+      "passes": true
     },
     {
       "id": "T06",

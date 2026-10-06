@@ -359,7 +359,8 @@ const id = filename.replace(/[^a-zA-Z0-9]/g, '-');
 
       ws.onopen = () => {
         statusEl.textContent = 'Starting...';
-        ws.send(JSON.stringify({ type: 'start', files, cols: term.cols, rows: term.rows }));
+        // example mode: quiet shell that auto-compiles; lesson mode: welcome banner + file list
+        ws.send(JSON.stringify({ type: 'start', files, cols: term.cols, rows: term.rows, mode: autoRun ? 'example' : 'lesson' }));
       };
 
       // States: 'waiting' -> 'compiling' -> 'compiled'
@@ -477,7 +478,9 @@ const id = filename.replace(/[^a-zA-Z0-9]/g, '-');
       `;
       slot.appendChild(termDiv);
 
-      launchTerminal(termDiv, [{ name: filename, content: code }], compileCmd, isInteractive, () => {
+      // the compile command expects the file in the working directory, so drop any folder prefix
+      const baseName = filename.split('/').pop() || filename;
+      launchTerminal(termDiv, [{ name: baseName, content: code }], compileCmd, isInteractive, () => {
         // Restore Run button
         el.disabled = false;
         playIcon?.classList.remove('hidden');

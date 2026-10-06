@@ -44,7 +44,7 @@ export function finish() {
   process.exitCode = failed.length ? 1 : 0;
 }
 
-export const stripAnsi = (s) => s.replace(/\x1b\[[0-9;?]*[ -\/]*[@-~]/g, '').replace(/\x1b[()][0-9A-Za-z]/g, '').replace(/\r/g, '');
+export const stripAnsi = (s) => s.replace(/\x1b\][^\x07\x1b]*(\x07|\x1b\\)/g, '').replace(/\x1b\[[0-9;?]*[ -\/]*[@-~]/g, '').replace(/\x1b[()][0-9A-Za-z]/g, '').replace(/\r/g, '');
 
 export const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 

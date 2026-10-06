@@ -39,7 +39,8 @@ async function openSession(files = [{ name: 'hello.c', content: 'int main(){retu
   s.run = async (cmd, ms = 8000) => {
     const id = ++seq;
     const start = s.out.length;
-    s.send(`${cmd}; echo __M${id}_$?__\r`);
+    const sep = cmd.trim().endsWith('&') ? ' ' : '; '; // "cmd &; echo" is a bash syntax error
+    s.send(`${cmd}${sep}echo __M${id}_$?__\r`);
     const re = new RegExp(`__M${id}_(\\d+)__`);
     await waitFor(() => re.test(stripAnsi(s.out.slice(start))) || s.closed, ms, `result of: ${cmd}`);
     const text = stripAnsi(s.out.slice(start));
@@ -104,15 +105,15 @@ await check('S05', 'background processes are killed when a session ends', async 
   assert(n.trim() === '0', `${n.trim()} leftover process(es) still running`);
 });
 
-await check('S06', 'uploaded file names cannot escape the session directory', async () => {
-  const e = await openSession([
-    { name: '../../../tmp/pwn_traversal.txt', content: 'x' },
-    { name: '/tmp/pwn_abs.txt', content: 'x' },
-    { name: 'ok/nested.c', content: 'int main(){}' },
-  ]);
-  const r = await e.run('ls /tmp/pwn_traversal.txt /tmp/pwn_abs.txt 2>&1; ls ok/nested.c 2>&1');
-  e.close();
-  assert(!/^\/tmp\/pwn_(traversal|abs)\.txt$/m.test(r), `traversal file was written: ${r}`);
+await check('S06', 'unsafe file names are refused; files in different folders are kept apart', async () => {
+  for (const name of ['../../../tmp/pwn.txt', '/tmp/pwn_abs.txt', '.bashrc']) {
+    const err = await openSession([{ name, content: 'x' }]).then((s) => { s.close(); return null; }, (e) => e.message);
+    assert(err && /Invalid file name/.test(err), `"${name}" was accepted (${err || 'session opened'})`);
+  }
+  const s = await openSession([{ name: 'a/one.c', content: 'ONE' }, { name: 'b/one.c', content: 'TWO' }]);
+  const r = await s.run('cat a/one.c; echo; cat b/one.c');
+  s.close();
+  assert(/ONE\s+TWO/.test(r), `same-named files in different folders collided: ${r}`);
 });
 
 await check('S07', 'oversized uploads are rejected', async () => {
@@ -134,6 +135,28 @@ await check('S08', 'Ctrl+C (signal message) interrupts the running program', asy
   const r = await a.run('echo INT_OK', 5000).catch((e) => e.message);
   a.close();
   assert(r.includes('INT_OK'), 'shell still blocked by sleep after SIGINT');
+});
+
+await check('S14', 'orphaned processes are reaped (no zombies pile up)', async () => {
+  const a = await openSession();
+  await a.run("sh -c '(sleep 0.3 &)'; sleep 2");
+  const z = await a.run("ps -e -o stat= | grep -c '^Z' || true");
+  a.close();
+  assert(z.trim() === '0', `${z.trim()} zombie process(es) left`);
+});
+
+await check('S15', 'System V IPC objects are removed when a session ends', async () => {
+  const a = await openSession();
+  const uid = await a.run('id -u');
+  await a.run(`printf '#include <sys/msg.h>\\n#include <sys/shm.h>\\nint main(void){msgget(IPC_PRIVATE,0600|IPC_CREAT);shmget(IPC_PRIVATE,4096,0600|IPC_CREAT);return 0;}\\n' > ipc.c && gcc -o ipc ipc.c && ./ipc`, 20000);
+  const before = await a.run(`cat /proc/sysvipc/msg /proc/sysvipc/shm | awk -v u=${uid} '$0 !~ /key/ && $8==u' | wc -l`);
+  a.close();
+  await sleep(3000);
+  const b = await openSession();
+  const after = await b.run(`cat /proc/sysvipc/msg /proc/sysvipc/shm | awk -v u=${uid} '$0 !~ /key/ && $8==u' | wc -l`);
+  b.close();
+  assert(Number(before) >= 1, `test setup failed — no IPC objects created (${before})`);
+  assert(after.trim() === '0', `${after.trim()} IPC object(s) still owned by uid ${uid} after disconnect`);
 });
 
 if (DESTRUCTIVE) {

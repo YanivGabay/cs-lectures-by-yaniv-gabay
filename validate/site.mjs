@@ -21,7 +21,10 @@ async function newPage({ scheme = 'light', theme = null, viewport = { width: 140
 }
 
 const termText = (page) => stripAnsi(page.termOut);
-const waitTerm = (page, re, ms, what) => waitFor(() => re.test(termText(page)), ms, what || String(re));
+const waitTerm = (page, re, ms, what) =>
+  waitFor(() => re.test(termText(page)), ms, what || String(re)).catch((e) => {
+    throw new Error(`${e.message}; terminal ended with: ${JSON.stringify(termText(page).slice(-240))}`);
+  });
 
 async function typeInTerminal(page, slot, line) {
   await slot.locator('.xterm').click();
@@ -170,7 +173,7 @@ await check('V05', 'full terminal shows a welcome, lists every lesson file (with
 
 await check('V06', 'full terminal can compile a lesson file', async () => {
   assert(full, 'V05 did not open a terminal');
-  await typeInTerminal(full, full.slot, 'gcc -o t 04-array/producer.c && echo BUILD_$((1+1))_OK');
+  await typeInTerminal(full, full.slot, 'gcc -o t 02-basic-example/creator.c && echo BUILD_$((1+1))_OK');
   await waitTerm(full, /BUILD_2_OK/, 30000, 'compile success marker');
 });
 

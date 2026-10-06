@@ -289,7 +289,7 @@ const diffColors: Record<string, string> = {
           class="open-full-terminal-btn btn-primary"
           data-lesson-files={JSON.stringify(
             lesson.examples.map((ex) => ({
-              name: path.basename(ex.file),
+              name: ex.file,
               content: readExampleCode(ex),
             }))
           )}
