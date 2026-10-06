@@ -1,0 +1,26 @@
+## Codebase Patterns
+
+- Site: Astro 7 + Tailwind v4 in site/. Tailwind v4 `dark:` follows prefers-color-scheme unless a class-based @custom-variant is declared.
+- Terminal: Worker (terminal-server/cloudflare/src/index.ts) -> Cloudflare Container (server.js, node-pty, bash). Messages: start {files, cols, rows, mode}, input, resize, signal; server sends ready, output, exit, error.
+- Validation lives in validate/ (site.mjs browser checks, security.mjs WebSocket probes). Terminal checks read WebSocket frames, not screen text. Use `echo X_$((1+1))` style markers so the typed command can't match its own result.
+- Local destructive probes ONLY in a capped container (--pids-limit, --memory, --cpus).
+
+---
+
+## 2026-10-06 — Baseline (partial)
+
+Security, local copy of the production container (uncapped run; aborted by the fork-bomb probe, which froze WSL):
+- FAIL S01 shell runs as root (uid 0)
+- FAIL S02 no limits on processes, CPU, memory, file size
+- FAIL S03 one student can read another student's files
+- FAIL S04 /app/server.js writable from the shell
+- FAIL S05 background processes survive disconnect
+- PASS S06 file names cannot escape the session dir (basename only — but same-named files in different folders collide)
+- FAIL S07 300 files / 3 MB upload accepted
+- PASS S08 signal message interrupted sleep (re-check after T05; UI Ctrl+C reported broken)
+- PASS S09 kill -9 -1 did not kill other sessions (node is PID 1, which kill(-1) skips)
+- S10 fork bomb: not completed — took down the uncapped container and the host VM
+
+Site against production: not yet run (T01).
+
+Known from manual checks: dark-mode toggle has no visible effect; Next Lesson card is white-on-white in dark; full terminal shows a bare root prompt with no welcome/files.

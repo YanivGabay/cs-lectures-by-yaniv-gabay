@@ -1,0 +1,172 @@
+{
+  "name": "CS Lectures — Lecture-Ready Sandbox",
+  "overview": "Make every OS-course example runnable in one click from the live site, with output, input prompts, crashes, signals and exit status streamed back visibly, so Yaniv can present live on a projector while ~10 students follow along. The sandbox that makes this safe is itself built from course mechanisms (fork, setrlimit, setsid, setuid, exec, PTY signals, wait) and becomes Lesson 16. Every task is done only when its validate/ checks pass.",
+  "context": {
+    "site": "site/ — Astro 7 + Tailwind v4, deployed to Cloudflare Pages (cs-lectures.pages.dev). Build: cd site && PUBLIC_TERMINAL_URL=wss://cs-lectures-terminal.yaniv242.workers.dev pnpm run build. Deploy: CLOUDFLARE_ACCOUNT_ID=7c58acdc8f1a467d915b133062a22fc1 npx wrangler pages deploy ./dist --project-name=cs-lectures --branch=main",
+    "terminal": "terminal-server/cloudflare/ — Worker (src/index.ts) + Cloudflare Container (Dockerfile, server.js with node-pty). Deploy: CLOUDFLARE_ACCOUNT_ID=7c58acdc8f1a467d915b133062a22fc1 npx wrangler deploy",
+    "validation": "validate/ — site.mjs (playwright-core, headless Chrome from ~/.cache/ms-playwright), security.mjs (WebSocket probes). ONLY=ID,ID runs a subset. Local container MUST run with --pids-limit/--memory/--cpus caps (an uncapped fork bomb froze WSL on 2026-10-06).",
+    "rule": "Never mark a task passing without running its validation and quoting PASS lines in progress.txt."
+  },
+  "tasks": [
+    {
+      "id": "T01",
+      "phase": "0 — Harness",
+      "title": "Finish validation harness and record the honest baseline",
+      "description": "Add validate/local-container.sh that builds terminal-server/cloudflare into an image and runs it with --pids-limit 512 --memory 1g --cpus 1 -p 8099:8080 (and a stop command). Fix any harness bugs. Run site.mjs against the live site and security.mjs (DESTRUCTIVE=1 SKIP_NETWORK=1) against the capped local container. Acceptance: both suites run to completion without crashing the host; PASS/FAIL list recorded in progress.txt as the baseline. Validate: bash validate/local-container.sh && (cd validate && node security.mjs; node site.mjs).",
+      "priority": 1,
+      "passes": false
+    },
+    {
+      "id": "T02",
+      "phase": "1 — Sandbox",
+      "title": "Container base: tini as PID 1, procps, locked-down filesystem",
+      "description": "Dockerfile: install tini and procps; ENTRYPOINT tini so orphaned/zombie processes are reaped (Lesson 02 'orphan adoption by init'); /app owned by root and not writable by others; create group 'students' and /work (0711). Add security probe S14 'orphans are reaped' (spawn a double-forked child that exits; no <defunct> left after 2s). Acceptance: S04 and S14 pass locally.",
+      "priority": 2,
+      "passes": false
+    },
+    {
+      "id": "T03",
+      "phase": "1 — Sandbox",
+      "title": "sandbox-launch.c — the C program that contains each student",
+      "description": "terminal-server/cloudflare/sandbox/sandbox-launch.c, compiled in the Dockerfile. Args: uid gid workdir mode. Steps, each commented in course style: setrlimit NPROC=64, CPU=120s, AS=512MB, FSIZE=20MB, NOFILE=128, CORE=0; setsid(); chdir(workdir); setgroups(0,NULL); setgid; setuid; verify setuid(0) now fails; execve /bin/bash --rcfile /etc/cs-bashrc -i with a clean env (PATH, HOME=workdir, TERM, LANG, CS_MODE=mode). Print a clear error and exit non-zero on any failure. Acceptance: S01 (uid != 0) and S02 (limits set) pass locally; gcc -Wall -Wextra has no warnings.",
+      "priority": 3,
+      "passes": false
+    },
+    {
+      "id": "T04",
+      "phase": "1 — Sandbox",
+      "title": "One Unix user per session, with full cleanup on disconnect",
+      "description": "server.js: on start create user cs<sid> (adduser -D -H -G students), /work/<sid> owned by it with 0700; spawn node-pty on sandbox-launch. On close/timeout: pkill -KILL -u, remove that uid's System V message queues, shared memory and semaphores (ipcs/ipcrm), rm -rf the directory, deluser. Add probe S15 'IPC objects removed after disconnect' (create msgget + shmget in a session, disconnect, check ipcs from a new session). Acceptance: S03, S05, S09, S10 (DESTRUCTIVE, capped container) and S15 pass locally.",
+      "priority": 4,
+      "passes": false
+    },
+    {
+      "id": "T05",
+      "phase": "1 — Sandbox",
+      "title": "Protocol hardening and a Ctrl+C that actually works",
+      "description": "server.js: ws maxPayload 2MB; start accepts at most 60 files and 1MB total, else sends an error and closes; file names keep safe relative folders ([A-Za-z0-9._-] segments, no '..', no absolute paths) so same-named files in different folders don't collide; input messages capped at 64KB; hard session cap 20 minutes (idle timeout stays 3 min); 'signal' messages write ^C / ^\\ / ^Z to the PTY (allowlist SIGINT/SIGQUIT/SIGTSTP) so the terminal delivers the signal to the foreground process group. Acceptance: S06, S07, S08 pass locally.",
+      "priority": 5,
+      "passes": false
+    },
+    {
+      "id": "T06",
+      "phase": "1 — Sandbox",
+      "title": "Worker: origin check, rate limit, student pool, reserved presenter container",
+      "description": "src/index.ts + wrangler.jsonc: reject WebSocket upgrades whose Origin is not cs-lectures.pages.dev, *.cs-lectures.pages.dev or localhost (403); ratelimits binding keyed by client IP on upgrades (429); route students to pool-0..pool-2 (6 sessions each, MAX_SESSIONS via envVars); a request with ?presenter=<key> matching Worker secret PRESENTER_KEY goes to a dedicated 'presenter' container; add GET /warm (starts the presenter container). Probes: S12 origin, S13 rate limit, S16 '11 concurrent student sessions all get a prompt', S17 'presenter key reaches its own container' (health reports container name). Acceptance: all pass against production.",
+      "priority": 6,
+      "passes": false
+    },
+    {
+      "id": "T07",
+      "phase": "1 — Sandbox",
+      "title": "Deploy the sandbox and pass the full security suite in production",
+      "description": "Deploy terminal-server/cloudflare. Run security.mjs against wss://cs-lectures-terminal.yaniv242.workers.dev with DESTRUCTIVE=1 (now safe: limits contain the attacker) — S01–S17 all pass, including S11 no network. Record results in progress.txt. Acceptance: 0 FAIL.",
+      "priority": 7,
+      "passes": false
+    },
+    {
+      "id": "T08",
+      "phase": "2 — Streaming",
+      "title": "Shell integration: /etc/cs-bashrc emits prompt and exit-status events",
+      "description": "Replace bashrc with /etc/cs-bashrc: PS1 'student:\\w$ '; PROMPT_COMMAND emits OSC 777 'cs;prompt;<last exit code>' before every prompt; aliases; in CS_MODE=lesson print a 'CS Lectures sandbox' banner, the file tree (relative paths incl. folders) and 3 hint lines; in example mode print nothing. Add V10 'OSC prompt events arrive with the right exit codes' (run true, false, a SIGSEGV program). Acceptance: V05 and V10 pass.",
+      "priority": 8,
+      "passes": false
+    },
+    {
+      "id": "T09",
+      "phase": "2 — Streaming",
+      "title": "Exit-status chip, compile-error and session-lost UX",
+      "description": "CodeBlock.astro: xterm registerOscHandler(777) drives auto-run (compile → if exit 0 run) instead of '$ ' text matching; after each run show a chip: 'Exited 0', 'Exited 3', or 'Killed by SIGSEGV (11) — invalid memory access' with plain-language text for SIGSEGV, SIGINT, SIGTERM, SIGKILL, SIGPIPE, SIGALRM, SIGXCPU, SIGABRT, SIGFPE; compile failure shows a red 'Compile failed' chip; print 'Starting Linux sandbox…' while connecting; on socket close/timeout/container restart show a banner with a Restart button that reopens the same files. New checks: V11 segfault program shows the SIGSEGV chip, V12 broken code shows Compile failed, V13 server-side close shows the banner and Restart works. Acceptance: V04, V11, V12, V13 pass.",
+      "priority": 9,
+      "passes": false
+    },
+    {
+      "id": "T10",
+      "phase": "2 — Streaming",
+      "title": "Deploy streaming changes; full-terminal and Ctrl+C pass in production",
+      "description": "Deploy terminal + site. Acceptance: site.mjs V04–V07 and V10–V13 pass against https://cs-lectures.pages.dev.",
+      "priority": 10,
+      "passes": false
+    },
+    {
+      "id": "T11",
+      "phase": "3 — UI fixes",
+      "title": "Dark mode that works, and readable contrast everywhere",
+      "description": "global.css: @custom-variant dark (&:where(.dark, .dark *)) so dark: utilities follow the toggle (Tailwind v4 defaults to prefers-color-scheme); define --color-primary-950; fix the Next Lesson card (white text on near-white in dark) and every other V03 failure. Acceptance: V02 (toggle flips the visible background under both OS preferences and persists) and V03 (no text under 3:1 on /, /os/, a lesson, /status in both themes) pass against production.",
+      "priority": 11,
+      "passes": false
+    },
+    {
+      "id": "T12",
+      "phase": "4 — Every example runnable",
+      "title": "Example readiness audit across all 115 examples",
+      "description": "validate/examples.mjs: for every example in site/src/data/os-lessons.ts, run it through the real WebSocket pipeline exactly like the Run button (example mode, compile, run up to 8s, Ctrl+C, read the exit chip event) and classify: runs-and-exits, needs-input, needs-pair, crashes, hangs, compile-error, reference-only, windows-only. Write validate/reports/examples.md (table per lesson) and a JSON summary. Acceptance: report generated; counts recorded in progress.txt as the readiness baseline.",
+      "priority": 12,
+      "passes": false
+    },
+    {
+      "id": "T13",
+      "phase": "4 — Every example runnable",
+      "title": "Example metadata: kind, sample input, pairs, reference/Windows labels",
+      "description": "os-lessons.ts Example gets kind: 'run' | 'interactive' | 'pair' | 'long-running' | 'reference' | 'windows', plus sampleInput, pairWith/startOrder/startDelayMs, stopAfterMs. Fill it from the T12 report. UI: reference and Windows examples show a clear label instead of a Run button; long-running ones show 'stops automatically after Ns'. Acceptance: examples.mjs re-run has 0 items in 'crashes', 'hangs' or 'compile-error' that are not explicitly marked as intentional in the data.",
+      "priority": 13,
+      "passes": false
+    },
+    {
+      "id": "T14",
+      "phase": "4 — Every example runnable",
+      "title": "Split panes and 'Run pair' for the two-program examples",
+      "description": "Protocol: one session can own up to 3 PTYs (messages carry pane id; all panes share the session user and files). UI: split view inside the code block and full terminal; 'Run pair' compiles both programs, starts the server/reader/creator pane first, then the client/writer pane after startDelayMs. New check V14: lesson 11 echo server + client both show [Server] and [Client] lines; lesson 09 FIFO writer + reader exchange a message. Acceptance: V14 passes in production and examples.mjs classifies all pairs as runs.",
+      "priority": 14,
+      "passes": false
+    },
+    {
+      "id": "T15",
+      "phase": "4 — Every example runnable",
+      "title": "Interactive examples: visible 'waiting for input' and sample input",
+      "description": "When a running program produces no output for 1.5s while still alive, show a chip 'Program is waiting for input — type and press Enter'; an 'Insert sample input' button types the example's sampleInput. New check V15 on lesson 01 example 1. Acceptance: V15 passes; every interactive example has sampleInput and is classified runs-and-exits by examples.mjs when fed it.",
+      "priority": 15,
+      "passes": false
+    },
+    {
+      "id": "T16",
+      "phase": "5 — Presenter mode",
+      "title": "Presenter mode: slide-style stepping, projector fonts, shortcuts",
+      "description": "A Present button on lesson pages (and ?present deep link): fullscreen view stepping through the lesson's examples like slides with ←/→ and PageUp/PageDown (clicker friendly), Ctrl+Enter runs the current example, +/- font size for code and terminal (persisted), Esc exits. New check V16: step forward/back, run from presenter view, font size persists across reload. Acceptance: V16 passes in production.",
+      "priority": 16,
+      "passes": false
+    },
+    {
+      "id": "T17",
+      "phase": "5 — Presenter mode",
+      "title": "Presenter key, pre-warm, and status for the pool",
+      "description": "/presenter page stores the presenter key in localStorage; with a key, lesson pages call /warm on load and terminals connect with ?presenter=<key>; status page shows pool and presenter container state. New check V17: with a key, time from Run click to first prompt event is under 3s after warm. Acceptance: V17 passes in production.",
+      "priority": 17,
+      "passes": false
+    },
+    {
+      "id": "T18",
+      "phase": "6 — Teaching content",
+      "title": "Lesson 16: How this site runs your code safely",
+      "description": "New lesson in os-lessons.ts with sandbox-launch.c (runnable: as a normal user setuid fails with EPERM — that is the lesson), a SandboxVisualizer SVG of the request path (browser → Worker → container → tini → supervisor → fork/setrlimit/setsid/setuid/exec → bash, PTY ^C path), and exercises that link back to Lessons 02, 03, 04, 06, 08. Acceptance: page builds, V01 passes, examples.mjs runs the new examples.",
+      "priority": 18,
+      "passes": false
+    },
+    {
+      "id": "T19",
+      "phase": "6 — Teaching content",
+      "title": "Syllabus-aligned challenges",
+      "description": "Challenges verified through the exit chip and output, only for course topics: L02 run the fork-in-loop mistake and observe fork() failing with EAGAIN under the process limit; L03/L06 install a SIGINT handler and survive Ctrl+C; L08 write to a pipe with no reader and see SIGPIPE; L14 trigger the dining-philosophers deadlock and detect it with a timeout. New check V18 completes one challenge automatically. Acceptance: V18 passes.",
+      "priority": 19,
+      "passes": false
+    },
+    {
+      "id": "T20",
+      "phase": "7 — Release",
+      "title": "Full regression, deploy, push",
+      "description": "Run site.mjs, security.mjs (DESTRUCTIVE=1 against production) and examples.mjs. Acceptance: all PASS, examples report shows every example in an intended category, KNOWN_ISSUES.md updated, changes committed and pushed.",
+      "priority": 20,
+      "passes": false
+    }
+  ]
+}

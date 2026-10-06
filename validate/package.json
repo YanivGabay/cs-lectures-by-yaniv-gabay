@@ -1,0 +1,13 @@
+{
+  "name": "cs-lectures-validate",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "site": "node site.mjs",
+    "security": "node security.mjs"
+  },
+  "dependencies": {
+    "playwright-core": "1.63.0",
+    "ws": "^8.18.0"
+  }
+}

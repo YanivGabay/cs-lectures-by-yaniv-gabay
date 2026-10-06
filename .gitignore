@@ -29,3 +29,6 @@ site/dist/
 terminal-server/cloudflare/node_modules/
 terminal-server/local/node_modules/
 terminal-server/node_modules/
+
+# Validation harness
+validate/node_modules/
