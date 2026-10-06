@@ -68,8 +68,8 @@ Learnings:
   sleep (5 min idle). After deploying, wait for the pool to recycle before validating.
 - pkill -f '<pattern>' kills its own shell if the same command line contains the pattern — stop
   servers by port (lsof -t -i:PORT) in a separate command.
-- The presenter key lives in ~/.cs-lectures-presenter-key (0600) and the Worker secret PRESENTER_KEY;
-  never print it.
+- Presenter sign-in: Worker secrets PRESENTER_PASSWORD (Yaniv's choice) and TOKEN_SECRET (random HMAC key);
+  never print either. Validation reads PRESENTER_PASSWORD from the environment; presenter checks SKIP without it.
 
 ## 2026-10-06 — T11 done; production site 9/9
 
@@ -83,3 +83,16 @@ site.mjs against https://cs-lectures.pages.dev: 9/9 PASS (baseline was 3/9)
 V17 key from ?presenter= sticks across pages and reloads, is stripped from the URL, terminals land on "presenter".
 V17b wrong key -> red "Presenter key invalid" badge + student pool; ?presenter=off removes it.
 Found: the status page never showed real container stats (the Worker answers /health itself) -> new task T17c.
+
+## 2026-10-06 — T17 reworked: password sign-in on any computer
+
+The per-PC key file was rejected (Yaniv presents from different computers). Now: /presenter page,
+password -> POST /presenter/login -> HMAC-signed 90-day pass {exp, password fingerprint} in localStorage.
+Changing PRESENTER_PASSWORD invalidates every pass. Login: origin check, LOGIN_LIMITER 5/min/IP, 400ms delay.
+Old PRESENTER_KEY secret and ~/.cs-lectures-presenter-key deleted.
+Production: site 11/11 (V17 sign-in sticks + presenter container; V17b wrong password stores nothing).
+Security 16/17: S17 pass -> presenter, S18 forged/tampered/re-signed passes 403 and land in pool,
+S19 foreign-origin login 403 + guessing hits 429 (4 of 20 — limiter lets ~15 through first).
+S13 FAIL x3: 0 of 360 flood connections refused. Same limiter code that refused 6/240 earlier; Cloudflare's
+ratelimits binding is best-effort per location. Note it does not protect capacity anyway — 18 held sessions
+fill the pool regardless. Presenter container is separate, so the lecture demo is unaffected -> task T07c.

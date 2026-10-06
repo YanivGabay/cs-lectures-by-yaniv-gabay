@@ -73,6 +73,14 @@
       "passes": false
     },
     {
+      "id": "T07c",
+      "phase": "1 — Sandbox",
+      "title": "Deterministic per-IP connection limit (S13 is flaky)",
+      "description": "The Workers ratelimits binding is best-effort per location: S13 refused 6/240 once, then 0/360 three runs in a row. Options: a small Durable Object counter per IP (strict, adds a hop per connect) or per-IP concurrent-session caps inside the pool (protects capacity, which the rate limit does not). Presenter container is already isolated from floods. Acceptance: S13 passes 3 runs in a row in production and a classroom of 10 on one NAT IP is not blocked.",
+      "priority": 7.6,
+      "passes": false
+    },
+    {
       "id": "T08",
       "phase": "2 — Streaming",
       "title": "Shell integration: /etc/cs-bashrc emits prompt and exit-status events",
@@ -147,8 +155,8 @@
     {
       "id": "T17",
       "phase": "5 — Presenter mode",
-      "title": "Presenter link that sticks per browser, plus background pre-warm",
-      "description": "Opening any page with ?presenter=<key> stores the key in localStorage and removes it from the address bar; ?presenter=off forgets it. Header shows a 'Presenter' badge (red 'Presenter key invalid' on a wrong key; click to turn off). Terminals connect with the key; the header wakes the presenter container via /warm at most every 4 minutes. Acceptance: V17 and V17b pass in production.",
+      "title": "Presenter sign-in with a password, on any computer, plus background pre-warm",
+      "description": "/presenter page: Yaniv types his password (Worker secret PRESENTER_PASSWORD) once per browser; POST /presenter/login returns an HMAC-signed (TOKEN_SECRET) 90-day pass bound to a password fingerprint, stored in localStorage. Changing the password signs every browser out. Login checks Origin, is rate limited (LOGIN_LIMITER) and delayed on failure. Header shows a 'Presenter' badge linking to /presenter (red 'sign in again' when the pass is rejected); terminals connect with the pass; /warm at most every 4 minutes. ?presenter=off signs out. Acceptance: V17, V17b, S17, S18, S19 pass in production.",
       "priority": 17,
       "passes": true
     },

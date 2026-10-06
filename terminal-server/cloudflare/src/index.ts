@@ -1,14 +1,19 @@
 import { Container } from "@cloudflare/containers";
 
+interface Limiter { limit(opts: { key: string }): Promise<{ success: boolean }> }
+
 interface Env {
   TERMINAL: DurableObjectNamespace<TerminalContainer>;
   PRESENTER: DurableObjectNamespace<PresenterContainer>;
-  CONNECT_LIMITER: { limit(opts: { key: string }): Promise<{ success: boolean }> };
-  PRESENTER_KEY?: string;
+  CONNECT_LIMITER: Limiter;
+  LOGIN_LIMITER: Limiter;
+  PRESENTER_PASSWORD?: string; // chosen by the lecturer: wrangler secret put PRESENTER_PASSWORD
+  TOKEN_SECRET?: string;       // random HMAC key that signs presenter passes
 }
 
 const POOL_SIZE = 3;
 const SESSIONS_PER_CONTAINER = 6;
+const PASS_DAYS = 90;
 
 // Student sandboxes: small instances, shared by up to 6 students each
 export class TerminalContainer extends Container {
@@ -17,12 +22,59 @@ export class TerminalContainer extends Container {
   enableInternet = false;
 }
 
-// Yaniv's reserved sandbox for live lectures: faster instance, never shared with students
+// The lecturer's reserved sandbox for live lectures: faster instance, never shared with students
 export class PresenterContainer extends Container {
   defaultPort = 8080;
   sleepAfter = "30m";
   enableInternet = false;
 }
+
+// ---------- presenter passes: password -> signed token stored in the lecturer's browser ----------
+
+const enc = new TextEncoder();
+const b64url = (bytes: Uint8Array) =>
+  btoa(String.fromCharCode(...bytes)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+const fromB64url = (s: string) =>
+  Uint8Array.from(atob(s.replace(/-/g, "+").replace(/_/g, "/") + "=".repeat((4 - (s.length % 4)) % 4)), (c) => c.charCodeAt(0));
+
+async function sha256(text: string) {
+  return new Uint8Array(await crypto.subtle.digest("SHA-256", enc.encode(text)));
+}
+
+async function hmac(secret: string, data: string) {
+  const key = await crypto.subtle.importKey("raw", enc.encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+  return new Uint8Array(await crypto.subtle.sign("HMAC", key, enc.encode(data)));
+}
+
+function sameBytes(a: Uint8Array, b: Uint8Array) {
+  return a.length === b.length && crypto.subtle.timingSafeEqual(a, b);
+}
+
+// Changing the password changes this fingerprint, which invalidates every existing pass
+async function passwordFingerprint(env: Env) {
+  return b64url((await sha256(env.PRESENTER_PASSWORD!)).slice(0, 9));
+}
+
+async function issuePass(env: Env) {
+  const expiresAt = Date.now() + PASS_DAYS * 24 * 3600 * 1000;
+  const payload = b64url(enc.encode(JSON.stringify({ exp: expiresAt, pw: await passwordFingerprint(env) })));
+  return { token: `${payload}.${b64url(await hmac(env.TOKEN_SECRET!, payload))}`, expiresAt };
+}
+
+async function validPass(env: Env, token: string | null) {
+  if (!token || !env.PRESENTER_PASSWORD || !env.TOKEN_SECRET) return false;
+  const [payload, sig] = token.split(".");
+  if (!payload || !sig) return false;
+  try {
+    if (!sameBytes(fromB64url(sig), await hmac(env.TOKEN_SECRET, payload))) return false;
+    const data = JSON.parse(new TextDecoder().decode(fromB64url(payload)));
+    return data.exp > Date.now() && data.pw === (await passwordFingerprint(env));
+  } catch {
+    return false;
+  }
+}
+
+// ---------- helpers ----------
 
 function allowedOrigin(origin: string | null): boolean {
   if (!origin) return false;
@@ -35,10 +87,19 @@ function allowedOrigin(origin: string | null): boolean {
   }
 }
 
-function isPresenter(url: URL, env: Env): boolean {
-  const key = url.searchParams.get("presenter");
-  return !!env.PRESENTER_KEY && !!key && key === env.PRESENTER_KEY;
+function corsHeaders(request: Request): Record<string, string> {
+  const origin = request.headers.get("Origin");
+  return {
+    "Access-Control-Allow-Origin": allowedOrigin(origin) ? origin! : "https://cs-lectures.pages.dev",
+    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type",
+    "Access-Control-Max-Age": "86400",
+    Vary: "Origin",
+  };
 }
+
+const json = (request: Request, body: unknown, status = 200) =>
+  new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json", ...corsHeaders(request) } });
 
 async function start(stub: any, name: string) {
   await stub.startAndWaitForPorts({
@@ -56,28 +117,33 @@ async function hasRoom(stub: any): Promise<boolean> {
   }
 }
 
-const json = (request: Request, body: unknown, status = 200) => {
-  const origin = request.headers.get("Origin");
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: {
-      "Content-Type": "application/json",
-      "Access-Control-Allow-Origin": allowedOrigin(origin) ? origin! : "https://cs-lectures.pages.dev",
-      Vary: "Origin",
-    },
-  });
-};
+// ---------- routes ----------
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
     const ip = request.headers.get("CF-Connecting-IP") || "unknown";
 
+    if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: corsHeaders(request) });
     if (url.pathname === "/health") return json(request, { status: "ok" });
 
-    // Wake the presenter sandbox ahead of a lecture (no cold start in front of the class)
+    // Lecturer signs in on any computer: password -> 90-day presenter pass for that browser
+    if (url.pathname === "/presenter/login" && request.method === "POST") {
+      if (!allowedOrigin(request.headers.get("Origin"))) return json(request, { error: "forbidden" }, 403);
+      if (!env.PRESENTER_PASSWORD || !env.TOKEN_SECRET) return json(request, { error: "not configured" }, 503);
+      if (!(await env.LOGIN_LIMITER.limit({ key: ip })).success) return json(request, { error: "too many attempts" }, 429);
+      let password = "";
+      try { password = String(((await request.json()) as { password?: unknown }).password ?? ""); } catch {}
+      if (!sameBytes(await sha256(password), await sha256(env.PRESENTER_PASSWORD))) {
+        await new Promise((r) => setTimeout(r, 400)); // slow down guessing
+        return json(request, { error: "wrong password" }, 401);
+      }
+      return json(request, await issuePass(env));
+    }
+
+    // Wake the presenter sandbox ahead of a lecture; also tells the site whether the pass is still valid
     if (url.pathname === "/warm") {
-      if (!isPresenter(url, env)) return json(request, { error: "forbidden" }, 403);
+      if (!(await validPass(env, url.searchParams.get("presenter")))) return json(request, { error: "invalid pass" }, 403);
       await start(env.PRESENTER.getByName("presenter"), "presenter");
       return json(request, { warm: true });
     }
@@ -89,10 +155,11 @@ export default {
     if (!allowedOrigin(request.headers.get("Origin"))) {
       return new Response("Forbidden origin", { status: 403 });
     }
-    const { success } = await env.CONNECT_LIMITER.limit({ key: ip });
-    if (!success) return new Response("Too many connections — wait a minute", { status: 429 });
+    if (!(await env.CONNECT_LIMITER.limit({ key: ip })).success) {
+      return new Response("Too many connections — wait a minute", { status: 429 });
+    }
 
-    if (isPresenter(url, env)) {
+    if (await validPass(env, url.searchParams.get("presenter"))) {
       const stub = env.PRESENTER.getByName("presenter");
       await start(stub, "presenter");
       return stub.fetch(request);

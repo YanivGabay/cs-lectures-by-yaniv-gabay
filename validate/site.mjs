@@ -1,14 +1,9 @@
 // Browser-level validation of the CS Lectures site.
 // BASE_URL=https://cs-lectures.pages.dev node site.mjs   (ONLY=V02,V05 to run a subset)
-import { launch, check, assert, finish, stripAnsi, sleep, waitFor } from './lib.mjs';
-import fs from 'node:fs';
-import os from 'node:os';
-import path from 'node:path';
+import { launch, check, assert, finish, stripAnsi, sleep, waitFor, Skip } from './lib.mjs';
 
-function presenterKey() {
-  if (process.env.PRESENTER_KEY) return process.env.PRESENTER_KEY;
-  try { return fs.readFileSync(path.join(os.homedir(), '.cs-lectures-presenter-key'), 'utf8').trim(); } catch { return ''; }
-}
+// The lecturer's password is never stored in the repo; pass it in to run the presenter checks
+const PRESENTER_PASSWORD = process.env.PRESENTER_PASSWORD || '';
 
 const BASE = (process.env.BASE_URL || 'https://cs-lectures.pages.dev').replace(/\/$/, '');
 const browser = await launch();
@@ -232,33 +227,44 @@ await check('V09', 'no horizontal scrolling on a 390px phone', async () => {
   assert(!problems.length, problems.join('; '));
 });
 
-await check('V17', 'presenter link sticks across pages/reloads, leaves the address bar, and reaches the reserved sandbox', async () => {
-  const key = presenterKey();
-  assert(key, 'no presenter key (set PRESENTER_KEY or ~/.cs-lectures-presenter-key)');
+const runForkExample = async (page) => {
+  await page.locator('.code-block-wrapper', { has: page.locator('span', { hasText: /^01-basic-forking\.c$/ }) }).locator('.open-terminal-btn').click();
+  await waitFor(() => page.containers.length > 0, 40000, 'terminal ready');
+  return page.containers[page.containers.length - 1];
+};
+
+await check('V17', 'presenter sign-in on /presenter sticks across pages and reloads and reaches the reserved sandbox', async () => {
+  if (!PRESENTER_PASSWORD) throw new Skip('set PRESENTER_PASSWORD to run');
   const page = await newPage();
-  await page.goto(`${BASE}/?presenter=${encodeURIComponent(key)}`);
-  assert(!page.url().includes('presenter='), 'key still visible in the address bar');
+  await page.goto(`${BASE}/presenter/`);
+  await page.fill('#pm-password', PRESENTER_PASSWORD);
+  await page.click('#pm-submit');
+  await page.locator('#pm-signed-in').waitFor({ state: 'visible', timeout: 15000 });
+  const stored = await page.evaluate(() => JSON.stringify(localStorage));
+  assert(!stored.includes(PRESENTER_PASSWORD), 'the password itself was stored in the browser');
+  assert(!page.url().includes(PRESENTER_PASSWORD), 'the password appears in the address bar');
   await page.goto(`${BASE}/os/02-basic-forks/`);
   await page.reload();
   await sleep(1500);
   assert(await page.locator('#presenter-badge').isVisible(), 'no Presenter badge after navigating and reloading');
-  assert((await page.locator('#presenter-badge').innerText()).trim() === 'Presenter', 'badge does not say Presenter (key rejected?)');
-  await page.locator('.code-block-wrapper', { has: page.locator('span', { hasText: /^01-basic-forking\.c$/ }) }).locator('.open-terminal-btn').click();
-  await waitFor(() => page.containers.length > 0, 40000, 'terminal ready');
+  assert((await page.locator('#presenter-badge').innerText()).trim() === 'Presenter', 'badge does not say Presenter (pass rejected?)');
+  const landed = await runForkExample(page);
   await page.context().close();
-  assert(page.containers[0] === 'presenter', `terminal landed on ${page.containers[0]}`);
+  assert(landed === 'presenter', `terminal landed on ${landed}`);
 });
 
-await check('V17b', 'a wrong key says "invalid" and uses the student pool; ?presenter=off turns it off', async () => {
+await check('V17b', 'a wrong password is refused and stores nothing; students land in the pool', async () => {
   const page = await newPage();
-  await page.goto(`${BASE}/os/02-basic-forks/?presenter=not-the-key`);
-  await waitFor(async () => (await page.locator('#presenter-badge').innerText()).includes('invalid'), 10000, 'invalid-key badge');
-  await page.locator('.code-block-wrapper', { has: page.locator('span', { hasText: /^01-basic-forking\.c$/ }) }).locator('.open-terminal-btn').click();
-  await waitFor(() => page.containers.length > 0, 40000, 'terminal ready');
-  assert(String(page.containers[0]).startsWith('pool-'), `wrong key landed on ${page.containers[0]}`);
-  await page.goto(`${BASE}/os/?presenter=off`);
-  assert(!(await page.locator('#presenter-badge').isVisible()), 'badge still visible after ?presenter=off');
+  await page.goto(`${BASE}/presenter/`);
+  await page.fill('#pm-password', 'definitely-not-the-password');
+  await page.click('#pm-submit');
+  await waitFor(async () => /Wrong password|Too many attempts/.test(await page.locator('#pm-error').innerText()), 15000, 'error message');
+  assert(!(await page.evaluate(() => localStorage.getItem('presenterKey'))), 'a pass was stored after a wrong password');
+  await page.goto(`${BASE}/os/02-basic-forks/`);
+  assert(!(await page.locator('#presenter-badge').isVisible()), 'badge visible without signing in');
+  const landed = await runForkExample(page);
   await page.context().close();
+  assert(String(landed).startsWith('pool-'), `unsigned browser landed on ${landed}`);
 });
 
 await browser.close();

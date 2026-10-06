@@ -2,10 +2,7 @@
 //   Local container:  TERMINAL_URL=ws://localhost:8099 DESTRUCTIVE=1 SKIP_NETWORK=1 node security.mjs
 //   Production:       TERMINAL_URL=wss://cs-lectures-terminal.yaniv242.workers.dev node security.mjs
 import WebSocket from 'ws';
-import fs from 'node:fs';
-import os from 'node:os';
-import path from 'node:path';
-import { check, assert, finish, stripAnsi, sleep, waitFor } from './lib.mjs';
+import { check, assert, finish, stripAnsi, sleep, waitFor, Skip } from './lib.mjs';
 
 const WS_URL = process.env.TERMINAL_URL || 'ws://localhost:8099';
 const HTTP_URL = WS_URL.replace(/^ws/, 'http');
@@ -15,10 +12,18 @@ const ORIGIN = process.env.ORIGIN || 'https://cs-lectures.pages.dev';
 
 let seq = 0;
 
-function presenterKey() {
-  if (process.env.PRESENTER_KEY) return process.env.PRESENTER_KEY;
-  try { return fs.readFileSync(path.join(os.homedir(), '.cs-lectures-presenter-key'), 'utf8').trim(); } catch { return ''; }
+// The lecturer's password is never stored in the repo; pass it in to run the presenter checks
+const PRESENTER_PASSWORD = process.env.PRESENTER_PASSWORD || '';
+
+function login(password, origin = ORIGIN) {
+  return fetch(`${HTTP_URL}/presenter/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Origin: origin },
+    body: JSON.stringify({ password }),
+  });
 }
+
+const warmStatus = async (token) => (await fetch(`${HTTP_URL}/warm?presenter=${encodeURIComponent(token)}`)).status;
 
 function connect(origin = ORIGIN, query = '') {
   const ws = new WebSocket(WS_URL + query, { headers: { Origin: origin } });
@@ -218,14 +223,54 @@ if (BEHIND_WORKER) {
     return JSON.stringify(spread);
   });
 
-  await check('S17', 'the presenter key reaches the reserved container; students never do', async () => {
-    const key = presenterKey();
-    assert(key, 'no presenter key (set PRESENTER_KEY or ~/.cs-lectures-presenter-key)');
-    const p = await openSession(undefined, 'lesson', `?presenter=${encodeURIComponent(key)}`);
+  await check('S17', 'the presenter password gives a pass that reaches the reserved container; students never do', async () => {
+    if (!PRESENTER_PASSWORD) throw new Skip('set PRESENTER_PASSWORD to run');
+    const r = await login(PRESENTER_PASSWORD);
+    assert(r.status === 200, `login returned HTTP ${r.status}`);
+    const { token, expiresAt } = await r.json();
+    assert(token && !token.includes(PRESENTER_PASSWORD), 'no token, or the token contains the password');
+    const days = (expiresAt - Date.now()) / 86400000;
+    assert(days > 89 && days < 91, `pass lasts ${days.toFixed(1)} days, expected 90`);
+    const p = await openSession(undefined, 'lesson', `?presenter=${encodeURIComponent(token)}`);
     const s = await openSession(undefined, 'lesson', '?presenter=wrong-key');
     p.close(); s.close();
     assert(p.container === 'presenter', `presenter session landed on ${p.container}`);
-    assert(String(s.container).startsWith('pool-'), `wrong key landed on ${s.container}`);
+    assert(String(s.container).startsWith('pool-'), `wrong pass landed on ${s.container}`);
+  });
+
+  await check('S18', 'forged, tampered and re-signed passes are refused', async () => {
+    const b64 = (o) => Buffer.from(JSON.stringify(o)).toString('base64url');
+    const forged = `${b64({ exp: Date.now() + 1e10, pw: 'x' })}.${'A'.repeat(43)}`;
+    for (const bad of ['', 'garbage', 'a.b', forged]) {
+      const st = await warmStatus(bad);
+      assert(st === 403, `pass ${JSON.stringify(bad.slice(0, 20))} got HTTP ${st}`);
+    }
+    if (!PRESENTER_PASSWORD) return 'real-pass tampering skipped (no PRESENTER_PASSWORD)';
+    const { token } = await (await login(PRESENTER_PASSWORD)).json();
+    const [payload, sig] = token.split('.');
+    const claims = JSON.parse(Buffer.from(payload, 'base64url').toString());
+    const tampered = `${b64({ ...claims, exp: claims.exp + 1e10 })}.${sig}`;
+    const flipped = `${payload}.${sig.slice(0, -2)}${sig.endsWith('AA') ? 'BB' : 'AA'}`;
+    assert(await warmStatus(token) === 200, 'the genuine pass was refused');
+    assert(await warmStatus(tampered) === 403, 'extended expiry with the old signature was accepted');
+    assert(await warmStatus(flipped) === 403, 'a changed signature was accepted');
+    const ws = await openSession(undefined, 'lesson', `?presenter=${encodeURIComponent(tampered)}`);
+    ws.close();
+    assert(String(ws.container).startsWith('pool-'), `tampered pass landed on ${ws.container}`);
+  });
+
+  await check('S19', 'presenter login refuses other websites and rate-limits password guessing', async () => {
+    const foreign = await login('x', 'https://evil.example.com');
+    assert(foreign.status === 403, `foreign-origin login got HTTP ${foreign.status}`);
+    const statuses = [];
+    for (let burst = 0; burst < 3 && !statuses.includes(429); burst++) {
+      const rs = await Promise.all(Array.from({ length: 10 }, (_, i) => login(`wrong-guess-${burst}-${i}`)));
+      statuses.push(...rs.map((r) => r.status));
+      await sleep(1500);
+    }
+    assert(!statuses.includes(200), 'a wrong password was accepted');
+    assert(statuses.includes(429), `${statuses.length} wrong guesses, none rate limited`);
+    return `${statuses.filter((x) => x === 429).length} of ${statuses.length} guesses refused with 429`;
   });
 
   await check('S12', 'connections from other websites are refused', async () => {

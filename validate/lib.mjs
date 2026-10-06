@@ -22,6 +22,9 @@ export const launch = () => chromium.launch({ executablePath: chromePath() });
 const only = (process.env.ONLY || '').split(',').map((s) => s.trim()).filter(Boolean);
 const results = [];
 
+// Throw this when a check cannot run here (e.g. no test password) — reported, never counted as a pass
+export class Skip extends Error {}
+
 export async function check(id, name, fn) {
   if (only.length && !only.includes(id)) return;
   try {
@@ -29,6 +32,7 @@ export async function check(id, name, fn) {
     results.push({ id, name, ok: true });
     console.log(`PASS ${id} ${name}${detail ? ` — ${detail}` : ''}`);
   } catch (e) {
+    if (e instanceof Skip) { console.log(`SKIP ${id} ${name} — ${e.message}`); return; }
     results.push({ id, name, ok: false });
     console.log(`FAIL ${id} ${name} — ${e.message}`);
   }

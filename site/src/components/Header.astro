@@ -51,16 +51,16 @@ const { currentPath = '' } = Astro.props;
         <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
         <span>Status</span>
       </a>
-      <button
+      <a
         id="presenter-badge"
-        type="button"
+        href="/presenter/"
         hidden
         class="inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium bg-primary-100 text-primary-800 dark:bg-primary-900/50 dark:text-primary-200"
-        title="Presenter mode: your terminals use your reserved sandbox. Click to turn it off in this browser."
+        title="Presenter mode: your terminals use your reserved sandbox"
       >
         <span class="w-2 h-2 rounded-full bg-primary-500"></span>
         <span class="pb-text">Presenter</span>
-      </button>
+      </a>
       <div class="w-px h-6 bg-surface-200 dark:bg-surface-700 mx-1"></div>
       <Search />
       <div class="w-px h-6 bg-surface-200 dark:bg-surface-700 mx-1 hidden sm:block"></div>
@@ -87,12 +87,6 @@ const { currentPath = '' } = Astro.props;
     try { key = localStorage.getItem('presenterKey'); } catch (e) {}
     if (!badge || !key) return;
     badge.hidden = false;
-    badge.addEventListener('click', function () {
-      if (confirm('Turn off presenter mode in this browser?')) {
-        try { localStorage.removeItem('presenterKey'); } catch (e) {}
-        badge.hidden = true;
-      }
-    });
 
     // Wake the presenter sandbox in the background (at most every 4 minutes); this also checks the key
     var meta = document.querySelector('meta[name="terminal-url"]');
@@ -104,7 +98,7 @@ const { currentPath = '' } = Astro.props;
       if (r.status === 403) {
         sessionStorage.removeItem('presenterKeyOk');
         badge.className = 'inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-200';
-        badge.querySelector('.pb-text').textContent = 'Presenter key invalid';
+        badge.querySelector('.pb-text').textContent = 'Presenter: sign in again';
       } else if (r.ok) {
         sessionStorage.setItem('presenterWarmAt', String(Date.now()));
         sessionStorage.setItem('presenterKeyOk', '1');

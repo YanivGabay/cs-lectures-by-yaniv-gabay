@@ -1,0 +1,125 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Presenter" description="Lecturer sign-in for presenter mode">
+  <section class="max-w-md mx-auto px-4 py-16">
+    <h1 class="text-2xl font-bold text-surface-900 dark:text-white mb-2">Presenter mode</h1>
+    <p class="text-sm text-surface-600 dark:text-surface-400 mb-8">
+      For the lecturer. Sign in once on each computer you present from — that browser then runs every
+      example in your reserved sandbox and keeps it warm. Students don't need this.
+    </p>
+
+    <div id="pm-signed-in" hidden class="card p-6">
+      <div class="flex items-center gap-2 text-primary-700 dark:text-primary-300 font-semibold mb-2">
+        <span class="w-2.5 h-2.5 rounded-full bg-primary-500"></span>
+        This browser is in presenter mode
+      </div>
+      <p class="text-sm text-surface-600 dark:text-surface-400 mb-5">Until <span id="pm-until"></span>.</p>
+      <div class="flex flex-wrap gap-3">
+        <a href="/os/" class="btn-primary">Go to the course</a>
+        <button id="pm-signout" type="button" class="px-4 py-2 rounded-xl border border-surface-300 dark:border-surface-600 text-sm font-medium text-surface-700 dark:text-surface-300 hover:bg-surface-100 dark:hover:bg-surface-800">
+          Sign out on this computer
+        </button>
+      </div>
+    </div>
+
+    <form id="pm-form" class="card p-6 space-y-4">
+      <input type="text" name="username" value="presenter" autocomplete="username" hidden />
+      <label class="block">
+        <span class="text-sm font-medium text-surface-700 dark:text-surface-300">Password</span>
+        <input
+          id="pm-password"
+          type="password"
+          name="password"
+          autocomplete="current-password"
+          required
+          class="mt-1 w-full rounded-lg border border-surface-300 dark:border-surface-600 bg-white dark:bg-surface-900 px-3 py-2 text-surface-900 dark:text-white"
+        />
+      </label>
+      <button id="pm-submit" type="submit" class="btn-primary w-full justify-center">Sign in</button>
+      <p id="pm-error" role="alert" class="text-sm text-red-700 dark:text-red-300 min-h-5"></p>
+    </form>
+  </section>
+</BaseLayout>
+
+<script is:inline>
+  (function () {
+    var meta = document.querySelector('meta[name="terminal-url"]');
+    var api = meta && meta.content ? meta.content.replace(/^ws/, 'http').replace(/\/$/, '') : '';
+    var form = document.getElementById('pm-form');
+    var signedIn = document.getElementById('pm-signed-in');
+    var error = document.getElementById('pm-error');
+    var submit = document.getElementById('pm-submit');
+
+    function show(isIn) {
+      signedIn.hidden = !isIn;
+      form.hidden = isIn;
+      if (isIn) {
+        var until = Number(localStorage.getItem('presenterUntil') || 0);
+        document.getElementById('pm-until').textContent = until ? new Date(until).toLocaleDateString() : 'you sign out';
+      }
+    }
+
+    function signOut() {
+      localStorage.removeItem('presenterKey');
+      localStorage.removeItem('presenterUntil');
+      sessionStorage.removeItem('presenterKeyOk');
+      sessionStorage.removeItem('presenterWarmAt');
+      var badge = document.getElementById('presenter-badge');
+      if (badge) badge.hidden = true;
+      show(false);
+    }
+
+    var existing = localStorage.getItem('presenterKey');
+    show(!!existing);
+    if (existing && api) {
+      // A pass stops working when it expires or the password changes
+      fetch(api + '/warm?presenter=' + encodeURIComponent(existing)).then(function (r) {
+        if (r.status === 403) { signOut(); error.textContent = 'Your presenter sign-in expired or the password changed — sign in again.'; }
+      }).catch(function () {});
+    }
+
+    document.getElementById('pm-signout').addEventListener('click', signOut);
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      error.textContent = '';
+      if (!api) { error.textContent = 'Terminal server is not configured for this site.'; return; }
+      submit.disabled = true;
+      submit.textContent = 'Signing in…';
+      fetch(api + '/presenter/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: document.getElementById('pm-password').value }),
+      }).then(function (r) {
+        return r.json().catch(function () { return {}; }).then(function (body) { return { status: r.status, body: body }; });
+      }).then(function (res) {
+        if (res.status === 200 && res.body.token) {
+          localStorage.setItem('presenterKey', res.body.token);
+          localStorage.setItem('presenterUntil', String(res.body.expiresAt));
+          sessionStorage.removeItem('presenterKeyOk');
+          sessionStorage.removeItem('presenterWarmAt');
+          document.getElementById('pm-password').value = '';
+          var badge = document.getElementById('presenter-badge');
+          if (badge) badge.hidden = false;
+          show(true);
+          fetch(api + '/warm?presenter=' + encodeURIComponent(res.body.token)).catch(function () {});
+        } else if (res.status === 401) {
+          error.textContent = 'Wrong password.';
+        } else if (res.status === 429) {
+          error.textContent = 'Too many attempts — wait a minute and try again.';
+        } else if (res.status === 503) {
+          error.textContent = 'Presenter sign-in is not set up yet (no password configured).';
+        } else {
+          error.textContent = 'Sign-in failed (' + res.status + '). Try again.';
+        }
+      }).catch(function () {
+        error.textContent = 'Could not reach the terminal server.';
+      }).finally(function () {
+        submit.disabled = false;
+        submit.textContent = 'Sign in';
+      });
+    });
+  })();
+</script>
