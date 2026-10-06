@@ -132,3 +132,14 @@ Learnings:
 - `sh -c 'one command'` execs it directly; add `; exit $?` to force a real child.
 - A process-group leader cannot setsid() (EPERM) — bash makes every job a group leader.
 - Expected-output banners of '═' cannot wrap: use overflow-wrap:anywhere on output panels.
+
+## 2026-10-07 — T20 final regression in production: all green
+
+site.mjs (https://cs-lectures.pages.dev, with a presenter password): 20/20
+security.mjs DESTRUCTIVE=1 against the Worker: 22/22; S13 passed 3 runs in a row (104, 90, 90 of 240 refused)
+examples.mjs STRICT=1 against production: 114 examples — 61 runs-and-exits, 10 runs-with-input, 13 long-running
+  (stopped on schedule), 12 pair-runs (+12 partners), 6 reference, 2 Windows-only, 2 intentional crashes;
+  0 unexplained problems.
+osc-unit.mjs: 1/1 (events survive every split point).
+status-sleep.mjs: a container polled every 10 s by /status still fell asleep after 5.0 min (sleepAfter).
+Only open PRD item: T07b, the billing alert — a dashboard step for Yaniv.

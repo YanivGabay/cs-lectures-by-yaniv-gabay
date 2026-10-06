@@ -1,20 +1,19 @@
-# Example readiness — 2026-10-06 21:23 UTC
+# Example readiness — 2026-10-06 21:39 UTC
 
 Terminal: `wss://cs-lectures-terminal.yaniv242.workers.dev` · run limit 8s · 118 examples
 
 | Category | Count |
 |---|---|
-| crashes | 1 |
-| hangs | 1 |
-| long-running | 15 |
+| crashes | 2 |
+| long-running | 13 |
 | pair-partner | 12 |
 | pair-runs | 12 |
 | reference-only | 6 |
-| runs-and-exits | 59 |
+| runs-and-exits | 61 |
 | runs-with-input | 10 |
 | windows-only | 2 |
 
-Unexplained problems: **1**
+Unexplained problems: **0**
 
 ## 01 — Introduction to C
 
@@ -97,7 +96,7 @@ Unexplained problems: **1**
 | `alarm_manager/alarm_handler.c` | reference-only | marked in data (not run) | reference |
 | `alarm_manager/alarm_manager.c` | runs-with-input | status 0, fed sampleInput | interactive |
 | `coordination.c` | runs-and-exits | status 0 |  |
-| `multiply_signals.c` | hangs | no output for 1.8s while blocked |  |
+| `multiply_signals.c` | runs-and-exits | status 0 |  |
 
 ## 08 — Pipes
 
@@ -169,13 +168,13 @@ Unexplained problems: **1**
 |---|---|---|---|
 | `01-pthread_create.c` | runs-and-exits | status 0 |  |
 | `02-pthread_exit.c` | runs-and-exits | status 0 |  |
-| `03-pthread_cleanup.c` | runs-and-exits | status 0 | intentional |
-| `04-pthread_join.c` | long-running | still printing when stopped |  |
+| `03-pthread_cleanup.c` | crashes | status 139 | intentional |
+| `04-pthread_join.c` | runs-and-exits | status 0 |  |
 | `05-pthread_ping_pong.c` | runs-and-exits | status 0 |  |
 | `06-pthread-once.c` | runs-and-exits | status 0 |  |
 | `07-partial-sum.c` | runs-and-exits | status 0 |  |
 | `08-pthread-exit.c` | runs-and-exits | status 0 | long-running |
-| `09-countdown-race.c` | long-running | still printing when stopped |  |
+| `09-countdown-race.c` | runs-and-exits | status 0 |  |
 | `10-async-chat.c` | runs-and-exits | status 0 | long-running |
 | `11-pthreads-fifo.c` | runs-and-exits | status 0 |  |
 

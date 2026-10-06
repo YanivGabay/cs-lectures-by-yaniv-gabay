@@ -78,7 +78,7 @@
       "title": "Deterministic per-IP connection limit (S13 is flaky)",
       "description": "The Workers ratelimits binding is best-effort per location: S13 refused 6/240 once, then 0/360 three runs in a row. Options: a small Durable Object counter per IP (strict, adds a hop per connect) or per-IP concurrent-session caps inside the pool (protects capacity, which the rate limit does not). Presenter container is already isolated from floods. Acceptance: S13 passes 3 runs in a row in production and a classroom of 10 on one NAT IP is not blocked.",
       "priority": 7.6,
-      "passes": false
+      "passes": true
     },
     {
       "id": "T08",
@@ -86,7 +86,7 @@
       "title": "Shell integration: /etc/cs-bashrc emits prompt and exit-status events",
       "description": "Replace bashrc with /etc/cs-bashrc: PS1 'student:\\w$ '; PROMPT_COMMAND emits OSC 777 'cs;prompt;<last exit code>' before every prompt; aliases; in CS_MODE=lesson print a 'CS Lectures sandbox' banner, the file tree (relative paths incl. folders) and 3 hint lines; in example mode print nothing. Add V10 'OSC prompt events arrive with the right exit codes' (run true, false, a SIGSEGV program). Acceptance: V05 and V10 pass.",
       "priority": 8,
-      "passes": false
+      "passes": true
     },
     {
       "id": "T09",
@@ -94,7 +94,7 @@
       "title": "Exit-status chip, compile-error and session-lost UX",
       "description": "CodeBlock.astro: xterm registerOscHandler(777) drives auto-run (compile → if exit 0 run) instead of '$ ' text matching; after each run show a chip: 'Exited 0', 'Exited 3', or 'Killed by SIGSEGV (11) — invalid memory access' with plain-language text for SIGSEGV, SIGINT, SIGTERM, SIGKILL, SIGPIPE, SIGALRM, SIGXCPU, SIGABRT, SIGFPE; compile failure shows a red 'Compile failed' chip; print 'Starting Linux sandbox…' while connecting; on socket close/timeout/container restart show a banner with a Restart button that reopens the same files. New checks: V11 segfault program shows the SIGSEGV chip, V12 broken code shows Compile failed, V13 server-side close shows the banner and Restart works. Acceptance: V04, V11, V12, V13 pass.",
       "priority": 9,
-      "passes": false
+      "passes": true
     },
     {
       "id": "T10",
@@ -102,7 +102,7 @@
       "title": "Deploy streaming changes; full-terminal and Ctrl+C pass in production",
       "description": "Deploy terminal + site. Acceptance: site.mjs V04–V07 and V10–V13 pass against https://cs-lectures.pages.dev.",
       "priority": 10,
-      "passes": false
+      "passes": true
     },
     {
       "id": "T11",
@@ -118,7 +118,7 @@
       "title": "Example readiness audit across all 115 examples",
       "description": "validate/examples.mjs: for every example in site/src/data/os-lessons.ts, run it through the real WebSocket pipeline exactly like the Run button (example mode, compile, run up to 8s, Ctrl+C, read the exit chip event) and classify: runs-and-exits, needs-input, needs-pair, crashes, hangs, compile-error, reference-only, windows-only. Write validate/reports/examples.md (table per lesson) and a JSON summary. Acceptance: report generated; counts recorded in progress.txt as the readiness baseline.",
       "priority": 12,
-      "passes": false
+      "passes": true
     },
     {
       "id": "T13",
@@ -126,7 +126,7 @@
       "title": "Example metadata: kind, sample input, pairs, reference/Windows labels",
       "description": "os-lessons.ts Example gets kind: 'run' | 'interactive' | 'pair' | 'long-running' | 'reference' | 'windows', plus sampleInput, pairWith/startOrder/startDelayMs, stopAfterMs. Fill it from the T12 report. UI: reference and Windows examples show a clear label instead of a Run button; long-running ones show 'stops automatically after Ns'. Acceptance: examples.mjs re-run has 0 items in 'crashes', 'hangs' or 'compile-error' that are not explicitly marked as intentional in the data.",
       "priority": 13,
-      "passes": false
+      "passes": true
     },
     {
       "id": "T14",
@@ -134,7 +134,7 @@
       "title": "Split panes and 'Run pair' for the two-program examples",
       "description": "Protocol: one session can own up to 3 PTYs (messages carry pane id; all panes share the session user and files). UI: split view inside the code block and full terminal; 'Run pair' compiles both programs, starts the server/reader/creator pane first, then the client/writer pane after startDelayMs. New check V14: lesson 11 echo server + client both show [Server] and [Client] lines; lesson 09 FIFO writer + reader exchange a message. Acceptance: V14 passes in production and examples.mjs classifies all pairs as runs.",
       "priority": 14,
-      "passes": false
+      "passes": true
     },
     {
       "id": "T15",
@@ -142,7 +142,7 @@
       "title": "Interactive examples: visible 'waiting for input' and sample input",
       "description": "When a running program produces no output for 1.5s while still alive, show a chip 'Program is waiting for input — type and press Enter'; an 'Insert sample input' button types the example's sampleInput. New check V15 on lesson 01 example 1. Acceptance: V15 passes; every interactive example has sampleInput and is classified runs-and-exits by examples.mjs when fed it.",
       "priority": 15,
-      "passes": false
+      "passes": true
     },
     {
       "id": "T16",
@@ -150,7 +150,7 @@
       "title": "Presenter mode: slide-style stepping, projector fonts, shortcuts",
       "description": "A Present button on lesson pages (and ?present deep link): fullscreen view stepping through the lesson's examples like slides with ←/→ and PageUp/PageDown (clicker friendly), Ctrl+Enter runs the current example, +/- font size for code and terminal (persisted), Esc exits. New check V16: step forward/back, run from presenter view, font size persists across reload. Acceptance: V16 passes in production.",
       "priority": 16,
-      "passes": false
+      "passes": true
     },
     {
       "id": "T17",
@@ -166,15 +166,15 @@
       "title": "Status page shows real pool and presenter state",
       "description": "The status page currently only gets {status:'ok'} from the Worker (container stats were never wired). Add a Worker endpoint that reports each running container's /health WITHOUT waking sleeping ones, and show pool-0..2 + presenter (awake/asleep, sessions). Also measure time from Run click to first prompt for the presenter after warm (target < 3s). Acceptance: new check V19 passes in production.",
       "priority": 17.5,
-      "passes": false
+      "passes": true
     },
     {
       "id": "T18",
       "phase": "6 — Teaching content",
       "title": "Lesson 16: How this site runs your code safely",
-      "description": "New lesson in os-lessons.ts with sandbox-launch.c (runnable: as a normal user setuid fails with EPERM — that is the lesson), a SandboxVisualizer SVG of the request path (browser → Worker → container → tini → supervisor → fork/setrlimit/setsid/setuid/exec → bash, PTY ^C path), and exercises that link back to Lessons 02, 03, 04, 06, 08. Acceptance: page builds, V01 passes, examples.mjs runs the new examples.",
+      "description": "New lesson in os-lessons.ts with sandbox-launch.c (runnable: as a normal user setuid fails with EPERM — that is the lesson), a SandboxVisualizer (responsive HTML flow) of the request path (browser → Worker → container → tini → supervisor → fork/setrlimit/setsid/setuid/exec → bash, PTY ^C path), and exercises that link back to Lessons 02, 03, 04, 06, 08. Acceptance: page builds, V01 passes, examples.mjs runs the new examples.",
       "priority": 18,
-      "passes": false
+      "passes": true
     },
     {
       "id": "T19",
@@ -182,7 +182,7 @@
       "title": "Syllabus-aligned challenges",
       "description": "Challenges verified through the exit chip and output, only for course topics: L02 run the fork-in-loop mistake and observe fork() failing with EAGAIN under the process limit; L03/L06 install a SIGINT handler and survive Ctrl+C; L08 write to a pipe with no reader and see SIGPIPE; L14 trigger the dining-philosophers deadlock and detect it with a timeout. New check V18 completes one challenge automatically. Acceptance: V18 passes.",
       "priority": 19,
-      "passes": false
+      "passes": true
     },
     {
       "id": "T20",
@@ -190,7 +190,7 @@
       "title": "Full regression, deploy, push",
       "description": "Run site.mjs, security.mjs (DESTRUCTIVE=1 against production) and examples.mjs. Acceptance: all PASS, examples report shows every example in an intended category, KNOWN_ISSUES.md updated, changes committed and pushed.",
       "priority": 20,
-      "passes": false
+      "passes": true
     }
   ]
 }
