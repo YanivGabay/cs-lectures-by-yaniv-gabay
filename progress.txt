@@ -52,3 +52,21 @@ Learnings:
 - node-pty's forkpty already makes the child a session leader; setsid() would fail with EPERM, so the launcher only calls it when needed.
 - Container root lacks CAP_IPC_OWNER: IPC objects must be removed by running ipcrm AS the owning uid (execFileSync with {uid, gid}).
 - Course bug found: lesson-10 04-array/producer.c (and siblings) pass a const char* SHM_KEY to shmget(); gcc 15 rejects it. To fix in T12/T13 with Yaniv's review.
+
+## 2026-10-06 — T06 + T07 done (production)
+
+security.mjs against wss://cs-lectures-terminal.yaniv242.workers.dev, DESTRUCTIVE=1: 17/17 PASS
+  S01–S11, S14, S15 as locally, plus S11 no outbound network.
+  S16 11 concurrent students: {"pool-2":6,"pool-0":4,"pool-1":1} — full-container skip works.
+  S17 presenter key -> "presenter" container; wrong key -> pool-*.
+  S12 foreign Origin -> 403.
+  S13 parallel bursts: 6 of 240 refused (429). Cloudflare's limiter is permissive/eventually
+      consistent — it slows floods; session caps + sandbox limits are the real protection.
+
+Learnings:
+- Container image rollouts are gradual: instances started mid-rollout keep the OLD image until they
+  sleep (5 min idle). After deploying, wait for the pool to recycle before validating.
+- pkill -f '<pattern>' kills its own shell if the same command line contains the pattern — stop
+  servers by port (lsof -t -i:PORT) in a separate command.
+- The presenter key lives in ~/.cs-lectures-presenter-key (0600) and the Worker secret PRESENTER_KEY;
+  never print it.

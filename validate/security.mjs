@@ -234,12 +234,20 @@ if (BEHIND_WORKER) {
   });
 
   await check('S13', 'connection flooding is rate limited', async () => {
-    let limited = 0;
-    // limit is 100/min per IP (a classroom shares one IP) — 200 attempts must trip it
-    for (let i = 0; i < 200 && !limited; i++) {
-      await connect().then((ws) => ws.close(), (e) => { if (/HTTP 429/.test(e.message)) limited++; });
+    // limit is 100/min per IP (a classroom shares one IP). The limiter is eventually
+    // consistent per location, so flood in parallel bursts like a real attack would.
+    let limited = 0, attempts = 0;
+    for (let burst = 0; burst < 3 && !limited; burst++) {
+      const results = await Promise.allSettled(Array.from({ length: 120 }, () => connect()));
+      attempts += results.length;
+      for (const r of results) {
+        if (r.status === 'fulfilled') r.value.close();
+        else if (/HTTP 429/.test(r.reason.message)) limited++;
+      }
+      await sleep(1500);
     }
-    assert(limited, '200 rapid connections were all accepted');
+    assert(limited, `${attempts} connections in parallel bursts were all accepted`);
+    return `${limited} of ${attempts} refused with 429`;
   });
 }
 

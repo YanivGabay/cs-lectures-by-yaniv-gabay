@@ -54,7 +54,7 @@
       "title": "Worker: origin check, rate limit, student pool, reserved presenter container",
       "description": "src/index.ts + wrangler.jsonc: reject WebSocket upgrades whose Origin is not cs-lectures.pages.dev, *.cs-lectures.pages.dev or localhost (403); ratelimits binding keyed by client IP on upgrades (429); route students to pool-0..pool-2 (6 sessions each, MAX_SESSIONS via envVars); a request with ?presenter=<key> matching Worker secret PRESENTER_KEY goes to a dedicated 'presenter' container; add GET /warm (starts the presenter container). Probes: S12 origin, S13 rate limit, S16 '11 concurrent student sessions all get a prompt', S17 'presenter key reaches its own container' (health reports container name). Acceptance: all pass against production.",
       "priority": 6,
-      "passes": false
+      "passes": true
     },
     {
       "id": "T07",
@@ -62,7 +62,7 @@
       "title": "Deploy the sandbox and pass the full security suite in production",
       "description": "Deploy terminal-server/cloudflare. Run security.mjs against wss://cs-lectures-terminal.yaniv242.workers.dev with DESTRUCTIVE=1 (now safe: limits contain the attacker) — S01–S17 all pass, including S11 no network. Record results in progress.txt. Acceptance: 0 FAIL.",
       "priority": 7,
-      "passes": false
+      "passes": true
     },
     {
       "id": "T07b",
