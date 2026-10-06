@@ -132,6 +132,70 @@
     @apply shadow-sm hover:shadow-md;
   }
 
+  /* Collapsed long code: fade only shows while collapsed */
+  .code-fade { display: none; }
+  .collapsed > .code-fade { display: block; }
+
+  /* Fullscreen mode — a code block (or standalone terminal) fills the viewport */
+  .is-fullscreen {
+    position: fixed !important;
+    inset: 0;
+    z-index: 90;
+    margin: 0 !important;
+    display: flex;
+    flex-direction: column;
+    border-radius: 0 !important;
+    @apply bg-white dark:bg-surface-900;
+  }
+
+  .is-fullscreen > *,
+  .is-fullscreen .terminal-target {
+    flex-shrink: 0;
+    border-radius: 0 !important;
+  }
+
+  .is-fullscreen .code-scroll {
+    flex: 1 1 auto;
+    min-height: 0;
+    max-height: none !important;
+    overflow: auto !important;
+  }
+
+  .is-fullscreen .code-fade,
+  .is-fullscreen .expand-btn,
+  .is-fullscreen:has(.terminal-container) .terminal-output {
+    display: none;
+  }
+
+  .is-fullscreen .code-editor:not(.hidden) {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .is-fullscreen .cm-host {
+    flex: 1 1 auto;
+    max-height: none !important;
+  }
+
+  .is-fullscreen .cm-host .CodeMirror-scroll {
+    max-height: none;
+  }
+
+  .code-block-wrapper.is-fullscreen .terminal-target {
+    height: 45vh !important;
+  }
+
+  .terminal-container.is-fullscreen .terminal-target {
+    flex: 1 1 auto;
+    height: auto !important;
+  }
+
+  body.fs-lock {
+    overflow: hidden;
+  }
+
   /* Syscall tooltips */
   .syscall-hint {
     @apply border-b border-dashed border-primary-500/40 cursor-help;

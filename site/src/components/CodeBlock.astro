@@ -30,16 +30,19 @@ const id = filename.replace(/[^a-zA-Z0-9]/g, '-');
       <span class="text-xs text-surface-400 dark:text-surface-500">{lineCount} lines</span>
     </div>
     <div class="flex items-center gap-2">
-      {shouldCollapse && (
-        <button
-          class="expand-btn text-xs px-2.5 py-1 rounded-md border border-surface-300 dark:border-surface-600 text-surface-700 dark:text-surface-400 hover:bg-surface-200 dark:hover:bg-surface-700 transition-colors"
-          data-target={`code-content-${id}`}
-          aria-expanded={!shouldCollapse}
-        >
-          <span class="expand-text">Expand</span>
-          <span class="collapse-text hidden">Collapse</span>
-        </button>
-      )}
+      <button
+        class="fs-btn inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-md border border-surface-300 dark:border-surface-600 text-surface-700 dark:text-surface-400 hover:bg-surface-200 dark:hover:bg-surface-700 transition-colors"
+        aria-label="Toggle fullscreen"
+        title="Fullscreen (Esc to exit)"
+      >
+        <svg class="fs-enter w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" />
+        </svg>
+        <svg class="fs-exit hidden w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 9V4.5M9 9H4.5M9 9 3.75 3.75M9 15v4.5M9 15H4.5M9 15l-5.25 5.25M15 9h4.5M15 9V4.5M15 9l5.25-5.25M15 15h4.5M15 15v4.5m0-4.5 5.25 5.25" />
+        </svg>
+        <span class="fs-label hidden sm:inline">Fullscreen</span>
+      </button>
       <button
         class="edit-btn text-xs px-2.5 py-1 rounded-md border border-surface-300 dark:border-surface-600 text-surface-700 dark:text-surface-400 hover:bg-surface-200 dark:hover:bg-surface-700 transition-colors"
         data-target={`code-${id}`}
@@ -62,12 +65,23 @@ const id = filename.replace(/[^a-zA-Z0-9]/g, '-');
   <div
     id={`code-content-${id}`}
     class:list={[
-      'overflow-x-auto',
-      shouldCollapse && 'max-h-[400px] overflow-y-auto collapsed',
+      'code-scroll relative overflow-x-auto',
+      shouldCollapse && 'max-h-[400px] overflow-y-hidden collapsed',
     ]}
   >
     <Code code={code} lang={lang} theme="github-dark" />
+    {shouldCollapse && <div class="code-fade pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-[#24292e] to-transparent"></div>}
   </div>
+  {shouldCollapse && (
+    <button
+      class="expand-btn w-full flex items-center justify-center gap-1.5 py-2 text-xs font-medium bg-[#24292e] text-surface-300 hover:text-white hover:bg-[#2d333b] border-t border-surface-700 transition-colors"
+      data-target={`code-content-${id}`}
+      aria-expanded="false"
+    >
+      <span class="expand-text">Show all {lineCount} lines ↓</span>
+      <span class="collapse-text hidden">Show less ↑</span>
+    </button>
+  )}
 
   {/* Editor (hidden by default) — CodeMirror loaded on demand */}
   <div class="code-editor hidden" id={`editor-${id}`} data-original={code}>
@@ -148,12 +162,49 @@ const id = filename.replace(/[^a-zA-Z0-9]/g, '-');
       const isCollapsed = target.classList.contains('collapsed');
       target.classList.toggle('collapsed', !isCollapsed);
       target.classList.toggle('max-h-[400px]', !isCollapsed);
-      target.classList.toggle('overflow-y-auto', !isCollapsed);
+      target.classList.toggle('overflow-y-hidden', !isCollapsed);
+      btn.setAttribute('aria-expanded', String(isCollapsed));
       const expandText = btn.querySelector('.expand-text') as HTMLElement;
       const collapseText = btn.querySelector('.collapse-text') as HTMLElement;
       expandText.classList.toggle('hidden', isCollapsed);
       collapseText.classList.toggle('hidden', !isCollapsed);
+      // After collapsing a long file, bring its header back into view
+      if (!isCollapsed) {
+        const wrapper = btn.closest('.code-block-wrapper') as HTMLElement;
+        if (wrapper.getBoundingClientRect().top < 0) wrapper.scrollIntoView({ block: 'start' });
+      }
     });
+  });
+
+  // Fullscreen mode: code on top, terminal below, filling the viewport
+  function setFullscreen(wrapper: HTMLElement, on: boolean) {
+    wrapper.classList.toggle('is-fullscreen', on);
+    document.body.classList.toggle('fs-lock', on);
+    wrapper.querySelectorAll('.fs-enter').forEach(e => e.classList.toggle('hidden', on));
+    wrapper.querySelectorAll('.fs-exit').forEach(e => e.classList.toggle('hidden', !on));
+    wrapper.querySelectorAll('.fs-label').forEach(e => { e.textContent = on ? 'Exit' : 'Fullscreen'; });
+    const editorDiv = wrapper.querySelector('.code-editor') as HTMLElement | null;
+    const cm = editorDiv ? editorInstances.get(editorDiv) : null;
+    if (cm) {
+      cm.setSize(null, on ? '100%' : Math.min(cm.lineCount() * 22 + 16, 500));
+      cm.refresh();
+    }
+  }
+
+  document.addEventListener('click', (e) => {
+    const btn = (e.target as HTMLElement).closest('.fs-btn, .terminal-fs');
+    if (!btn) return;
+    // Prefer the whole code block (code + terminal); fall back to a standalone terminal
+    const wrapper = (btn.closest('.code-block-wrapper') || btn.closest('.terminal-container')) as HTMLElement | null;
+    if (wrapper) setFullscreen(wrapper, !wrapper.classList.contains('is-fullscreen'));
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    // Esc inside the terminal belongs to the running program, not to us
+    if ((e.target as HTMLElement).closest?.('.xterm')) return;
+    const open = document.querySelector('.is-fullscreen') as HTMLElement | null;
+    if (open) setFullscreen(open, false);
   });
 
   // CodeMirror lazy loader
@@ -366,7 +417,10 @@ const id = filename.replace(/[^a-zA-Z0-9]/g, '-');
       ro.observe(target);
 
       killBtn.addEventListener('click', () => { if (ws.readyState === 1) ws.send(JSON.stringify({ type: 'signal', signal: 'SIGINT' })); });
-      closeBtn.addEventListener('click', () => { ws.close(); ro.disconnect(); term.dispose(); container.remove(); });
+      closeBtn.addEventListener('click', () => {
+        if (container.classList.contains('is-fullscreen')) document.body.classList.remove('fs-lock');
+        ws.close(); ro.disconnect(); term.dispose(); container.remove();
+      });
     }, 150);
   }
 
@@ -415,6 +469,7 @@ const id = filename.replace(/[^a-zA-Z0-9]/g, '-');
           </div>
           <div class="flex items-center gap-2">
             <button class="terminal-kill text-xs px-2 py-1 rounded text-red-400 hover:bg-surface-800 transition-colors hidden">Ctrl+C</button>
+            <button class="terminal-fs text-xs px-2 py-1 rounded text-surface-400 hover:bg-surface-800 transition-colors"><span class="fs-enter">Fullscreen</span><span class="fs-exit hidden">Exit fullscreen</span></button>
             <button class="terminal-close text-xs px-2 py-1 rounded text-surface-400 hover:bg-surface-800 transition-colors">Close</button>
           </div>
         </div>
