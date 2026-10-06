@@ -16,10 +16,11 @@
 int main(int argc, char const *argv[])
 {
 
-    printf("\n");
-    printf("══════════════════════════════════════\n");
-    printf("  Producer\n");
-    printf("══════════════════════════════════════\n\n");
+    // The banner goes to stderr: stdout is the pipe, and only the data may travel through it
+    fprintf(stderr, "\n");
+    fprintf(stderr, "══════════════════════════════════════\n");
+    fprintf(stderr, "  Producer\n");
+    fprintf(stderr, "══════════════════════════════════════\n\n");
     fprintf(stderr, "[Producer PID %d] Writing data to stdout...\n", getpid());
     fprintf(stderr, "[Producer] Usage: ./producer | ./consumer\n");
     printf("Yaniv\n");

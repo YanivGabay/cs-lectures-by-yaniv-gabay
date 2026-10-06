@@ -8,9 +8,16 @@ interface Props {
   rightFilename: string;
   leftLabel?: string;
   rightLabel?: string;
+  leftCompile?: string;
+  rightCompile?: string;
 }
 
-const { leftCode, rightCode, leftFilename, rightFilename, leftLabel = 'Bug', rightLabel = 'Fix' } = Astro.props;
+const { leftCode, rightCode, leftFilename, rightFilename, leftLabel = 'Bug', rightLabel = 'Fix', leftCompile, rightCompile } = Astro.props;
+// Each side runs like a normal example (CodeBlock's Run handler, terminal below)
+const sides = [
+  { label: leftLabel, file: leftFilename, code: leftCode, compile: leftCompile || `gcc -o prog ${leftFilename}` },
+  { label: rightLabel, file: rightFilename, code: rightCode, compile: rightCompile || `gcc -o prog ${rightFilename}` },
+];
 
 const leftLines = leftCode.split('\n');
 const rightLines = rightCode.split('\n');
@@ -26,7 +33,7 @@ for (let i = 0; i < maxLines; i++) {
 }
 ---
 
-<div class="diff-view rounded-xl border border-surface-200 dark:border-surface-700 overflow-hidden mb-4">
+<div class="diff-view run-host rounded-xl border border-surface-200 dark:border-surface-700 overflow-hidden mb-4">
   <div class="px-4 py-2.5 bg-surface-100 dark:bg-surface-800 border-b border-surface-200 dark:border-surface-700">
     <div class="flex items-center justify-between">
       <span class="text-sm font-medium text-surface-700 dark:text-surface-300">Side-by-Side Comparison</span>
@@ -57,6 +64,22 @@ for (let i = 0; i < maxLines; i++) {
       </div>
     </div>
   </div>
+  <div class="flex flex-wrap items-center justify-end gap-2 px-4 py-2.5 bg-surface-100 dark:bg-surface-850 border-t border-surface-200 dark:border-surface-700">
+    <span class="mr-auto text-xs text-surface-600 dark:text-surface-400">Run both and compare the output</span>
+    {sides.map((side, i) => (
+      <button
+        class:list={['open-terminal-btn inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold transition-colors disabled:opacity-60',
+          i === 0 ? 'bg-red-600 hover:bg-red-700 text-white' : 'bg-primary-600 hover:bg-primary-700 text-white']}
+        data-filename={side.file}
+        data-code={side.code}
+        data-plan={JSON.stringify({ compile: side.compile })}
+        data-support="[]"
+      >
+        <span class="run-label">Run {side.label.toLowerCase()}</span>
+      </button>
+    ))}
+  </div>
+  <div class="terminal-slot"></div>
 </div>
 
 <script>

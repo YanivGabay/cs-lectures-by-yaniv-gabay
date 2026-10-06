@@ -15,6 +15,7 @@
 // Global variables to store child PIDs
 pid_t child1_pid = 0;
 pid_t child2_pid = 0;
+volatile sig_atomic_t all_done = 0; // set by the SIGUSR2 handler so main can stop waiting
 
 // Function to set up signal handlers using sigaction
 void setup_sigaction(int signum, void (*handler)(int)) {
@@ -45,6 +46,12 @@ void handle_sigusr2(int signum) {
     printf("[Parent] Terminating both children...\n");
     kill(child1_pid, SIGTERM);
     kill(child2_pid, SIGTERM);
+    all_done = 1;
+}
+
+// Child 2 needs a handler (even an empty one): with SIG_DFL, SIGUSR2 would kill it instead of waking pause()
+void child_wakeup(int signum) {
+    (void)signum;
 }
 
 int main() {
@@ -87,7 +94,7 @@ int main() {
     if (child2_pid == 0) {
         // In Child 2
         printf("[Child 2 PID %d] Started. Waiting for signal from Parent...\n", getpid());
-        setup_sigaction(SIGUSR2, SIG_DFL);
+        setup_sigaction(SIGUSR2, child_wakeup);
         pause();
         printf("[Child 2 PID %d] Received signal! Task done. Sending SIGUSR2 to Parent.\n", getpid());
         kill(getppid(), SIGUSR2);
@@ -96,8 +103,8 @@ int main() {
 
     printf("[Parent] Forked Child 1 (PID %d) and Child 2 (PID %d).\n", child1_pid, child2_pid);
     printf("[Parent] Waiting for Child 1 to finish its work...\n\n");
-    while (1) {
-        pause(); // Wait for signals indefinitely
+    while (!all_done) {
+        pause(); // Wait for signals until Child 2 reports back
     }
 
     //wait on all the children

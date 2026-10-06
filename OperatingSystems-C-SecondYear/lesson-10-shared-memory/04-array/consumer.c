@@ -13,7 +13,7 @@
 #include <sys/ipc.h>
 #include <signal.h>
 
-const char* SHM_KEY =  '0x2345'; // Unique key for shared memory
+const key_t SHM_KEY = 0x2345; // Unique key for shared memory (a number, not a string)
 const int ARRAY_SIZE =  10 ; // Size of the integer array
 
 int shmid;

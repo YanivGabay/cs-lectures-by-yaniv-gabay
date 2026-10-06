@@ -7,8 +7,12 @@ import DiffView from '../../components/DiffView.astro';
 import ForkVisualizer from '../../components/ForkVisualizer.astro';
 import PipeVisualizer from '../../components/PipeVisualizer.astro';
 import ThreadVisualizer from '../../components/ThreadVisualizer.astro';
-import { OS_COURSE, lessons } from '../../data/os-lessons';
-import type { Lesson } from '../../data/os-lessons';
+import PresentMode from '../../components/PresentMode.astro';
+import SandboxVisualizer from '../../components/SandboxVisualizer.astro';
+import ChallengeCard from '../../components/ChallengeCard.astro';
+import { challenges } from '../../data/challenges';
+import { OS_COURSE, lessons, localIncludes } from '../../data/os-lessons';
+import type { Lesson, Example } from '../../data/os-lessons';
 
 export function getStaticPaths() {
   return lessons.map((lesson) => ({
@@ -33,8 +37,21 @@ const prereqLessons = lesson.prerequisites
 
 const repoBase = path.resolve(process.cwd(), '..', OS_COURSE.basePath, lesson.folder);
 
-function readExampleCode(example: { file: string }): string {
-  const filePath = path.join(repoBase, example.file);
+function readSource(file: string): string | null {
+  try { return fs.readFileSync(path.join(repoBase, file), 'utf-8'); } catch { return null; }
+}
+
+// Local headers the example includes and other files its commands need, uploaded alongside it
+function supportFiles(example: Example) {
+  const code = readSource(example.file) || '';
+  return [...localIncludes(example.file, code), ...(example.extraFiles || [])]
+    .map((name) => ({ name, content: readSource(name) }))
+    .filter((f): f is { name: string; content: string } => f.content !== null);
+}
+
+function readExampleCode(example: { file: string; source?: string }): string {
+  // Lesson 16 shows the site's own launcher straight from terminal-server/, so it never drifts
+  const filePath = example.source ? path.resolve(process.cwd(), '..', example.source) : path.join(repoBase, example.file);
   try {
     return fs.readFileSync(filePath, 'utf-8');
   } catch {
@@ -51,6 +68,26 @@ try {
 function getCapturedOutput(example: { file: string }): string | undefined {
   const key = `${lesson.folder}/${example.file}`;
   return capturedOutputs[key];
+}
+
+// "Run pair": this example starts first, its partner a moment later in a second pane
+function pairOf(example: Example) {
+  if (example.companion) {
+    return { label: example.companion.label, runCmd: example.companion.cmd, startDelayMs: example.companion.startDelayMs };
+  }
+  const partner = example.pairWith && lesson.examples.find((e) => e.file === example.pairWith);
+  if (!partner) return undefined;
+  return {
+    file: partner.file,
+    label: partner.file.split('/').pop()!,
+    stopAfterMs: partner.stopAfterMs,
+    code: readExampleCode(partner),
+    compileCmd: partner.compileCmd,
+    runCmd: partner.runCmd,
+    sampleInput: partner.sampleInput,
+    startDelayMs: example.startDelayMs,
+    supportFiles: supportFiles(partner),
+  };
 }
 
 const diffColors: Record<string, string> = {
@@ -96,9 +133,21 @@ const diffColors: Record<string, string> = {
           </p>
         </div>
 
+        <div class="flex flex-wrap items-center gap-2 flex-shrink-0 mt-2">
+        {lesson.examples.length > 0 && (
+          <button
+            class="present-btn flex items-center gap-2 px-4 py-2 rounded-xl bg-primary-600 text-white text-sm font-semibold hover:bg-primary-700 transition-colors"
+            title="Step through the examples full screen (← →, Ctrl+Enter runs, Esc exits)"
+          >
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 0 0 6 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0 1 18 16.5h-2.25m-7.5 0h7.5m-7.5 0-1 3m8.5-3 1 3m0 0 .5 1.5m-.5-1.5h-9.5m0 0-.5 1.5" />
+            </svg>
+            Present
+          </button>
+        )}
         {/* Completion toggle */}
         <button
-          class="lesson-complete-btn flex-shrink-0 mt-2 flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-surface-300 dark:border-surface-600 text-sm font-medium text-surface-700 dark:text-surface-300 hover:border-primary-500 hover:text-primary-600 dark:hover:text-primary-400 transition-all"
+          class="lesson-complete-btn flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-surface-300 dark:border-surface-600 text-sm font-medium text-surface-700 dark:text-surface-300 hover:border-primary-500 hover:text-primary-600 dark:hover:text-primary-400 transition-all"
           data-lesson={lesson.number}
           data-course="os"
         >
@@ -110,6 +159,7 @@ const diffColors: Record<string, string> = {
           </svg>
           <span class="btn-text">Mark Complete</span>
         </button>
+        </div>
       </div>
 
       {/* Tags & Prerequisites */}
@@ -120,7 +170,7 @@ const diffColors: Record<string, string> = {
           ))}
         </div>
         {prereqLessons.length > 0 && (
-          <div class="flex items-center gap-2 text-sm text-surface-700 dark:text-surface-400">
+          <div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-surface-700 dark:text-surface-400">
             <span>Prerequisites:</span>
             {prereqLessons.map((p) => (
               <a href={`/os/${p!.slug}/`} class="text-primary-600 dark:text-primary-400 hover:underline">
@@ -197,6 +247,11 @@ const diffColors: Record<string, string> = {
             <PipeVisualizer />
           </div>
         )}
+        {lesson.visualization === 'sandbox' && (
+          <div class="mb-10">
+            <SandboxVisualizer />
+          </div>
+        )}
         {lesson.visualization === 'threads' && (
           <div class="mb-10">
             <ThreadVisualizer />
@@ -238,15 +293,27 @@ const diffColors: Record<string, string> = {
                 rightFilename={lesson.examples[diffPair.fixIndex].file}
                 leftLabel="Bug"
                 rightLabel="Fix"
+                leftCompile={example.compileCmd}
+                rightCompile={lesson.examples[diffPair.fixIndex].compileCmd}
               />
             ) : (
               <CodeBlock
                 code={code}
                 filename={example.file}
                 compileCmd={example.compileCmd}
+                runCmd={example.runCmd}
                 collapsed={code.split('\n').length > 80}
                 needsInput={example.needsInput}
                 output={getCapturedOutput(example)}
+                kind={example.kind}
+                sampleInput={example.sampleInput}
+                stopAfterMs={example.stopAfterMs}
+                stopSignal={example.stopSignal}
+                note={example.note}
+                intentional={example.intentional}
+                pair={pairOf(example)}
+                supportFiles={supportFiles(example)}
+                partnerOf={lesson.examples.find((e) => e.pairWith === example.file)?.file}
               />
             )}
           </article>
@@ -275,6 +342,39 @@ const diffColors: Record<string, string> = {
     </div>{/* close lg:grid */}
   </section>
 
+  {/* Challenges for this lesson: edit, run, and the site checks the exit status */}
+  {challenges.some((c) => c.lesson === lesson.number) && (
+    <section id="challenges" class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pb-10 space-y-6">
+      <h2 class="text-xl font-bold text-surface-900 dark:text-white">Challenges</h2>
+      {challenges.filter((c) => c.lesson === lesson.number).map((c) => <ChallengeCard challenge={c} />)}
+    </section>
+  )}
+
+  {/* Exercises that tie this lesson back to earlier ones */}
+  {lesson.exercises && lesson.exercises.length > 0 && (
+    <section id="exercises" class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pb-10">
+      <h2 class="text-xl font-bold text-surface-900 dark:text-white mb-4">Exercises</h2>
+      <ol class="grid gap-4 sm:grid-cols-2">
+        {lesson.exercises.map((ex, i) => {
+          const back = lessons.find((l) => l.number === ex.lesson);
+          return (
+            <li class="card p-5">
+              <div class="flex items-center justify-between gap-3 mb-2">
+                <h3 class="font-semibold text-surface-900 dark:text-white">{i + 1}. {ex.title}</h3>
+                {back && (
+                  <a href={`/os/${back.slug}/`} class="text-xs whitespace-nowrap px-2 py-0.5 rounded-full bg-primary-100 text-primary-800 dark:bg-primary-900/40 dark:text-primary-200 hover:underline">
+                    Lesson {back.number}
+                  </a>
+                )}
+              </div>
+              <p class="text-sm text-surface-700 dark:text-surface-300 leading-relaxed">{ex.text}</p>
+            </li>
+          );
+        })}
+      </ol>
+    </section>
+  )}
+
   {/* Full lesson terminal */}
   {lesson.examples.length > 0 && (
     <section class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pb-10">
@@ -288,16 +388,20 @@ const diffColors: Record<string, string> = {
         <button
           class="open-full-terminal-btn btn-primary"
           data-lesson-files={JSON.stringify(
-            lesson.examples.map((ex) => ({
-              name: ex.file,
-              content: readExampleCode(ex),
-            }))
+            [...new Map(lesson.examples.flatMap((ex) => [{ name: ex.file, content: readExampleCode(ex) }, ...supportFiles(ex)])
+              .map((f) => [f.name, f])).values()]
           )}
         >
           <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="m6.75 7.5 3 2.25-3 2.25m4.5 0h3m-9 8.25h13.5A2.25 2.25 0 0 0 21 18V6a2.25 2.25 0 0 0-2.25-2.25H5.25A2.25 2.25 0 0 0 3 6v12a2.25 2.25 0 0 0 2.25 2.25Z" />
           </svg>
           Open Terminal with All Files
+        </button>
+        <button
+          class="open-full-terminal-btn inline-flex items-center gap-2 mt-3 sm:mt-0 sm:ml-2 px-5 py-2.5 rounded-xl border border-primary-600 text-primary-700 dark:text-primary-300 font-semibold hover:bg-primary-50 dark:hover:bg-primary-950 transition-colors"
+          data-panes="2"
+        >
+          Two Terminals Side by Side
         </button>
         <div class="full-terminal-slot mt-4"></div>
       </div>
@@ -349,6 +453,7 @@ const diffColors: Record<string, string> = {
       </div>
     </div>
   </section>
+  <PresentMode />
 </BaseLayout>
 
 <script>
@@ -432,44 +537,22 @@ const diffColors: Record<string, string> = {
   document.querySelectorAll('.open-full-terminal-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const el = btn as HTMLElement;
-      const files = JSON.parse(el.dataset.lessonFiles || '[]');
+      const card = el.closest('.card')!;
+      const files = JSON.parse((card.querySelector('[data-lesson-files]') as HTMLElement).dataset.lessonFiles || '[]');
       const slot = el.closest('.card')!.querySelector('.full-terminal-slot') as HTMLElement;
 
-      if (slot.querySelector('.terminal-container')) {
-        const existing = slot.querySelector('.terminal-container') as HTMLElement;
-        existing.classList.toggle('hidden');
-        return;
-      }
+      const count = Number(el.dataset.panes || 1);
+      const existing = slot.querySelector('.terminal-container') as HTMLElement | null;
+      if (existing && Number(existing.dataset.panes) === count) { existing.classList.toggle('hidden'); return; }
+      (existing?.querySelector('.terminal-close') as HTMLElement | null)?.click();
 
       const termDiv = document.createElement('div');
-      termDiv.className = 'terminal-container';
-      termDiv.dataset.files = JSON.stringify(files);
-      termDiv.dataset.url = '';
-      termDiv.innerHTML = `
-        <div class="flex items-center justify-between px-4 py-2 bg-surface-900 border-t border-surface-700 rounded-t-xl">
-          <div class="flex items-center gap-2">
-            <div class="flex gap-1.5">
-              <div class="w-3 h-3 rounded-full bg-red-500"></div>
-              <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
-              <div class="w-3 h-3 rounded-full bg-green-500"></div>
-            </div>
-            <span class="text-sm text-surface-400 font-mono">Terminal</span>
-            <span class="terminal-status text-xs text-surface-500"></span>
-          </div>
-          <div class="flex items-center gap-2">
-            <button class="terminal-kill text-xs px-2 py-1 rounded text-red-400 hover:bg-surface-800 transition-colors hidden">Ctrl+C</button>
-            <button class="terminal-fs text-xs px-2 py-1 rounded text-surface-400 hover:bg-surface-800 transition-colors"><span class="fs-enter">Fullscreen</span><span class="fs-exit hidden">Exit fullscreen</span></button>
-            <button class="terminal-close text-xs px-2 py-1 rounded text-surface-400 hover:bg-surface-800 transition-colors">Close</button>
-          </div>
-        </div>
-        <div class="terminal-target bg-surface-950 rounded-b-xl" style="height:400px;"></div>
-      `;
-
+      termDiv.dataset.panes = String(count);
       slot.appendChild(termDiv);
-
-      if ((window as any).__launchTerminal) {
-        (window as any).__launchTerminal(termDiv, files, '', false);
-      }
+      (window as any).__openTerminal?.(termDiv, {
+        files, mode: 'lesson', height: 400, title: 'Terminal — all lesson files',
+        panes: count === 2 ? [{ label: 'Terminal 1' }, { label: 'Terminal 2 (same files, same user)' }] : [{}],
+      });
     });
   });
 </script>

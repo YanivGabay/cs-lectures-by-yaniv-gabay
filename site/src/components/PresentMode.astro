@@ -1,0 +1,133 @@
+---
+// Presenter view: step through a lesson's examples like slides on a projector.
+//   ← → / PageUp PageDown (clickers)   step      Ctrl+Enter  run the example
+//   + / -                               font size (remembered)   Esc  leave
+// Open with the Present button or a link like /os/02-basic-forks/?present=3
+---
+
+<div id="present-bar" hidden class="fixed inset-x-0 top-0 z-[100] h-12 flex items-center justify-between gap-3 px-3 sm:px-4 bg-surface-950 text-surface-100 border-b border-surface-700">
+  <div class="flex items-center gap-2 min-w-0">
+    <button class="pm-prev px-2.5 py-1 rounded-md bg-surface-800 hover:bg-surface-700" title="Previous (← / PageUp)" aria-label="Previous example">◀</button>
+    <button class="pm-next px-2.5 py-1 rounded-md bg-surface-800 hover:bg-surface-700" title="Next (→ / PageDown)" aria-label="Next example">▶</button>
+    <span class="pm-pos font-mono text-sm text-surface-300 whitespace-nowrap"></span>
+    <span class="pm-title font-semibold truncate"></span>
+  </div>
+  <div class="flex items-center gap-2 flex-shrink-0">
+    <span class="hidden md:inline text-xs text-surface-400">Ctrl+Enter run · +/− size · Esc exit</span>
+    <button class="pm-run px-3 py-1 rounded-md bg-primary-600 hover:bg-primary-500 text-white text-sm font-semibold" title="Run (Ctrl+Enter)">Run</button>
+    <button class="pm-smaller px-2 py-1 rounded-md bg-surface-800 hover:bg-surface-700" title="Smaller (−)" aria-label="Smaller text">A−</button>
+    <span class="pm-size font-mono text-xs text-surface-400 w-8 text-center"></span>
+    <button class="pm-bigger px-2 py-1 rounded-md bg-surface-800 hover:bg-surface-700" title="Bigger (+)" aria-label="Bigger text">A+</button>
+    <button class="pm-exit px-2.5 py-1 rounded-md bg-surface-800 hover:bg-surface-700" title="Exit (Esc)">Exit</button>
+  </div>
+</div>
+
+<script>
+  const bar = document.getElementById('present-bar')!;
+  const slides = () => [...document.querySelectorAll('article[id^="example-"]')]
+    .map((a) => ({ article: a as HTMLElement, block: a.querySelector('.code-block-wrapper, .diff-view') as HTMLElement | null }))
+    .filter((s) => s.block);
+  let index = -1;
+
+  const read = (k: string, d: number) => { try { return Number(localStorage.getItem(k)) || d; } catch { return d; } };
+  const write = (k: string, v: number) => { try { localStorage.setItem(k, String(v)); } catch {} };
+  let size = read('presentCodeSize', 20);
+
+  function applySize() {
+    document.documentElement.style.setProperty('--present-code-size', `${size}px`);
+    bar.querySelector('.pm-size')!.textContent = String(size);
+    // terminals: new ones read termFontSize; open ones are resized in place
+    write('termFontSize', Math.round(size * 0.85));
+    document.querySelectorAll('.terminal-container').forEach((t) => (t as any).__setFontSize?.(Math.round(size * 0.85)));
+  }
+
+  function show(i: number) {
+    const all = slides();
+    if (!all.length) return;
+    index = Math.max(0, Math.min(i, all.length - 1));
+    document.querySelectorAll('.is-fullscreen').forEach((el) => (window as any).__setFullscreen?.(el, false));
+    const { article, block } = all[index];
+    (window as any).__setFullscreen?.(block, true);
+    bar.querySelector('.pm-pos')!.textContent = `${index + 1} / ${all.length}`;
+    bar.querySelector('.pm-title')!.textContent = article.querySelector('h3')?.textContent?.trim() || '';
+    const u = new URL(location.href);
+    u.searchParams.set('present', String(index + 1));
+    history.replaceState(null, '', u);
+  }
+
+  function start(i = 0) {
+    document.body.classList.add('presenting');
+    bar.hidden = false;
+    applySize();
+    show(i);
+  }
+
+  function stop() {
+    document.body.classList.remove('presenting');
+    bar.hidden = true;
+    document.querySelectorAll('.is-fullscreen').forEach((el) => (window as any).__setFullscreen?.(el, false));
+    const u = new URL(location.href);
+    u.searchParams.delete('present');
+    history.replaceState(null, '', u);
+    slides()[index]?.article.scrollIntoView({ block: 'start' });
+    index = -1;
+  }
+
+  function run() {
+    const block = slides()[index]?.block;
+    const btn = (block?.querySelector('.run-pair-btn') || block?.querySelector('.open-terminal-btn')) as HTMLButtonElement | null;
+    if (btn) { btn.click(); return; }
+    // Reference / Windows-only examples have nothing to run — say so instead of doing nothing
+    const run = bar.querySelector('.pm-run') as HTMLElement;
+    run.textContent = 'Nothing to run';
+    setTimeout(() => { run.textContent = 'Run'; }, 1500);
+  }
+
+  function resize(delta: number) {
+    size = Math.max(12, Math.min(40, size + delta));
+    write('presentCodeSize', size);
+    applySize();
+  }
+
+  document.querySelectorAll('.present-btn').forEach((b) => b.addEventListener('click', () => start(0)));
+  bar.querySelector('.pm-prev')!.addEventListener('click', () => show(index - 1));
+  bar.querySelector('.pm-next')!.addEventListener('click', () => show(index + 1));
+  bar.querySelector('.pm-run')!.addEventListener('click', run);
+  bar.querySelector('.pm-smaller')!.addEventListener('click', () => resize(-2));
+  bar.querySelector('.pm-bigger')!.addEventListener('click', () => resize(2));
+  bar.querySelector('.pm-exit')!.addEventListener('click', stop);
+
+  // Capture phase: runs before the terminal and the fullscreen Esc handler
+  window.addEventListener('keydown', (e) => {
+    if (index < 0) return;
+    const inTyping = !!(e.target as HTMLElement).closest?.('.xterm, .CodeMirror, input, textarea');
+    let handled = true;
+    if (e.key === 'PageDown') show(index + 1);            // clickers: always ours
+    else if (e.key === 'PageUp') show(index - 1);
+    else if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) run();
+    else if (inTyping) handled = false;                   // the running program owns the keyboard
+    else if (e.key === 'ArrowRight') show(index + 1);
+    else if (e.key === 'ArrowLeft') show(index - 1);
+    else if (e.key === '+' || e.key === '=') resize(2);
+    else if (e.key === '-' || e.key === '_') resize(-2);
+    else if (e.key === 'Escape') stop();
+    else handled = false;
+    if (handled) { e.preventDefault(); e.stopImmediatePropagation(); }
+  }, true);
+
+  const deep = new URL(location.href).searchParams.get('present');
+  if (deep !== null) start(Math.max(0, (Number(deep) || 1) - 1));
+</script>
+
+<style is:global>
+  body.presenting .is-fullscreen {
+    top: 3rem !important;
+  }
+  body.presenting .is-fullscreen .code-scroll pre,
+  body.presenting .is-fullscreen .code-scroll code,
+  body.presenting .diff-view.is-fullscreen pre,
+  body.presenting .diff-view.is-fullscreen code {
+    font-size: var(--present-code-size, 20px) !important;
+    line-height: 1.45;
+  }
+</style>

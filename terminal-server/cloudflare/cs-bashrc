@@ -7,6 +7,8 @@ alias ll='ls -la'
 # Shell integration: before every prompt, tell the web page how the last command ended.
 # OSC 777 is invisible in the terminal; the site turns it into "Exited 0" / "Killed by SIGSEGV".
 PROMPT_COMMAND='__cs_status=$?; printf "\033]777;cs;prompt;%d\007" "$__cs_status"'
+# ...and when a typed command starts running (PS0 is printed after Enter, before the command runs)
+PS0='\e]777;cs;exec\a'
 
 if [ "$CS_MODE" = lesson ]; then
   printf '\033[1;36mCS Lectures sandbox\033[0m — your own Linux user; files vanish when you close this terminal.\n\n'

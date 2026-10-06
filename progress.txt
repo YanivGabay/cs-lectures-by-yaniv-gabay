@@ -96,3 +96,39 @@ S19 foreign-origin login 403 + guessing hits 429 (4 of 20 — limiter lets ~15 t
 S13 FAIL x3: 0 of 360 flood connections refused. Same limiter code that refused 6/240 earlier; Cloudflare's
 ratelimits binding is best-effort per location. Note it does not protect capacity anyway — 18 held sessions
 fill the pool regardless. Presenter container is separate, so the lecture demo is unaffected -> task T07c.
+
+## 2026-10-07 — T08–T19 implemented; sandbox isolation; course fixes
+
+Terminal (server.js + cs-bashrc + sandbox-launch.c, image 2026-10-07.1):
+- Shell integration: PS0 emits OSC 777 cs;exec, PROMPT_COMMAND cs;prompt;<status>. The site drives
+  compile -> run from these events (no '$ ' matching) and shows chips: Exited N / Killed by SIGxxx (N) —
+  meaning / Compile failed. Session end -> banner + Restart.
+- Panes: one session owns up to 3 PTYs (open-pane, every message carries pane). Run pair = split view.
+- input-wait: server reads /proc/<pid>/wchan AS THE SESSION USER (root cannot: no ptrace access);
+  terminal read sleeps in n_tty_read/wait_woken, sleep() in hrtimer_nanosleep.
+- Namespaces: launcher unshares IPC + NET (+lo up) + MNT (private tmpfs /tmp, /dev/shm); extra panes
+  setns() into pane 0's. Prod root has ALL capabilities (CapEff 1ffffffffff); local container needs
+  --cap-add SYS_ADMIN NET_ADMIN SYS_PTRACE to match (local-container.sh does this).
+- /dev/shm did not exist in Cloudflare's VM -> created at startup. Cleanup also removes the user's
+  /tmp and /dev/shm files (uids are reused).
+- Worker: /status reads each container via a peek() RPC without waking it; exact per-IP counter
+  (IpCounter Durable Object) replaces the approximate ratelimits binding (S13 0/360 -> 104/240 refused);
+  valid presenter pass skips the connection limit.
+
+Site: lib/terminal.ts (shared terminal), osc.ts (split-safe OSC parsing), PresentMode (←/→, PageUp/Down,
+Ctrl+Enter, +/-, Esc, ?present=N), DiffView Run bug/Run fix, ChallengeCard (4 challenges judged by exit
+status), Lesson 16 + SandboxVisualizer + exercises, status page per container, Expected Output panels
+regenerated from sandbox runs (CAPTURE=1 examples.mjs).
+
+Audit (validate/examples.mjs, 114 examples): baseline 46 compile errors (Run uploaded basenames while
+compile commands use folder paths — a regression from the per-session-user change), 15 hangs, 8 needs-input.
+After fixes + example metadata (kind, sampleInput, pairWith, companion, stopAfterMs, stopSignal, runCmd,
+extraFiles): 0 unexplained problems locally and in production.
+Course fixes (10 files) listed for review in docs/course-fixes-for-review.md.
+
+Learnings:
+- A WebSocket message can end in the middle of an escape sequence — scan the stream, not messages.
+- Waiting on text the command line itself echoes (e.g. 'PORT_BOUND') makes a check pass too early.
+- `sh -c 'one command'` execs it directly; add `; exit $?` to force a real child.
+- A process-group leader cannot setsid() (EPERM) — bash makes every job a group leader.
+- Expected-output banners of '═' cannot wrap: use overflow-wrap:anywhere on output panels.

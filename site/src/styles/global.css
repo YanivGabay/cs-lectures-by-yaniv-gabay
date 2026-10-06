@@ -187,13 +187,39 @@
     max-height: none;
   }
 
-  .code-block-wrapper.is-fullscreen .terminal-target {
+  .code-block-wrapper.is-fullscreen .terminal-target,
+  .run-host.is-fullscreen .terminal-target {
     height: 45vh !important;
+  }
+
+  .terminal-container.is-fullscreen .term-panes {
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+
+  .terminal-container.is-fullscreen .term-pane {
+    min-height: 0;
   }
 
   .terminal-container.is-fullscreen .terminal-target {
     flex: 1 1 auto;
     height: auto !important;
+    min-height: 0;
+  }
+
+  .diff-view.is-fullscreen > .grid {
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+
+  .diff-view.is-fullscreen .diff-code-left,
+  .diff-view.is-fullscreen .diff-code-right {
+    overflow: auto;
+    max-height: 100%;
+  }
+
+  .diff-view.is-fullscreen:has(.terminal-container) > .grid {
+    flex: 0 1 45vh;
   }
 
   body.fs-lock {

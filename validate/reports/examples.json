@@ -1,0 +1,1139 @@
+{
+  "counts": {
+    "runs-and-exits": 59,
+    "runs-with-input": 10,
+    "reference-only": 6,
+    "long-running": 15,
+    "windows-only": 2,
+    "crashes": 1,
+    "hangs": 1,
+    "pair-partner": 12,
+    "pair-runs": 12
+  },
+  "unexplained": 1,
+  "results": [
+    {
+      "lesson": "01",
+      "file": "01-basic-input-output.c",
+      "kind": "interactive",
+      "intentional": "",
+      "category": "runs-with-input",
+      "detail": "status 0, fed sampleInput",
+      "output": "  (first 3 digits)\n\n  %3[0-9]  : stops at non-digit\n  Input:  \"12a3456\"\n  Result: \"12\"  (stopped at 'a')\n\n  %9[^X]   : everything except 'X'\n  Input:  \"123456X789\"\n  Result: \"123456\"  (stopped at 'X')\n\n  %[a-zA-Z]: alphabetic only\n  Input:  \"abcd4\"\n  Result: \"abcd\"  (stopped at '4')\n\n  %[^\\n]   : read until newline\n  Input:  \"Hello World\n abcde\"\n  Result: \"Hello World\"  (stopped at \\n)\n\nstudent:~$",
+      "capture": "\n--- Section 1: Reading input with scanf ---\n\n  Enter a number: 42\n  You entered: 42\n\n--- Section 2: Parsing strings with sscanf ---\n\n  Format       | Input                | Result     | Notes\n  ------------ | -------------------- | ---------- | -----\n  %d           | 42                   | 42         | integer\n  %f           | 3.14                 | 3.14       | float\n  %2d          | 99                   | 99         | 2-digit only\n  %f (sci)     | 1.23E4               | 12300      | scientific\n\n--- Section 3: String parsing with %s (max 9 chars) ---\n\n  Input: \"       HelloWorld\"   -> %9s -> \"HelloWorl\"\n  Input: \"Hello         World\" -> %9s -> \"Hello\"  (stops at whitespace)\n  Input: \"   a b c d e...\"     -> %9s -> \"a\"  (skips leading spaces)\n\n--- Section 4: Parsing multiple fields at once ---\n\n  Input:  \"25 54.32E-1 Thompson 56789\"\n  Format: \"%d%f%9s%2d%f%*d\"\n\n  Fields converted: 5\n  %d   -> i    = 25\n  %f   -> x    = 5.432\n  %9s  -> str1 = \"Thompson\"\n  %2d  -> j    = 56     (only first 2 digits of 56789)\n  %f   -> y    = 789   (remaining digits)\n  %*d  -> skipped       (the * means: read but discard)\n\n--- Section 5: Scansets — character class matching ---\n\n  %3[0-9]  : digits only, max 3\n  Input:  \"123456\"\n  Result: \"123\"  (first 3 digits)\n\n  %3[0-9]  : stops at non-digit\n  Input:  \"12a3456\"\n  Result: \"12\"  (stopped at 'a')\n\n  %9[^X]   : everything except 'X'\n  Input:  \"123456X789\"\n  Result: \"123456\"  (stopped at 'X')\n\n  %[a-zA-Z]: alphabetic only\n  Input:  \"abcd4\"\n  Result: \"abcd\"  (stopped at '4')\n\n  %[^\\n]   : read until newline\n  Input:  \"Hello World\n abcde\"\n  Result: \"Hello World\"  (stopped at \\n)"
+    },
+    {
+      "lesson": "01",
+      "file": "02-more-basic-input-output.c",
+      "kind": "interactive",
+      "intentional": "",
+      "category": "runs-with-input",
+      "detail": "status 0, fed sampleInput",
+      "output": "nter a number: 7\n  You entered: 7\n\n--- Section 2: sscanf (reading from a string) ---\n\n  Input string: \"123 456\"\n  sscanf(data, \"%d %d\", &a, &b)\n  Result: a = 123, b = 456\n\n--- Section 3: snprintf (print to string, not screen) ---\n\n  Buffer size: 10 bytes\n  snprintf(buffer, 10, \"Hello, %s!\", \"World\")\n  Result:  \"Hello, Wo\"\n  Wanted length: 13  (truncated because buffer is only 10 bytes)\n\nstudent:~$",
+      "capture": "\n══════════════════════════════════════\n  More I/O\n══════════════════════════════════════\n\n\n--- Section 1: Basic scanf (reading from keyboard) ---\n\n  Enter a number: 7\n  You entered: 7\n\n--- Section 2: sscanf (reading from a string) ---\n\n  Input string: \"123 456\"\n  sscanf(data, \"%d %d\", &a, &b)\n  Result: a = 123, b = 456\n\n--- Section 3: snprintf (print to string, not screen) ---\n\n  Buffer size: 10 bytes\n  snprintf(buffer, 10, \"Hello, %s!\", \"World\")\n  Result:  \"Hello, Wo\"\n  Wanted length: 13  (truncated because buffer is only 10 bytes)"
+    },
+    {
+      "lesson": "01",
+      "file": "03-more-basic-input-output.c",
+      "kind": "interactive",
+      "intentional": "gets() was removed in C11 — compiled with -std=gnu99 so the unsafe version still builds (expect a warning)",
+      "category": "runs-with-input",
+      "detail": "status 0, fed sampleInput",
+      "output": "CII 65)\n  Enter another character (using getchar):   getchar() read: 'B' (ASCII 66)\n\n--- Section 3: printf string formatting ---\n\n  String: \"Hello\"\n\n  Format          | Output\n  --------------- | ------\n  %s              | [Hello]\n  %10s  (right)   | [     Hello]\n  %-10s (left)    | [Hello     ]\n  %.3s  (3 chars) | [Hel]\n  %10.3s          | [       Hel]\n  %*s  (* = 10)   | [     Hello]\n\nstudent:~$",
+      "capture": "\n══════════════════════════════════════\n  Safe string input with fgets instead of gets\n══════════════════════════════════════\n\n\n--- Section 1: gets() vs fgets() ---\n\n  [gets] Enter a string (WARNING: gets has no size limit!): hello gets\nhello fgets\nA\nB\n  [gets] You entered: \"hello gets\"\n  NOTE: gets() can overflow the buffer — NEVER use in real code!\n\n  [fgets] Enter a string (safe — limited to buffer size):   [fgets] You entered: \"hello fgets\n\"  NOTE: fgets() includes the \\n in the result\n\n--- Section 2: Reading single characters ---\n\n  Enter a single character:   scanf(\"%c\") read: 'A' (ASCII 65)\n  Enter another character (using getchar):   getchar() read: 'B' (ASCII 66)\n\n--- Section 3: printf string formatting ---\n\n  String: \"Hello\"\n\n  Format          | Output\n  --------------- | ------\n  %s              | [Hello]\n  %10s  (right)   | [     Hello]\n  %-10s (left)    | [Hello     ]\n  %.3s  (3 chars) | [Hel]\n  %10.3s          | [       Hel]\n  %*s  (* = 10)   | [     Hello]"
+    },
+    {
+      "lesson": "01",
+      "file": "04-basic-files-ptrs.c",
+      "kind": "",
+      "intentional": "",
+      "category": "runs-and-exits",
+      "detail": "status 0",
+      "output": ".txt:\n    > Hello, this is a test file.\n    > Writing another line.\n\n--- Section 3: Read+Write mode (\"r+\") with fseek ---\n\n  Appended a line using fseek(SEEK_END)\n\n  Reading WITHOUT seeking back to start:\n    (nothing — file pointer is at the end!)\n\n  Reading AFTER fseek(SEEK_SET) — back to start:\n    > Hello, this is a test file.\n    > Writing another line.\n    > Appending a new line.\n\nstudent:~$",
+      "capture": "\n--- Section 1: Writing to a file (mode \"w\") ---\n\n  Wrote 2 lines to example.txt\n\n--- Section 2: Reading from a file (mode \"r\") ---\n\n  Contents of example.txt:\n    > Hello, this is a test file.\n    > Writing another line.\n\n--- Section 3: Read+Write mode (\"r+\") with fseek ---\n\n  Appended a line using fseek(SEEK_END)\n\n  Reading WITHOUT seeking back to start:\n    (nothing — file pointer is at the end!)\n\n  Reading AFTER fseek(SEEK_SET) — back to start:\n    > Hello, this is a test file.\n    > Writing another line.\n    > Appending a new line."
+    },
+    {
+      "lesson": "01",
+      "file": "05-more-files-struct.c",
+      "kind": "",
+      "intentional": "",
+      "category": "runs-and-exits",
+      "detail": "status 0",
+      "output": "./files_struct\n\n══════════════════════════════════════\n  Reading/writing structs to files\n══════════════════════════════════════\n\n\n--- Wrote 3 employees to employees.txt ---\n\n--- Read them back: ---\n\n  ID   | Name       | Salary\n  ---- | ---------- | ----------\n  1    | Alice      | $55000.00\n  2    | Bob        | $60000.00\n  3    | Charlie    | $50000.00\n\nstudent:~$",
+      "capture": "\n══════════════════════════════════════\n  Reading/writing structs to files\n══════════════════════════════════════\n\n\n--- Wrote 3 employees to employees.txt ---\n\n--- Read them back: ---\n\n  ID   | Name       | Salary\n  ---- | ---------- | ----------\n  1    | Alice      | $55000.00\n  2    | Bob        | $60000.00\n  3    | Charlie    | $50000.00"
+    },
+    {
+      "lesson": "01",
+      "file": "06-complex-usage-scanf-printf.c",
+      "kind": "interactive",
+      "intentional": "",
+      "category": "runs-with-input",
+      "detail": "status 0, fed sampleInput",
+      "output": " -> 3.14\n    %.5f  -> 3.14159\n    %.10f -> 3.1415926536\n\n  Width formatting (| shows boundaries):\n    %10d  (right-aligned) -> |        50|\n    %-10d (left-aligned)  -> |50        |\n\n--- Section 3: Parsing a formatted string ---\n\n  Enter a date (e.g., January 1, 2020): \n  Parsed result:\n    Month: March\n    Day:   5\n    Year:  2024\n\n========================================\n  End of demo\nstudent:~$",
+      "capture": "\n══════════════════════════════════════\n  Advanced scanf/printf formatting\n══════════════════════════════════════\n\n\n--- Section 1: Reading multiple types at once ---\n\n  Enter: integer float char string (e.g., 42 3.14 A hello): 42 3.14 A hello\nMarch 5, 2024\n\n  Type         | Value\n  ------------ | -----\n  %d (int)     | 42\n  %f (float)   | 3.14\n  %c (char)    | 'A'\n  %s (string)  | \"hello\"\n\n--- Section 2: Precision and width formatting ---\n\n  Pi with different precision:\n    %.2f  -> 3.14\n    %.5f  -> 3.14159\n    %.10f -> 3.1415926536\n\n  Width formatting (| shows boundaries):\n    %10d  (right-aligned) -> |        50|\n    %-10d (left-aligned)  -> |50        |\n\n--- Section 3: Parsing a formatted string ---\n\n  Enter a date (e.g., January 1, 2020): \n  Parsed result:\n    Month: March\n    Day:   5\n    Year:  2024\n\n========================================\n  End of demo"
+    },
+    {
+      "lesson": "01",
+      "file": "07-another-complex.c",
+      "kind": "interactive",
+      "intentional": "",
+      "category": "runs-with-input",
+      "detail": "status 0, fed sampleInput",
+      "output": "./another_complex\n\n══════════════════════════════════════\n  More complex scanf/printf patterns\n══════════════════════════════════════\n\n\n  Example: 90 85 72 John Smith\n\n  > 90 85 72 John Smith\n\n  --- Parsed Result ---\n\n  Name:   John Smith\n  Grades: 90, 85, 72  (3 total)\n\nstudent:~$",
+      "capture": "\n══════════════════════════════════════\n  More complex scanf/printf patterns\n══════════════════════════════════════\n\n\n  Example: 90 85 72 John Smith\n\n  > 90 85 72 John Smith\n\n  --- Parsed Result ---\n\n  Name:   John Smith\n  Grades: 90, 85, 72  (3 total)"
+    },
+    {
+      "lesson": "01",
+      "file": "08-dont-forget-functions.c",
+      "kind": "interactive",
+      "intentional": "",
+      "category": "runs-with-input",
+      "detail": "status 0, fed sampleInput",
+      "output": "./functions\n\n══════════════════════════════════════\n  Functions with pointer parameters in C\n══════════════════════════════════════\n\n\n  separate functions using pointer params.\n\n  Enter grades followed by a name\n  Example: 90 85 72 John Smith\n\n  > 90 85 72 John Smith\n\n  --- Parsed Result ---\n\n  Name:   John Smith\n  Grades: 90, 85, 72  (3 total)\n\nstudent:~$",
+      "capture": "\n══════════════════════════════════════\n  Functions with pointer parameters in C\n══════════════════════════════════════\n\n\n  separate functions using pointer params.\n\n  Enter grades followed by a name\n  Example: 90 85 72 John Smith\n\n  > 90 85 72 John Smith\n\n  --- Parsed Result ---\n\n  Name:   John Smith\n  Grades: 90, 85, 72  (3 total)"
+    },
+    {
+      "lesson": "01",
+      "file": "09-last-example.c",
+      "kind": "",
+      "intentional": "",
+      "category": "runs-and-exits",
+      "detail": "status 0",
+      "output": "═══════════════\n  Advanced pointer patterns and string manipulation\n══════════════════════════════════════\n\n\n  Allocating 3x4 matrix with malloc...\n\n  Values (data[i][j] = i * 4 + j):\n\n       col0  col1  col2  col3  \n       ----- ----- ----- ----- \n  row0 |   0     1     2     3  \n  row1 |   4     5     6     7  \n  row2 |   8     9    10    11  \n\n========================================\nstudent:~$",
+      "capture": "\n══════════════════════════════════════\n  Advanced pointer patterns and string manipulation\n══════════════════════════════════════\n\n\n  Allocating 3x4 matrix with malloc...\n\n  Values (data[i][j] = i * 4 + j):\n\n       col0  col1  col2  col3  \n       ----- ----- ----- ----- \n  row0 |   0     1     2     3  \n  row1 |   4     5     6     7  \n  row2 |   8     9    10    11  \n\n========================================"
+    },
+    {
+      "lesson": "01",
+      "file": "10-last-last-example.c",
+      "kind": "",
+      "intentional": "",
+      "category": "runs-and-exits",
+      "detail": "status 0",
+      "output": "════════════════════\n\n\n  receives int*** so it can allocate\n  the array itself (modify caller's pointer).\n\n  Calling initializeData(&data, 3, 4)...\n\n  Values (data[i][j] = i * 4 + j):\n\n       col0  col1  col2  col3  \n       ----- ----- ----- ----- \n  row0 |   0     1     2     3  \n  row1 |   4     5     6     7  \n  row2 |   8     9    10    11  \n\n========================================\nstudent:~$",
+      "capture": "\n══════════════════════════════════════\n  2D dynamic allocation in C (malloc/free)\n══════════════════════════════════════\n\n\n  receives int*** so it can allocate\n  the array itself (modify caller's pointer).\n\n  Calling initializeData(&data, 3, 4)...\n\n  Values (data[i][j] = i * 4 + j):\n\n       col0  col1  col2  col3  \n       ----- ----- ----- ----- \n  row0 |   0     1     2     3  \n  row1 |   4     5     6     7  \n  row2 |   8     9    10    11  \n\n========================================"
+    },
+    {
+      "lesson": "01.5",
+      "file": "argc_argv_another_example.c",
+      "kind": "",
+      "intentional": "",
+      "category": "runs-and-exits",
+      "detail": "status 0",
+      "output": "r(\"  ERROR: Cannot open file\");\n            return EXIT_FAILURE;\n        }\n    \n        // Read from the file\n        printf(\"  --- File contents ---\\n\\n\");\n        char buffer[100];\n        while (fgets(buffer, sizeof(buffer), file) != NULL) {\n            printf(\"    %s\", buffer);\n        }\n        printf(\"\\n\\n  --- End of file ---\\n\\n\");\n        return 0;\n    }\n\n  --- End of file ---\n\nstudent:~$",
+      "capture": "\n══════════════════════════════════════\n  Opening a file from command line arguments with validation\n══════════════════════════════════════\n\n\n  --- File contents ---\n\n    /*\n     * argc_argv_another_example.c — Opening a file from command line arguments with validation\n     *\n     * Key concepts: argc/argv, fopen, perror, EXIT_FAILURE\n     * Compile: gcc -o prog argc_argv_another_example.c\n     * Run:     ./prog arg1 arg2\n     */\n    #include <stdio.h>\n    #include <stdlib.h>\n    \n    \n    #include <stdio.h>\n    #include <stdlib.h>\n    \n    // lets say we are expecting in our program\n    // to always get a name of a file\n    // so we can open it and read from it\n    // we MUST check for argc/argv size\n    // if we dont, we might get a segfault\n    \n    \n    int main(int argc, char *argv[]) {\n    \n        printf(\"\\n\");\n        printf(\"═════════════════════════════    ═════════\\n\");\n        printf(\"  Opening a file from command line arguments with validation\\n\");\n        printf(\"═════════════════════════════    ═════════\\n\\n\");\n        const int ARGUMENTS_COUNT = 2; \n        if (argc != ARGUMENTS_COUNT) { // if argc is not 2\n            perror(\"Usage: ./a.out <filename>\"); // we show the user how to use the program\n            return EXIT_FAILURE; // and we return an error\n        }\n        //here we can continue with the program\n    \n        const char* filename = argv[1];\n    \n        printf(\"\\n\");\n    \n        FILE *file = fopen(filename, \"r\");\n        if (file == NULL) {\n            perror(\"  ERROR: Cannot open file\");\n            return EXIT_FAILURE;\n        }\n    \n        // Read from the file\n        printf(\"  --- File contents ---\\n\\n\");\n        char buffer[100];\n        while (fgets(buffer, sizeof(buffer), file) != NULL) {\n            printf(\"    %s\", buffer);\n        }\n        printf(\"\\n\\n  --- End of file ---\\n\\n\");\n        return 0;\n    }\n\n  --- End of file ---"
+    },
+    {
+      "lesson": "01.5",
+      "file": "argc_argv.c",
+      "kind": "",
+      "intentional": "",
+      "category": "runs-and-exits",
+      "detail": "status 0",
+      "output": "./argc_argv\n\n══════════════════════════════════════\n  Basic argc/argv\n══════════════════════════════════════\n\n\n  Index  | Value\n  ------ | -----\n  argv[0] | \"./argc_argv\"  (program name)\n\n  TIP: Try running with arguments:\n    ./prog hello world 42\n\nstudent:~$",
+      "capture": "\n══════════════════════════════════════\n  Basic argc/argv\n══════════════════════════════════════\n\n\n  Index  | Value\n  ------ | -----\n  argv[0] | \"./argc_argv\"  (program name)\n\n  TIP: Try running with arguments:\n    ./prog hello world 42"
+    },
+    {
+      "lesson": "02",
+      "file": "00-some-includes.c",
+      "kind": "reference",
+      "intentional": "",
+      "category": "reference-only",
+      "detail": "marked in data (not run)"
+    },
+    {
+      "lesson": "02",
+      "file": "01-basic-forking.c",
+      "kind": "",
+      "intentional": "",
+      "category": "runs-and-exits",
+      "detail": "status 0",
+      "output": "./basic_fork\n\n══════════════════════════════════════\n  Your first fork() example\n══════════════════════════════════════\n\n\n[Parent] I am the parent process! My PID: 1834, fork() returned child PID: 1835\n[Child]  I am the child process!  My PID: 1835, my parent's PID: 1834\nstudent:~$",
+      "capture": "\n══════════════════════════════════════\n  Your first fork() example\n══════════════════════════════════════\n\n\n[Parent] I am the parent process! My PID: 1834, fork() returned child PID: 1835\n[Child]  I am the child process!  My PID: 1835, my parent's PID: 1834"
+    },
+    {
+      "lesson": "02",
+      "file": "01.5-forking-zombies.c",
+      "kind": "reference",
+      "intentional": "",
+      "category": "reference-only",
+      "detail": "marked in data (not run)"
+    },
+    {
+      "lesson": "02",
+      "file": "02-basic-fork-mistake.c",
+      "kind": "",
+      "intentional": "",
+      "category": "runs-and-exits",
+      "detail": "status 0",
+      "output": "eep looping and forking more children!\n[Parent PID 1873] iteration 4 — created child PID 1878\n[Parent PID 1863] iteration 4 — created child PID 1874\n[Child  PID 1874] iteration 4 — BUG: I will keep looping and forking more children!\n[Child  PID 1876] iteration 4 — BUG: I will keep looping and forking more children!\n[Child  PID 1877] iteration 4 — BUG: I will keep looping and forking more children!",
+      "capture": "\n══════════════════════════════════════\n  The classic fork-in-a-loop bug\n══════════════════════════════════════\n\n  Watch: children don't exit, so they\n  loop again and fork MORE children!\n\n[Parent PID 1847] iteration 0 — created child PID 1848\n[Parent PID 1847] iteration 1 — created child PID 1849\n[Parent PID 1847] iteration 2 — created child PID 1850\n[Parent PID 1847] iteration 3 — created child PID 1851\n[Parent PID 1847] iteration 4 — created child PID 1852\n[Child  PID 1848] iteration 0 — BUG: I will keep looping and forking more children!\n[Parent PID 1848] iteration 1 — created child PID 1853\n[Parent PID 1848] iteration 2 — created child PID 1854\n[Parent PID 1848] iteration 3 — created child PID 1855\n[Child  PID 1856] iteration 4 — BUG: I will keep looping and forking more children!\n[Child  PID 1849] iteration 1 — BUG: I will keep looping and forking more children!\n[Parent PID 1849] iteration 2 — created child PID 1857\n[Parent PID 1849] iteration 3 — created child PID 1858\n[Parent PID 1849] iteration 4 — created child PID 1859\n[Child  PID 1859] iteration 4 — BUG: I will keep looping and forking more children!\n[Child  PID 1850] iteration 2 — BUG: I will keep looping and forking more children!\n[Parent PID 1850] iteration 3 — created child PID 1860\n[Parent PID 1850] iteration 4 — created child PID 1861\n[Child  PID 1851] iteration 3 — BUG: I will keep looping and forking more children!\n[Parent PID 1851] iteration 4 — created child PID 1862\n[Child  PID 1852] iteration 4 — BUG: I will keep looping and forking more children!\n[Child  PID 1853] iteration 1 — BUG: I will keep looping and forking more children!\n[Parent PID 1853] iteration 2 — created child PID 1863\n[Parent PID 1853] iteration 3 — created child PID 1864\n[Child  PID 1854] iteration 2 — BUG: I will keep looping and forking more children!\n[Parent PID 1854] iteration 3 — created child PID 1865\n[Parent PID 1854] iteration 4 — created child PID 1867\n[Child  PID 1855] iteration 3 — BUG: I will keep looping and forking more children!\n[Parent PID 1855] iteration 4 — created child PID 1868\n[Child  PID 1857] iteration 2 — BUG: I will keep looping and forking more children!\n[Parent PID 1857] iteration 3 — created child PID 1869\n[Parent PID 1857] iteration 4 — created child PID 1870\n[Child  PID 1858] iteration 3 — BUG: I will keep looping and forking more children!\n[Parent PID 1858] iteration 4 — created child PID 1871\n[Parent PID 1848] iteration 4 — created child PID 1856\n[Child  PID 1860] iteration 3 — BUG: I will keep looping and forking more children!\n[Parent PID 1860] iteration 4 — created child PID 1872\n[Child  PID 1861] iteration 4 — BUG: I will keep looping and forking more children!\n[Child  PID 1862] iteration 4 — BUG: I will keep looping and forking more children!\nstudentChild  PID 1863] iteration 2 — BUG: I will keep looping and forking more children!\n[Parent PID 1863] iteration 3 — created child PID 1873\n[Child  PID 1864] iteration 3 — BUG: I will keep looping and forking more children!\n[Parent PID 1864] iteration 4 — created child PID 1875\n[Child  PID 1875] iteration 4 — BUG: I will keep looping and forking more children!\n[Child  PID 1865] iteration 3 — BUG: I will keep looping and forking more children!\n[Parent PID 1865] iteration 4 — created child PID 1876\n[Parent PID 1853] iteration 4 — created child PID 1866\n[Child  PID 1866] iteration 4 — BUG: I will keep looping and forking more children!\n[Child  PID 1867] iteration 4 — BUG: I will keep looping and forking more children!\n[Child  PID 1868] iteration 4 — BUG: I will keep looping and forking more children!\n[Child  PID 1869] iteration 3 — BUG: I will keep looping and forking more children!\n[Parent PID 1869] iteration 4 — created child PID 1877\n[Child  PID 1870] iteration 4 — BUG: I will keep looping and forking more children!\n[Child  PID 1871] iteration 4 — BUG: I will keep looping and forking more children!\n[Child  PID 1872] iteration 4 — BUG: I will keep looping and forking more children!\n0m:~$ [Child  PID 1873] iteration 3 — BUG: I will keep looping and forking more children!\n[Child  PID 1878] iteration 4 — BUG: I will keep looping and forking more children!\n[Parent PID 1873] iteration 4 — created child PID 1878\n[Parent PID 1863] iteration 4 — created child PID 1874\n[Child  PID 1874] iteration 4 — BUG: I will keep looping and forking more children!\n[Child  PID 1876] iteration 4 — BUG: I will keep looping and forking more children!\n[Child  PID 1877] iteration 4 — BUG: I will keep looping and forking more children!"
+    },
+    {
+      "lesson": "02",
+      "file": "03-basic-fork-thefix.c",
+      "kind": "",
+      "intentional": "",
+      "category": "runs-and-exits",
+      "detail": "status 0",
+      "output": "Parent PID 1436] Created child PID 1440. Waiting for it...\n[Child  PID 1440] Hello from child (run 4)! I will exit(0) now.\n[Parent PID 1436] wait() returned 1440 — child has been reaped.\n\n--- Run 5 ---\n[Parent PID 1436] Created child PID 1441. Waiting for it...\n[Child  PID 1441] Hello from child (run 5)! I will exit(0) now.\n[Parent PID 1436] wait() returned 1441 — child has been reaped.\nstudent:~$",
+      "capture": "\n══════════════════════════════════════\n  Correct way to fork in a loop\n══════════════════════════════════════\n\n  Fixes: child calls exit(), parent\n  calls wait() before next fork.\n\n--- Run 1 ---\n[Parent PID 1436] Created child PID 1437. Waiting for it...\n[Child  PID 1437] Hello from child (run 1)! I will exit(0) now.\n[Parent PID 1436] wait() returned 1437 — child has been reaped.\n\n--- Run 2 ---\n[Parent PID 1436] Created child PID 1438. Waiting for it...\n[Child  PID 1438] Hello from child (run 2)! I will exit(0) now.\n[Parent PID 1436] wait() returned 1438 — child has been reaped.\n\n--- Run 3 ---\n[Parent PID 1436] Created child PID 1439. Waiting for it...\n[Child  PID 1439] Hello from child (run 3)! I will exit(0) now.\n[Parent PID 1436] wait() returned 1439 — child has been reaped.\n\n--- Run 4 ---\n[Parent PID 1436] Created child PID 1440. Waiting for it...\n[Child  PID 1440] Hello from child (run 4)! I will exit(0) now.\n[Parent PID 1436] wait() returned 1440 — child has been reaped.\n\n--- Run 5 ---\n[Parent PID 1436] Created child PID 1441. Waiting for it...\n[Child  PID 1441] Hello from child (run 5)! I will exit(0) now.\n[Parent PID 1436] wait() returned 1441 — child has been reaped."
+    },
+    {
+      "lesson": "02",
+      "file": "04-forks-gettimeday.c",
+      "kind": "",
+      "intentional": "",
+      "category": "runs-and-exits",
+      "detail": "status 0",
+      "output": "with fork\n══════════════════════════════════════\n\n  Each process sleeps 2 seconds.\n  Sequential: ~4s. Parallel: ~2s.\n\n[Parent PID 1317] Task completed (slept 2 seconds). Waiting for child...\n[Child  PID 1318] Task completed (slept 2 seconds)\n[PID 1318] Total elapsed time: 2.00 seconds (both tasks ran in parallel!)\n[PID 1317] Total elapsed time: 2.00 seconds (both tasks ran in parallel!)\nstudent:~$",
+      "capture": "\n══════════════════════════════════════\n  Measuring parallel execution time with fork\n══════════════════════════════════════\n\n  Each process sleeps 2 seconds.\n  Sequential: ~4s. Parallel: ~2s.\n\n[Parent PID 1317] Task completed (slept 2 seconds). Waiting for child...\n[Child  PID 1318] Task completed (slept 2 seconds)\n[PID 1318] Total elapsed time: 2.00 seconds (both tasks ran in parallel!)\n[PID 1317] Total elapsed time: 2.00 seconds (both tasks ran in parallel!)"
+    },
+    {
+      "lesson": "03",
+      "file": "01-basic_signals.c",
+      "kind": "long-running",
+      "intentional": "Ctrl+C is caught and ignored on purpose — stop it with Ctrl+\\ (SIGQUIT)",
+      "category": "long-running",
+      "detail": "stopped after 8000ms as configured",
+      "output": "The handler catches SIGINT but doesn't exit — try pressing Ctrl+C multiple times!)\n  (To actually quit, press Ctrl+\\ which sends SIGQUIT)\n\n[Main PID 1450] Still running... (tick 1)\n[Main PID 1450] Still running... (tick 2)\n[Main PID 1450] Still running... (tick 3)\n[Main PID 1450] Still running... (tick 4)\n[Main PID 1450] Still running... (tick 5)\n^\\Quit                       ./basic_sig\nstudent:~$",
+      "capture": "\n══════════════════════════════════════\n  Catching SIGINT (Ctrl+C) with signal()\n══════════════════════════════════════\n\n\n[Main PID 1450] Running... Press Ctrl+C to trigger the signal handler.\n  (The handler catches SIGINT but doesn't exit — try pressing Ctrl+C multiple times!)\n  (To actually quit, press Ctrl+\\ which sends SIGQUIT)\n\n[Main PID 1450] Still running... (tick 1)\n[Main PID 1450] Still running... (tick 2)\n[Main PID 1450] Still running... (tick 3)\n[Main PID 1450] Still running... (tick 4)\n[Main PID 1450] Still running... (tick 5)\n^\\Quit                       ./basic_sig\n\n[runs until stopped — the site stops it after 8s]"
+    },
+    {
+      "lesson": "03",
+      "file": "02-ignore_signal.c",
+      "kind": "long-running",
+      "intentional": "SIGINT is ignored on purpose — stop it with Ctrl+\\ (SIGQUIT)",
+      "category": "long-running",
+      "detail": "stopped after 8000ms as configured",
+      "output": "═════════\n\n\n[PID 1901] SIGINT (Ctrl+C) is now IGNORED.\n  Try pressing Ctrl+C — nothing will happen!\n  To quit: press Ctrl+\\ (sends SIGQUIT, which is NOT ignored)\n\n[PID 1901] Still running... (tick 1)\n[PID 1901] Still running... (tick 2)\n[PID 1901] Still running... (tick 3)\n[PID 1901] Still running... (tick 4)\n[PID 1901] Still running... (tick 5)\n^\\Quit                       ./ignore_sig\nstudent:~$",
+      "capture": "\n══════════════════════════════════════\n  Ignoring signals with SIG_IGN\n══════════════════════════════════════\n\n\n[PID 1901] SIGINT (Ctrl+C) is now IGNORED.\n  Try pressing Ctrl+C — nothing will happen!\n  To quit: press Ctrl+\\ (sends SIGQUIT, which is NOT ignored)\n\n[PID 1901] Still running... (tick 1)\n[PID 1901] Still running... (tick 2)\n[PID 1901] Still running... (tick 3)\n[PID 1901] Still running... (tick 4)\n[PID 1901] Still running... (tick 5)\n^\\Quit                       ./ignore_sig\n\n[runs until stopped — the site stops it after 8s]"
+    },
+    {
+      "lesson": "03",
+      "file": "03-sig_alarm.c",
+      "kind": "",
+      "intentional": "",
+      "category": "runs-and-exits",
+      "detail": "status 0",
+      "output": "./sig_alarm\n\n══════════════════════════════════════\n  Using alarm() for a countdown timer\n══════════════════════════════════════\n\n\n[Main PID 1908] Setting alarm(5) — SIGALRM will fire in 5 seconds.\n\n  Waiting for the alarm...\n\n[Signal Handler] SIGALRM received (signal 14) — time's up! Exiting.\nstudent:~$",
+      "capture": "\n══════════════════════════════════════\n  Using alarm() for a countdown timer\n══════════════════════════════════════\n\n\n[Main PID 1908] Setting alarm(5) — SIGALRM will fire in 5 seconds.\n\n  Waiting for the alarm...\n\n[Signal Handler] SIGALRM received (signal 14) — time's up! Exiting."
+    },
+    {
+      "lesson": "03",
+      "file": "04-sig_init_once.c",
+      "kind": "long-running",
+      "intentional": "The first Ctrl+C is handled, the second one kills it",
+      "category": "long-running",
+      "detail": "stopped after 8000ms as configured",
+      "output": "═══════════════\n\n\n[Main PID 1338] Custom SIGINT handler installed.\n  1st Ctrl+C → handler catches it, restores default\n  2nd Ctrl+C → default action (terminate process)\n\n[Main PID 1338] Running... (tick 1)\n[Main PID 1338] Running... (tick 2)\n[Main PID 1338] Running... (tick 3)\n[Main PID 1338] Running... (tick 4)\n[Main PID 1338] Running... (tick 5)\n^\\Quit                       ./sig_once\nstudent:~$",
+      "capture": "\n══════════════════════════════════════\n  One-shot signal handler (catch once, then default)\n══════════════════════════════════════\n\n\n[Main PID 1338] Custom SIGINT handler installed.\n  1st Ctrl+C → handler catches it, restores default\n  2nd Ctrl+C → default action (terminate process)\n\n[Main PID 1338] Running... (tick 1)\n[Main PID 1338] Running... (tick 2)\n[Main PID 1338] Running... (tick 3)\n[Main PID 1338] Running... (tick 4)\n[Main PID 1338] Running... (tick 5)\n^\\Quit                       ./sig_once\n\n[runs until stopped — the site stops it after 8s]"
+    },
+    {
+      "lesson": "03",
+      "file": "05-sighandler_behaviour.c",
+      "kind": "interactive",
+      "intentional": "Press Ctrl+C while it waits for input to see what the handler does to scanf",
+      "category": "runs-with-input",
+      "detail": "status 0, fed sampleInput",
+      "output": "════════════════════════════════════\n\n\n[Main PID 1476] What happens when Ctrl+C arrives while scanf() is blocking?\n\n  Experiment:\n    1. Don't type anything yet\n    2. Press Ctrl+C to send SIGINT\n    3. Observe: does scanf resume or fail?\n\n  Enter a number: 5\n\n[Main] scanf succeeded! You entered: 5\n\n[Main] Program continues normally after scanf.\n\n========================================\nstudent:~$",
+      "capture": "\n══════════════════════════════════════\n  Signal handler behavior during blocking syscalls\n══════════════════════════════════════\n\n\n[Main PID 1476] What happens when Ctrl+C arrives while scanf() is blocking?\n\n  Experiment:\n    1. Don't type anything yet\n    2. Press Ctrl+C to send SIGINT\n    3. Observe: does scanf resume or fail?\n\n  Enter a number: 5\n\n[Main] scanf succeeded! You entered: 5\n\n[Main] Program continues normally after scanf.\n\n========================================"
+    },
+    {
+      "lesson": "03",
+      "file": "06-sigaction_behaviour.c",
+      "kind": "interactive",
+      "intentional": "Press Ctrl+C while it waits for input — compare with the previous example",
+      "category": "runs-with-input",
+      "detail": "status 0, fed sampleInput",
+      "output": ".\n\n  Key differences from signal():\n    - Handler is NOT reset after first signal\n    - sa_flags controls restart behavior (SA_RESTART)\n    - sa_mask can block other signals during handler\n\n  Try: press Ctrl+C during scanf, then observe what happens.\n\n  Enter a number: 5\n\n[Main] scanf succeeded! You entered: 5\n\n[Main] Program continues normally.\n\n========================================\nstudent:~$",
+      "capture": "\n══════════════════════════════════════\n  sigaction vs signal\n══════════════════════════════════════\n\n\n[Main PID 1498] Using sigaction() instead of signal().\n\n  Key differences from signal():\n    - Handler is NOT reset after first signal\n    - sa_flags controls restart behavior (SA_RESTART)\n    - sa_mask can block other signals during handler\n\n  Try: press Ctrl+C during scanf, then observe what happens.\n\n  Enter a number: 5\n\n[Main] scanf succeeded! You entered: 5\n\n[Main] Program continues normally.\n\n========================================"
+    },
+    {
+      "lesson": "04",
+      "file": "basic_exec.c",
+      "kind": "",
+      "intentional": "",
+      "category": "runs-and-exits",
+      "detail": "status 0",
+      "output": " PID 1513] About to call exec — this process image will be REPLACED.\n\n[Child] Using execl(\"/bin/ls\", \"ls\", \"-l\", NULL)\n        'l' = list arguments, no 'p' = full path required\n\ntotal 24\n-rwxr-xr-x 1 csbe35a320 students 18696 Oct  6 21:21 basic_exec\n-rw-r--r-- 1 csbe35a320 students  1918 Oct  6 21:21 basic_exec.c\n[Parent PID 1512] Child finished. exec replaced its entire process image.\n\nstudent:~$",
+      "capture": "\n══════════════════════════════════════\n  exec family\n══════════════════════════════════════\n\n\n[Parent PID 1512] Created child PID 1513. Waiting...\n[Child  PID 1513] About to call exec — this process image will be REPLACED.\n\n[Child] Using execl(\"/bin/ls\", \"ls\", \"-l\", NULL)\n        'l' = list arguments, no 'p' = full path required\n\ntotal 24\n-rwxr-xr-x 1 csbe35a320 students 18696 Oct  6 21:21 basic_exec\n-rw-r--r-- 1 csbe35a320 students  1918 Oct  6 21:21 basic_exec.c\n[Parent PID 1512] Child finished. exec replaced its entire process image."
+    },
+    {
+      "lesson": "04",
+      "file": "binary_search_dupes.c",
+      "kind": "",
+      "intentional": "",
+      "category": "runs-and-exits",
+      "detail": "status 0",
+      "output": "--\n  #1     | {1,2,2,2,3,4,5}             | 2        | 3        | 3  OK\n  #2     | {1,1,1,1,1,1}               | 1        | 6        | 6  OK\n  #3     | {1,2,3,4,5,6,7}             | 5        | 1        | 1  OK\n  #4     | {1,3,3,3,5,5,5,7}           | 3        | 3        | 3  OK\n  #5     | {1,2,3,4,5}                 | 10       | 0        | 0  OK\n\n========================================\nstudent:~$",
+      "capture": "\n══════════════════════════════════════\n  Binary search with duplicate handling (utility/review)\n══════════════════════════════════════\n\n\n  Worst case: O(n) if all elements are the same.\n\n  Test   | Array                        | Target   | Got      | Expected\n  ------ | ---------------------------- | -------- | -------- | --------\n  #1     | {1,2,2,2,3,4,5}             | 2        | 3        | 3  OK\n  #2     | {1,1,1,1,1,1}               | 1        | 6        | 6  OK\n  #3     | {1,2,3,4,5,6,7}             | 5        | 1        | 1  OK\n  #4     | {1,3,3,3,5,5,5,7}           | 3        | 3        | 3  OK\n  #5     | {1,2,3,4,5}                 | 10       | 0        | 0  OK\n\n========================================"
+    },
+    {
+      "lesson": "04",
+      "file": "calculator_exec.c",
+      "kind": "",
+      "intentional": "",
+      "category": "runs-and-exits",
+      "detail": "status 0",
+      "output": "ent program that fork+exec's the calculator\n══════════════════════════════════════\n\n\n[Parent PID 1975] Will fork, then exec the calculator program.\n\n[Parent PID 1975] Waiting for child PID 1976 to complete...\n[Child  PID 1976] Replacing myself with ./calculator via exec...\nexec failed: No such file or directory\n[Parent PID 1975] Child finished. The calculator ran in a separate process.\n\nstudent:~$",
+      "capture": "\n══════════════════════════════════════\n  Parent program that fork+exec's the calculator\n══════════════════════════════════════\n\n\n[Parent PID 1975] Will fork, then exec the calculator program.\n\n[Parent PID 1975] Waiting for child PID 1976 to complete...\n[Child  PID 1976] Replacing myself with ./calculator via exec...\nexec failed: No such file or directory\n[Parent PID 1975] Child finished. The calculator ran in a separate process."
+    },
+    {
+      "lesson": "04",
+      "file": "calculator.c",
+      "kind": "",
+      "intentional": "",
+      "category": "runs-and-exits",
+      "detail": "status 0",
+      "output": "./calculator 6 + 7\n\n══════════════════════════════════════\n  Calculator child program (used by calculator_exec.c)\n══════════════════════════════════════\n\n\n[Calculator PID 1950] Launched by parent via exec().\n[Calculator] Received 3 arguments (expected 3: num op num)\n\n[Calculator] 6 + 7 = 13\n\nstudent:~$",
+      "capture": "\n══════════════════════════════════════\n  Calculator child program (used by calculator_exec.c)\n══════════════════════════════════════\n\n\n[Calculator PID 1950] Launched by parent via exec().\n[Calculator] Received 3 arguments (expected 3: num op num)\n\n[Calculator] 6 + 7 = 13"
+    },
+    {
+      "lesson": "05",
+      "file": "calculator.c",
+      "kind": "",
+      "intentional": "",
+      "category": "runs-and-exits",
+      "detail": "status 0",
+      "output": "./calculator 6 + 7\n\n══════════════════════════════════════\n  Calculator for Windows spawn examples\n══════════════════════════════════════\n\n\n[Calculator] 6 + 7 = 13\n\n========================================\nstudent:~$",
+      "capture": "\n══════════════════════════════════════\n  Calculator for Windows spawn examples\n══════════════════════════════════════\n\n\n[Calculator] 6 + 7 = 13\n\n========================================"
+    },
+    {
+      "lesson": "05",
+      "file": "main.c",
+      "kind": "windows",
+      "intentional": "",
+      "category": "windows-only",
+      "detail": "marked in data (not run)"
+    },
+    {
+      "lesson": "05",
+      "file": "weird_behaviours/shell.c",
+      "kind": "windows",
+      "intentional": "",
+      "category": "windows-only",
+      "detail": "marked in data (not run)"
+    },
+    {
+      "lesson": "05",
+      "file": "weird_behaviours/unique_str.c",
+      "kind": "",
+      "intentional": "",
+      "category": "runs-and-exits",
+      "detail": "status 0",
+      "output": "./unique_str\n\n══════════════════════════════════════\n  String uniqueness check (utility)\n══════════════════════════════════════\n\n\n[unique_str] Received 1 argument(s):\n\n  Index    | Value\n  -------- | -----\n  argv[0]  | \"./unique_str\"\n\n\n========================================\nstudent:~$",
+      "capture": "\n══════════════════════════════════════\n  String uniqueness check (utility)\n══════════════════════════════════════\n\n\n[unique_str] Received 1 argument(s):\n\n  Index    | Value\n  -------- | -----\n  argv[0]  | \"./unique_str\"\n\n\n========================================"
+    },
+    {
+      "lesson": "06",
+      "file": "01-basic-info.c",
+      "kind": "reference",
+      "intentional": "",
+      "category": "reference-only",
+      "detail": "marked in data (not run)"
+    },
+    {
+      "lesson": "06",
+      "file": "02-usage.c",
+      "kind": "long-running",
+      "intentional": "",
+      "category": "long-running",
+      "detail": "stopped after 8000ms as configured",
+      "output": "_mask = empty (no signals blocked during handler)\n[Main] Process PID: 1582\n\nPress Ctrl+C to trigger SIGINT...\n\n[Main] Tick 1 — Running... (Ctrl+C to exit)\n[Main] Tick 2 — Running... (Ctrl+C to exit)\n[Main] Tick 3 — Running... (Ctrl+C to exit)\n[Main] Tick 4 — Running... (Ctrl+C to exit)\n[Main] Tick 5 — Running... (Ctrl+C to exit)\n^C\n[Handler] Caught signal 2 (SIGINT). Exiting gracefully.\nstudent:~$",
+      "capture": "\n══════════════════════════════════════\n  Basic sigaction() Usage\n  Register a custom handler for SIGINT\n══════════════════════════════════════\n\n[Main] sigaction() registered handler for SIGINT\n[Main] sa_handler = sigint_handler, sa_flags = 0\n[Main] sa_mask = empty (no signals blocked during handler)\n[Main] Process PID: 1582\n\nPress Ctrl+C to trigger SIGINT...\n\n[Main] Tick 1 — Running... (Ctrl+C to exit)\n[Main] Tick 2 — Running... (Ctrl+C to exit)\n[Main] Tick 3 — Running... (Ctrl+C to exit)\n[Main] Tick 4 — Running... (Ctrl+C to exit)\n[Main] Tick 5 — Running... (Ctrl+C to exit)\n^C\n[Handler] Caught signal 2 (SIGINT). Exiting gracefully.\n\n[runs until stopped — the site stops it after 8s]"
+    },
+    {
+      "lesson": "06",
+      "file": "03-multi-signals.c",
+      "kind": "long-running",
+      "intentional": "Ignores Ctrl+C on purpose — the second terminal ends it with SIGTERM",
+      "category": "runs-and-exits",
+      "detail": "status 0; companion status 0",
+      "output": "n]  Ctrl+C sends SIGINT  — our handler catches it (won't exit)\n[Main]  To exit: run 'kill 1595' from another terminal (sends SIGTERM)\n\n[Main] Tick 1 — Waiting for signals... (PID 1595)\n[Main] Tick 2 — Waiting for signals... (PID 1595)\n\n[Handler] Caught SIGTERM (signal 15) — shutting down.\nstudent:~$\n--- companion ---\nsleep 5; pkill -TERM -x multi_sig && echo sent SIGTERM\nsent SIGTERM\nstudent:~$"
+    },
+    {
+      "lesson": "06",
+      "file": "04-using-sa-mask.c",
+      "kind": "long-running",
+      "intentional": "",
+      "category": "long-running",
+      "detail": "stopped after 8000ms as configured",
+      "output": ")\n[Main] Step 2: kill -SIGUSR2 1597   (within 5s — will be blocked!)\n[Main] Watch: SIGUSR2 handler runs AFTER SIGUSR1 handler finishes.\n\n[Main] Tick 1 — Waiting for signals... (PID 1597)\n[Main] Tick 2 — Waiting for signals... (PID 1597)\n[Main] Tick 3 — Waiting for signals... (PID 1597)\n[Main] Tick 4 — Waiting for signals... (PID 1597)\n[Main] Tick 5 — Waiting for signals... (PID 1597)\n^C\nstudent:~$",
+      "capture": "\n══════════════════════════════════════\n  sa_mask — Blocking Signals in Handler\n  SIGUSR2 is blocked while SIGUSR1 handler runs\n══════════════════════════════════════\n\n[Main] SIGUSR1 handler registered (sa_mask includes SIGUSR2)\n[Main] SIGUSR2 handler registered (sa_mask empty)\n\n[Main] Process PID: 1597\n[Main] Step 1: kill -SIGUSR1 1597   (starts 5s handler)\n[Main] Step 2: kill -SIGUSR2 1597   (within 5s — will be blocked!)\n[Main] Watch: SIGUSR2 handler runs AFTER SIGUSR1 handler finishes.\n\n[Main] Tick 1 — Waiting for signals... (PID 1597)\n[Main] Tick 2 — Waiting for signals... (PID 1597)\n[Main] Tick 3 — Waiting for signals... (PID 1597)\n[Main] Tick 4 — Waiting for signals... (PID 1597)\n[Main] Tick 5 — Waiting for signals... (PID 1597)\n^C\n\n[runs until stopped — the site stops it after 8s]"
+    },
+    {
+      "lesson": "06",
+      "file": "05-some-flags.c",
+      "kind": "long-running",
+      "intentional": "The second SIGUSR1 kills it on purpose (SA_RESETHAND restored the default action)",
+      "category": "crashes",
+      "detail": "status 138; companion status 0",
+      "output": "SETHAND: this handler is NOW reset to default (SIG_DFL).\n[Handler] SA_RESTART:   the sleep() that was interrupted will auto-restart.\n[Handler] Next SIGUSR1 will TERMINATE the process (default action).\n\n[Main] Tick 2 — Waiting for SIGUSR1... (PID 1618)\nUser defined signal 1      ./sa_flags\nstudent:~$\n--- companion ---\nsleep 3; pkill -USR1 -x sa_flags && echo sent SIGUSR1; sleep 3; pkill -USR1 -x sa_flags && echo sent SIGUSR1 again\nsent SIGUSR1\nsent SIGUSR1 again\nstudent:~$"
+    },
+    {
+      "lesson": "06",
+      "file": "06-sig-info.c",
+      "kind": "long-running",
+      "intentional": "",
+      "category": "long-running",
+      "detail": "stopped after 10000ms as configured; companion status 0",
+      "output": "):  0\n[Handler] Errno:        0\n[Handler] Address:      0x3eb000006df\n[Handler] User time:    0\n[Handler] System time:  0\n[Handler] ────────────────────────────────────\n\n[Main] Tick 3 — Waiting for SIGUSR1...\n[Main] Tick 4 — Waiting for SIGUSR1...\n[Main] Tick 5 — Waiting for SIGUSR1...\n^C\nstudent:~$\n--- companion ---\nsleep 3; pkill -USR1 -x sig_info && echo sent SIGUSR1\nsent SIGUSR1\nstudent:~$"
+    },
+    {
+      "lesson": "06",
+      "file": "07-before-ex2.c",
+      "kind": "interactive",
+      "intentional": "",
+      "category": "long-running",
+      "detail": "stopped after 30000ms as configured",
+      "output": " (entry #4)\n  Enter a number (5s timer):   Got: 5 (entry #5)\n  Enter a number (5s timer):   Got: 6 (entry #6)\n  Enter a number (5s timer):   Got: 7 (entry #7)\n  Enter a number (5s timer):   Got: 8 (entry #8)\n  Enter a number (5s timer):   Got: 9 (entry #9)\n  Enter a number (5s timer):   Got: 10 (entry #10)\n  Enter a number (5s timer): \n[Handler] Time's up! Caught SIGALRM (signal 14).\n^C\nstudent:~$",
+      "capture": "\n══════════════════════════════════════\n  Timed Input with alarm() + sigaction\n  Enter numbers before the timer runs out!\n══════════════════════════════════════\n\n[Main] SIGALRM handler registered.\n[Main] alarm(5) gives you 5 seconds per round.\n\n── Round 1/10 ──────────────────────\n  Enter a number (5s timer): 1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n  Got: 1 (entry #1)\n  Enter a number (5s timer):   Got: 2 (entry #2)\n  Enter a number (5s timer):   Got: 3 (entry #3)\n  Enter a number (5s timer):   Got: 4 (entry #4)\n  Enter a number (5s timer):   Got: 5 (entry #5)\n  Enter a number (5s timer):   Got: 6 (entry #6)\n  Enter a number (5s timer):   Got: 7 (entry #7)\n  Enter a number (5s timer):   Got: 8 (entry #8)\n  Enter a number (5s timer):   Got: 9 (entry #9)\n  Enter a number (5s timer):   Got: 10 (entry #10)\n  Enter a number (5s timer): \n[Handler] Time's up! Caught SIGALRM (signal 14).\n^C\n\n[runs until stopped — the site stops it after 30s]"
+    },
+    {
+      "lesson": "07",
+      "file": "alarm_manager/alarm_handler.c",
+      "kind": "reference",
+      "intentional": "",
+      "category": "reference-only",
+      "detail": "marked in data (not run)"
+    },
+    {
+      "lesson": "07",
+      "file": "alarm_manager/alarm_manager.c",
+      "kind": "interactive",
+      "intentional": "",
+      "category": "runs-with-input",
+      "detail": "status 0, fed sampleInput",
+      "output": "ked child PID 1758 — alarm set for 2 seconds.\nmyalarm> Exiting Alarm Manager.\n\n══════════════════════════════════════\n  Alarm Handler (Child Process)\n══════════════════════════════════════\n\n[Handler PID 1758] Will sleep 2 seconds, then signal parent PID 1745\n\n[ALARM #1] Signal 10 received — a child timer fired!\nmyalarm> [Handler PID 1758] Sent SIGUSR1 to parent PID 1745 after 2 seconds.\nstudent:~$",
+      "capture": "\n══════════════════════════════════════\n  Alarm Manager (fork + exec)\n  Each alarm spawns a child process\n══════════════════════════════════════\n\n[Parent PID 1745] Alarm Manager ready.\n[Info]  Type seconds to set an alarm, 'exit' to quit.\n[Info]  Each alarm forks a child that sleeps, then signals back.\n\nmyalarm> 2\nexit\n[Parent] Forked child PID 1758 — alarm set for 2 seconds.\nmyalarm> Exiting Alarm Manager.\n\n══════════════════════════════════════\n  Alarm Handler (Child Process)\n══════════════════════════════════════\n\n[Handler PID 1758] Will sleep 2 seconds, then signal parent PID 1745\n\n[ALARM #1] Signal 10 received — a child timer fired!\nmyalarm> [Handler PID 1758] Sent SIGUSR1 to parent PID 1745 after 2 seconds."
+    },
+    {
+      "lesson": "07",
+      "file": "coordination.c",
+      "kind": "",
+      "intentional": "",
+      "category": "runs-and-exits",
+      "detail": "status 0",
+      "output": " signal from Parent...\n[Child 1 PID 1754] Done! Sending SIGUSR1 to Parent (PID 1753).\n\n[Parent] Received SIGUSR1 from Child 1 — task acknowledged.\n[Parent] Sending SIGUSR2 to Child 2 (PID 1755) to start its task...\n[Child 2 PID 1755] Received signal! Task done. Sending SIGUSR2 to Parent.\n\n[Parent] Received SIGUSR2 from Child 2 — all tasks completed!\n[Parent] Terminating both children...\nstudent:~$",
+      "capture": "\n══════════════════════════════════════\n  Parent-Child Signal Coordination\n  Child1 → Parent → Child2 → Parent\n══════════════════════════════════════\n\n[Parent PID 1753] Signal handlers registered.\n\n[Parent] Forked Child 1 (PID 1754) and Child 2 (PID 1755).\n[Parent] Waiting for Child 1 to finish its work...\n\n[Child 1 PID 1754] Started. Working for 2 seconds...\n[Child 2 PID 1755] Started. Waiting for signal from Parent...\n[Child 1 PID 1754] Done! Sending SIGUSR1 to Parent (PID 1753).\n\n[Parent] Received SIGUSR1 from Child 1 — task acknowledged.\n[Parent] Sending SIGUSR2 to Child 2 (PID 1755) to start its task...\n[Child 2 PID 1755] Received signal! Task done. Sending SIGUSR2 to Parent.\n\n[Parent] Received SIGUSR2 from Child 2 — all tasks completed!\n[Parent] Terminating both children..."
+    },
+    {
+      "lesson": "07",
+      "file": "multiply_signals.c",
+      "kind": "",
+      "intentional": "",
+      "category": "hangs",
+      "detail": "no output for 1.8s while blocked",
+      "output": "nal 1 received.\n\n[Child 2 PID 2012] Sending SIGUSR2 to Parent (PID 2009)...\n[Handler] SIGUSR2 (signal 12) — User-defined signal 2 received.\n\n^C\n[Handler] SIGINT (signal 2) — Interrupt. Handling gracefully.\n\n\n[Handler] SIGINT (signal 2) — Interrupt. Handling gracefully.\n\n[Child 3 PID 2013] Sending SIGTERM to Parent (PID 2009)...\n[Handler] SIGTERM (signal 15) — Termination. Cleaning up...\nstudent:~$"
+    },
+    {
+      "lesson": "08",
+      "file": "01-basics.c",
+      "kind": "reference",
+      "intentional": "",
+      "category": "reference-only",
+      "detail": "marked in data (not run)"
+    },
+    {
+      "lesson": "08",
+      "file": "02-pipe-operator-with-programs/consumer.c",
+      "kind": "",
+      "intentional": "",
+      "category": "runs-and-exits",
+      "detail": "status 0",
+      "output": "════════════════\n  Consumer\n══════════════════════════════════════\n\n[Consumer PID 2041] Reading from stdin...\n\n══════════════════════════════════════\n  Producer\n══════════════════════════════════════\n\n[Producer PID 2040] Writing data to stdout...\n[Producer] Usage: ./producer | ./consumer\n[Producer PID 2040] Wrote \"Yaniv\" to stdout. Exiting.\n[Consumer PID 2041] Received via pipe: \"Yaniv\"\nstudent:~$",
+      "capture": "\n══════════════════════════════════════\n  Consumer\n══════════════════════════════════════\n\n[Consumer PID 2041] Reading from stdin...\n\n══════════════════════════════════════\n  Producer\n══════════════════════════════════════\n\n[Producer PID 2040] Writing data to stdout...\n[Producer] Usage: ./producer | ./consumer\n[Producer PID 2040] Wrote \"Yaniv\" to stdout. Exiting.\n[Consumer PID 2041] Received via pipe: \"Yaniv\""
+    },
+    {
+      "lesson": "08",
+      "file": "02-pipe-operator-with-programs/producer.c",
+      "kind": "",
+      "intentional": "",
+      "category": "runs-and-exits",
+      "detail": "status 0",
+      "output": "./producer\n\n══════════════════════════════════════\n  Producer\n══════════════════════════════════════\n\n[Producer PID 2017] Writing data to stdout...\n[Producer] Usage: ./producer | ./consumer\nYaniv\n[Producer PID 2017] Wrote \"Yaniv\" to stdout. Exiting.\nstudent:~$",
+      "capture": "\n══════════════════════════════════════\n  Producer\n══════════════════════════════════════\n\n[Producer PID 2017] Writing data to stdout...\n[Producer] Usage: ./producer | ./consumer\nYaniv\n[Producer PID 2017] Wrote \"Yaniv\" to stdout. Exiting."
+    },
+    {
+      "lesson": "08",
+      "file": "03-pipe-system-call.c",
+      "kind": "",
+      "intentional": "",
+      "category": "runs-and-exits",
+      "detail": "status 0",
+      "output": "./pipe_syscall\n\n══════════════════════════════════════\n  pipe() System Call\n  Parent writes → Child reads\n══════════════════════════════════════\n\n[Setup] pipe() created: read_fd=3, write_fd=4\n\n[Parent PID 1794] Writing to pipe: \"Hello, Pipe!\"\n[Parent PID 1794] Wrote 13 bytes. Closing write end.\nstudent:~$",
+      "capture": "\n══════════════════════════════════════\n  pipe() System Call\n  Parent writes → Child reads\n══════════════════════════════════════\n\n[Setup] pipe() created: read_fd=3, write_fd=4\n\n[Parent PID 1794] Writing to pipe: \"Hello, Pipe!\"\n[Parent PID 1794] Wrote 13 bytes. Closing write end."
+    },
+    {
+      "lesson": "08",
+      "file": "03.5-pipe-reading-1-byte.c",
+      "kind": "",
+      "intentional": "",
+      "category": "runs-and-exits",
+      "detail": "status 0",
+      "output": "D 1399] Read byte: 'l' (0x6c)\n[Child  PID 1399] Read byte: 'l' (0x6c)\n[Child  PID 1399] Read byte: 'o' (0x6f)\n[Child  PID 1399] Read byte: ',' (0x2c)\n[Child  PID 1399] Read byte: ' ' (0x20)\n[Child  PID 1399] Read byte: 'P' (0x50)\n[Child  PID 1399] Read byte: 'i' (0x69)\n[Child  PID 1399] Read byte: 'p' (0x70)\n[Child  PID 1399] Read byte: 'e' (0x65)\n[Child  PID 1399] Read byte: '!' (0x21)\nstudent:~$",
+      "capture": "\n══════════════════════════════════════\n  Byte-by-Byte Pipe Reading\n  read(fd, &c, 1) in a loop\n══════════════════════════════════════\n\n[Parent PID 1398] Writing \"Hello, Pipe!\" one byte at a time...\n[Parent PID 1398] Wrote 12 bytes. Closing write end (signals EOF).\n[Child  PID 1399] Read byte: 'H' (0x48)\n[Child  PID 1399] Read byte: 'e' (0x65)\n[Child  PID 1399] Read byte: 'l' (0x6c)\n[Child  PID 1399] Read byte: 'l' (0x6c)\n[Child  PID 1399] Read byte: 'o' (0x6f)\n[Child  PID 1399] Read byte: ',' (0x2c)\n[Child  PID 1399] Read byte: ' ' (0x20)\n[Child  PID 1399] Read byte: 'P' (0x50)\n[Child  PID 1399] Read byte: 'i' (0x69)\n[Child  PID 1399] Read byte: 'p' (0x70)\n[Child  PID 1399] Read byte: 'e' (0x65)\n[Child  PID 1399] Read byte: '!' (0x21)"
+    },
+    {
+      "lesson": "08",
+      "file": "04-more-pipe.c",
+      "kind": "",
+      "intentional": "",
+      "category": "runs-and-exits",
+      "detail": "status 0",
+      "output": "./more_pipe\n\n══════════════════════════════════════\n  Pipe: Char-by-Char Write, Bulk Read\n  Parent writes loop → Child reads all\n══════════════════════════════════════\n\n[Parent PID 1415] Writing 42 bytes to pipe...\n[Child  PID 1416] Read 42 bytes: \"Hello, this is a message from the parent.\n\"student:~$",
+      "capture": "\n══════════════════════════════════════\n  Pipe: Char-by-Char Write, Bulk Read\n  Parent writes loop → Child reads all\n══════════════════════════════════════\n\n[Parent PID 1415] Writing 42 bytes to pipe...\n[Child  PID 1416] Read 42 bytes: \"Hello, this is a message from the parent.\n\"student:~$"
+    },
+    {
+      "lesson": "08",
+      "file": "05-pipe-with-fd.c",
+      "kind": "",
+      "intentional": "",
+      "category": "runs-and-exits",
+      "detail": "status 0",
+      "output": "./pipe_fd\n\n══════════════════════════════════════\n  Pipe with FILE* (fdopen)\n  Use fprintf/fscanf instead of raw read/write\n══════════════════════════════════════\n\n[Parent PID 1440] Writing via FILE*/fprintf...\n[Child  PID 1441] Read via FILE*/fscanf: \"Hello_File_Stream\"\nstudent:~$",
+      "capture": "\n══════════════════════════════════════\n  Pipe with FILE* (fdopen)\n  Use fprintf/fscanf instead of raw read/write\n══════════════════════════════════════\n\n[Parent PID 1440] Writing via FILE*/fprintf...\n[Child  PID 1441] Read via FILE*/fscanf: \"Hello_File_Stream\""
+    },
+    {
+      "lesson": "08",
+      "file": "06-pipe-exec-dup.c",
+      "kind": "",
+      "intentional": "",
+      "category": "runs-and-exits",
+      "detail": "status 0",
+      "output": "_fd=3, write_fd=4\n[Parent] Forked producer (PID 2068) and consumer (PID 2069).\n[Parent] dup2: producer stdout → pipe write end, consumer stdin → pipe read end.\n[Parent] Closing pipe fds and waiting for children...\n\n[Parent PID 2068] pipe() created: read_fd=3, write_fd=4\nexeclp producer: No such file or directory\nexeclp consumer: No such file or directory\n[Parent] Both children finished.\nstudent:~$",
+      "capture": "\n══════════════════════════════════════\n  pipe + dup2 + exec\n  Programmatic: ./producer | ./consumer\n══════════════════════════════════════\n\n[Parent PID 2067] pipe() created: read_fd=3, write_fd=4\n[Parent] Forked producer (PID 2068) and consumer (PID 2069).\n[Parent] dup2: producer stdout → pipe write end, consumer stdin → pipe read end.\n[Parent] Closing pipe fds and waiting for children...\n\n[Parent PID 2068] pipe() created: read_fd=3, write_fd=4\nexeclp producer: No such file or directory\nexeclp consumer: No such file or directory\n[Parent] Both children finished."
+    },
+    {
+      "lesson": "08",
+      "file": "07-two-ways-communication.c",
+      "kind": "",
+      "intentional": "",
+      "category": "runs-and-exits",
+      "detail": "status 0",
+      "output": "═════════════════════════════════\n  Bidirectional IPC — Two Pipes\n  pipe1: Parent→Child, pipe2: Child→Parent\n══════════════════════════════════════\n\n[Parent PID 1459] Sending message to child via pipe1...\n[Child  PID 1460] Received from parent via pipe1: \"Hello from Parent!\"\n[Child  PID 1460] Sending reply via pipe2...\n[Parent PID 1459] Received from child via pipe2: \"Hello from Child!\"\nstudent:~$",
+      "capture": "\n══════════════════════════════════════\n  Bidirectional IPC — Two Pipes\n  pipe1: Parent→Child, pipe2: Child→Parent\n══════════════════════════════════════\n\n[Parent PID 1459] Sending message to child via pipe1...\n[Child  PID 1460] Received from parent via pipe1: \"Hello from Parent!\"\n[Child  PID 1460] Sending reply via pipe2...\n[Parent PID 1459] Received from child via pipe2: \"Hello from Child!\""
+    },
+    {
+      "lesson": "08",
+      "file": "08-two-ways-with-dupes/child.c",
+      "kind": "reference",
+      "intentional": "",
+      "category": "reference-only",
+      "detail": "marked in data (not run)"
+    },
+    {
+      "lesson": "08",
+      "file": "08-two-ways-with-dupes/parent-program.c",
+      "kind": "",
+      "intentional": "",
+      "category": "runs-and-exits",
+      "detail": "status 0",
+      "output": "./parent_dup\n\n══════════════════════════════════════\n  Bidirectional dup2 + exec\n  Parent ↔ Child via redirected stdio\n══════════════════════════════════════\n\n[Parent PID 1483] Sending to child: \"Hello from Parent Program!\"\n[Parent] Received from child: \n[Parent] Received from child: ═════════════════════════════════student:~$",
+      "capture": "\n══════════════════════════════════════\n  Bidirectional dup2 + exec\n  Parent ↔ Child via redirected stdio\n══════════════════════════════════════\n\n[Parent PID 1483] Sending to child: \"Hello from Parent Program!\"\n[Parent] Received from child: \n[Parent] Received from child: ═════════════════════════════════student:~$"
+    },
+    {
+      "lesson": "08",
+      "file": "09-mkfifo/reader.c",
+      "kind": "pair",
+      "intentional": "",
+      "category": "pair-runs",
+      "detail": "status 0/0",
+      "output": "══════════════════\n  Named Pipe (FIFO) Reader\n  First: mkfifo /tmp/my_fifo\n══════════════════════════════════════\n\n[Reader PID 1824] Opening FIFO /tmp/my_fifo for reading...\n[Reader] (blocks until a writer opens the other end)\n[Reader PID 1824] Received 23 bytes: \"Hello from the Writer!\n\"\nstudent:~$\n--- writer.c ---\n══════════════\n  Named Pipe (FIFO) Writer\n  First: mkfifo /tmp/my_fifo\n══════════════════════════════════════\n\n[Writer PID 1837] Opening FIFO /tmp/my_fifo for writing...\n[Writer] (blocks until a reader opens the other end)\n[Writer PID 1837] Wrote 23 bytes to FIFO: \"Hello from the Writer!\"\nstudent:~$"
+    },
+    {
+      "lesson": "08",
+      "file": "09-mkfifo/writer.c",
+      "kind": "",
+      "intentional": "",
+      "category": "pair-partner",
+      "detail": "runs with 09-mkfifo/reader.c (Run pair)"
+    },
+    {
+      "lesson": "09",
+      "file": "02-mkfifo-example/fifo-reader.c",
+      "kind": "pair",
+      "intentional": "",
+      "category": "pair-runs",
+      "detail": "status 0/0",
+      "output": "rst, then writer in another terminal\n══════════════════════════════════════\n\n[Reader PID 2096] FIFO 'my_fifo' created/exists.\n[Reader] Connected (fd=3). Waiting for messages...\n\n[Reader] Received 23 bytes: \"hello through the FIFO\"\n[Reader] read() returned 0 — writer closed the FIFO (EOF).\nstudent:~$\n--- fifo-writer.c ---\n══════\n  FIFO Writer (Named Pipe)\n  Run reader in another terminal first\n══════════════════════════════════════\n\n[Writer PID 2098] FIFO 'my_fifo' created/exists.\n[Writer] Connected (fd=3). Type messages, 'exit' to quit.\n\nYou: hello through the FIFO\nexit\nYou: [Writer] Closed FIFO. Exiting.\nstudent:~$"
+    },
+    {
+      "lesson": "09",
+      "file": "02-mkfifo-example/fifo-writer.c",
+      "kind": "pair",
+      "intentional": "",
+      "category": "pair-partner",
+      "detail": "runs with 02-mkfifo-example/fifo-reader.c (Run pair)"
+    },
+    {
+      "lesson": "09",
+      "file": "03-mk-fifo-multi-writers/multi-writer.c",
+      "kind": "pair",
+      "intentional": "",
+      "category": "pair-partner",
+      "detail": "runs with 03-mk-fifo-multi-writers/reader.c (Run pair)"
+    },
+    {
+      "lesson": "09",
+      "file": "03-mk-fifo-multi-writers/reader.c",
+      "kind": "pair",
+      "intentional": "",
+      "category": "pair-runs",
+      "detail": "status 0/0",
+      "output": "══════════════════════════════\n  Reader for multi-writer FIFO\n══════════════════════════════════════\n\n[Reader] FIFO 'multi_fifo' created/opened for reading.\n[Reader] FIFO opened. Waiting for messages...\n[Reader] Received -> \"first message\"\n[Reader] Received -> \"[Writer PID 1867] Exiting.\"\nstudent:~$\n--- multi-writer.c ---\nwriters → single reader\n══════════════════════════════════════\n\n[Writer PID 1867] FIFO 'multi_fifo' created/opened for writing.\n[Writer PID 1867] FIFO opened. Enter messages to send. Type 'exit' to quit.\n[Writer PID 1867] > first message\nexit\n[Writer PID 1867] > [Writer PID 1867] Exiting.\nstudent:~$"
+    },
+    {
+      "lesson": "09",
+      "file": "04-mk-fifo-two-way/process_a.c",
+      "kind": "pair",
+      "intentional": "",
+      "category": "pair-partner",
+      "detail": "runs with 04-mk-fifo-two-way/process_b.c (Run pair)"
+    },
+    {
+      "lesson": "09",
+      "file": "04-mk-fifo-two-way/process_b.c",
+      "kind": "pair",
+      "intentional": "",
+      "category": "pair-runs",
+      "detail": "status 0/0",
+      "output": "════════════════\n\n[Process B PID 1873] FIFOs 'fifo_a_to_b' and 'fifo_b_to_a' created/opened.\n[Process B PID 1873] Communication established.\n[Process B PID 1873] Received from A -> \"hello B\"\n[Process B PID 1873] Received from A -> \"exit\"\n[Process B PID 1873] Exit signal received. Exiting.\nstudent:~$\n--- process_a.c ---\n═══════════════════\n\n[Process A PID 1885] FIFOs 'fifo_a_to_b' and 'fifo_b_to_a' created/opened.\n[Process A PID 1885] Communication established. Type 'exit' to quit.\n[Process A] You: hello B\nexit\n[Process A] Received from B -> \"Acknowledged: 'hello B'\"\n[Process A] You: [Process A PID 1885] Exiting.\n\u001b"
+    },
+    {
+      "lesson": "09",
+      "file": "05-msg-que-basic/02_aba_yeled.c",
+      "kind": "",
+      "intentional": "",
+      "category": "runs-and-exits",
+      "detail": "status 0",
+      "output": "./msg_ext\n\n══════════════════════════════════════\n  Extended message queue with typed me\n══════════════════════════════════════\n\n[Parent] Sent message (type 1): \"Message Type 1\"\n[Parent] Sent message (type 2): \"Message Type 2\"\n[Child] Received message (type 2): \"Message Type 2\"\nstudent:~$",
+      "capture": "\n══════════════════════════════════════\n  Extended message queue with typed me\n══════════════════════════════════════\n\n[Parent] Sent message (type 1): \"Message Type 1\"\n[Parent] Sent message (type 2): \"Message Type 2\"\n[Child] Received message (type 2): \"Message Type 2\""
+    },
+    {
+      "lesson": "09",
+      "file": "05-msg-que-basic/03_bidirection.c",
+      "kind": "",
+      "intentional": "",
+      "category": "runs-and-exits",
+      "detail": "status 0",
+      "output": "./msg_bidir\n\n══════════════════════════════════════\n  Bidirectional message queue communic\n══════════════════════════════════════\n\n[Parent] Sent to child (type 1): \"Hello from Parent!\"\n[Child] Received from parent (type 1): \"Hello from Parent!\"\n[Parent] Received from child (type 2): \"Hello from Child!\"\n[Child] Sent to parent (type 2): \"Hello from Child!\"\nstudent:~$",
+      "capture": "\n══════════════════════════════════════\n  Bidirectional message queue communic\n══════════════════════════════════════\n\n[Parent] Sent to child (type 1): \"Hello from Parent!\"\n[Child] Received from parent (type 1): \"Hello from Parent!\"\n[Parent] Received from child (type 2): \"Hello from Child!\"\n[Child] Sent to parent (type 2): \"Hello from Child!\""
+    },
+    {
+      "lesson": "09",
+      "file": "05-msg-que-basic/aba_yeled.c",
+      "kind": "",
+      "intentional": "",
+      "category": "runs-and-exits",
+      "detail": "status 0",
+      "output": "./msg_basic\n\n══════════════════════════════════════\n  Basic message queue — parent-child\n══════════════════════════════════════\n\n[Parent PID 1505] Sent message (type 1): \"Hello from Parent!\" to queue 0\n[Child PID 1506] Received message (type 1): \"Hello from Parent!\"\nstudent:~$",
+      "capture": "\n══════════════════════════════════════\n  Basic message queue — parent-child\n══════════════════════════════════════\n\n[Parent PID 1505] Sent message (type 1): \"Hello from Parent!\" to queue 0\n[Child PID 1506] Received message (type 1): \"Hello from Parent!\""
+    },
+    {
+      "lesson": "09",
+      "file": "06-ipcm-ipcrm-removing.c",
+      "kind": "",
+      "intentional": "",
+      "category": "runs-and-exits",
+      "detail": "status 0",
+      "output": "./ipc_clean\n\n══════════════════════════════════════\n  Cleaning up IPC resources — ipcs a\n══════════════════════════════════════\n\n[Main] Message Queue created with msgid: 0\n[Main] NOTE: This program does NOT delete the queue!\n[Main] Run 'ipcs -q' to see it, 'ipcrm -q 0' to remove it.\nstudent:~$",
+      "capture": "\n══════════════════════════════════════\n  Cleaning up IPC resources — ipcs a\n══════════════════════════════════════\n\n[Main] Message Queue created with msgid: 0\n[Main] NOTE: This program does NOT delete the queue!\n[Main] Run 'ipcs -q' to see it, 'ipcrm -q 0' to remove it."
+    },
+    {
+      "lesson": "09",
+      "file": "07-msg-que-two-progs/receiver.c",
+      "kind": "pair",
+      "intentional": "",
+      "category": "pair-runs",
+      "detail": "status 0/0",
+      "output": "══════════════════════════════════════\n  Message queue receiver (separate pro\n══════════════════════════════════════\n\n[Receiver] Connected to queue (msgid: 0). Waiting for messages...\n[Receiver] Received (type 1): \"hello queue\"\n[Receiver] Exit message received (type 3). Cleaning up queue.\nstudent:~$\n--- sender.c ---\ng_sender\n\n══════════════════════════════════════\n  Message queue sender (separate progr\n══════════════════════════════════════\n\n[Sender] Connected to queue (msgid: 0). Enter messages. Type 'exit' to quit.\n[Sender] > hello queue\nexit\n[Sender] > [Sender] Exit message sent (type 3). Exiting.\nstudent:~$"
+    },
+    {
+      "lesson": "09",
+      "file": "07-msg-que-two-progs/sender.c",
+      "kind": "pair",
+      "intentional": "",
+      "category": "pair-partner",
+      "detail": "runs with 07-msg-que-two-progs/receiver.c (Run pair)"
+    },
+    {
+      "lesson": "09",
+      "file": "08-calc-que/calc_receiver.c",
+      "kind": "pair",
+      "intentional": "",
+      "category": "pair-runs",
+      "detail": "status 0/0",
+      "output": "Waiting for calculation requests...\n[Calc Server] Received operation '+' with operands 5.00 and 3.00\n[Calc Server] Sent calculation result.\n[Calc Server] Received operation '*' with operands 4.00 and 6.00\n[Calc Server] Sent calculation result.\n[Calc Server] Exit message received. Exiting.\nstudent:~$\n--- calc_sender.c ---\nalculation request sent.\n[Calc Client] Result = 8.00\nEnter operation (+, -, *, /) then two numbers, or 'e' to exit: [Calc Client] Calculation request sent.\n[Calc Client] Result = 24.00\nEnter operation (+, -, *, /) then two numbers, or 'e' to exit: [Calc Client] Exit message sent. Exiting.\nstudent:~$"
+    },
+    {
+      "lesson": "09",
+      "file": "08-calc-que/calc_sender.c",
+      "kind": "pair",
+      "intentional": "",
+      "category": "pair-partner",
+      "detail": "runs with 08-calc-que/calc_receiver.c (Run pair)"
+    },
+    {
+      "lesson": "10",
+      "file": "02-basic-example/consumer.c",
+      "kind": "pair",
+      "intentional": "",
+      "category": "pair-partner",
+      "detail": "runs with 02-basic-example/creator.c (Run pair)"
+    },
+    {
+      "lesson": "10",
+      "file": "02-basic-example/creator.c",
+      "kind": "pair",
+      "intentional": "",
+      "category": "pair-runs",
+      "detail": "status 0/0, fed sampleInput",
+      "output": "te to shared memory (or 'exit' to quit): hello shared memory\nexit\n[Creator] Wrote to shared memory: \"hello shared memory\"\nEnter a string to write to shared memory (or 'exit' to quit): [Creator] Waiting — consumer hasn't read the last message yet...\n[Creator] Wrote to shared memory: \"exit\"\nstudent:~$\n--- consumer.c ---\nry consumer — reading f\n══════════════════════════════════════\n\n[Consumer PID 1940] Read from shared memory: \"hello shared memory\"\n[Consumer PID 1940] Buffer empty — waiting for creator...\n[Consumer PID 1940] Read from shared memory: \"exit\"\n[Consumer] Detached from shared memory. Exiting.\nstudent:~$"
+    },
+    {
+      "lesson": "10",
+      "file": "03-positions/position_creator.c",
+      "kind": "pair",
+      "intentional": "",
+      "category": "pair-runs",
+      "detail": "statuses stopped/stopped (stopped on schedule)",
+      "output": " shared memory —\n══════════════════════════════════════\n\n[Creator PID 2123] Shared memory created (shmid=0, key=0x1234).\n[Creator] Position initialized to (0.0, 0.0).\n[Creator] Press Ctrl+C to clean up and exit.\n^C\n[Creator] Caught signal 2. Detaching and removing shared memory (shmid=0).\nstudent:~$\n--- position_updater.c ---\n= 5.00, y = 5.00\n[Updater] Position: x = 6.00, y = 6.00\n[Updater] Position: x = 7.00, y = 7.00\n[Updater] Position: x = 8.00, y = 8.00\n[Updater] Position: x = 9.00, y = 9.00\n[Updater] Position: x = 10.00, y = 10.00\n[Updater] Position: x = 11.00, y = 11.00\n^C\n[Updater] Detached and exiting.\nstudent:~$"
+    },
+    {
+      "lesson": "10",
+      "file": "03-positions/position_updater.c",
+      "kind": "pair",
+      "intentional": "",
+      "category": "pair-partner",
+      "detail": "runs with 03-positions/position_creator.c (Run pair)"
+    },
+    {
+      "lesson": "10",
+      "file": "03-positions/position_viewer.c",
+      "kind": "long-running",
+      "intentional": "",
+      "category": "runs-and-exits",
+      "detail": "status 1",
+      "output": "./pos_viewer\n\n══════════════════════════════════════\n  Position struct viewer — reads sha\n══════════════════════════════════════\n\nshmget failed: No such file or directory\nstudent:~$",
+      "capture": "\n══════════════════════════════════════\n  Position struct viewer — reads sha\n══════════════════════════════════════\n\nshmget failed: No such file or directory"
+    },
+    {
+      "lesson": "10",
+      "file": "04-array/consumer.c",
+      "kind": "long-running",
+      "intentional": "",
+      "category": "runs-and-exits",
+      "detail": "status 1",
+      "output": "./arr_consumer\n\n══════════════════════════════════════\n  Shared array consumer — reads from\n══════════════════════════════════════\n\nshmget failed: No such file or directory\nstudent:~$",
+      "capture": "\n══════════════════════════════════════\n  Shared array consumer — reads from\n══════════════════════════════════════\n\nshmget failed: No such file or directory"
+    },
+    {
+      "lesson": "10",
+      "file": "04-array/creator.c",
+      "kind": "pair",
+      "intentional": "",
+      "category": "pair-runs",
+      "detail": "statuses stopped/stopped (stopped on schedule)",
+      "output": " Shared array creator — allocates s\n══════════════════════════════════════\n\n[Creator PID 1986] Shared memory for integer array created and initialized (shmid=0).\n[Creator] Press Ctrl+C to terminate and clean up.\n^C\n[Creator] Caught signal 2, detaching and removing shared memory (shmid=0).\nstudent:~$\n--- producer.c ---\n[3] = 4\n[Producer] Set shared_array[4] = 5\n[Producer] Set shared_array[5] = 6\n[Producer] Set shared_array[6] = 7\n[Producer] Set shared_array[7] = 8\n[Producer] Set shared_array[8] = 9\n[Producer] Set shared_array[9] = 10\n[Producer] Set shared_array[0] = 1\n^C\n[Producer] Detached and exiting.\nstudent:~$"
+    },
+    {
+      "lesson": "10",
+      "file": "04-array/producer.c",
+      "kind": "pair",
+      "intentional": "",
+      "category": "pair-partner",
+      "detail": "runs with 04-array/creator.c (Run pair)"
+    },
+    {
+      "lesson": "10",
+      "file": "05-scoreboard-struct/scoreboard_creator.c",
+      "kind": "",
+      "intentional": "",
+      "category": "runs-and-exits",
+      "detail": "status 0",
+      "output": "./sb_creator\n\n══════════════════════════════════════\n  Scoreboard creator — shared struct\n══════════════════════════════════════\n\n[Creator] Scoreboard initialized in shared memory.\nstudent:~$",
+      "capture": "\n══════════════════════════════════════\n  Scoreboard creator — shared struct\n══════════════════════════════════════\n\n[Creator] Scoreboard initialized in shared memory."
+    },
+    {
+      "lesson": "10",
+      "file": "05-scoreboard-struct/scoreboard_updater.c",
+      "kind": "",
+      "intentional": "",
+      "category": "runs-and-exits",
+      "detail": "status 1",
+      "output": "./sb_updater Alice\n\n══════════════════════════════════════\n  Scoreboard updater — modifies team\n══════════════════════════════════════\n\nshmget: No such file or directory\nstudent:~$",
+      "capture": "\n══════════════════════════════════════\n  Scoreboard updater — modifies team\n══════════════════════════════════════\n\nshmget: No such file or directory"
+    },
+    {
+      "lesson": "10",
+      "file": "05-scoreboard-struct/scoreboard_viewer.c",
+      "kind": "long-running",
+      "intentional": "",
+      "category": "long-running",
+      "detail": "stopped after 12000ms as configured; companion status null",
+      "output": "     \n1692  Bob                  0         \n\nPress Ctrl+C to exit.\n=== Game Scoreboard ===\nTotal Players: 2\n\nID    Player Name          Score     \n----------------------------------------\n1678  Alice                11        \n1692  Bob                  0         \n\nPress Ctrl+C to exit.\n^C\nstudent:~$\n--- companion ---\n692) scored 0 points. Total: 0\n^C\n[Updater] Detached and exiting.\n[Updater] Player 'Alice' (ID 1678) scored 5 points. Total: 11\n[1]+  Exit 124                   timeout 7 ./sb_updater Alice\nstudent:~$"
+    },
+    {
+      "lesson": "11",
+      "file": "01-example/echo-client.c",
+      "kind": "pair",
+      "intentional": "",
+      "category": "pair-partner",
+      "detail": "runs with 01-example/echo-server.c (Run pair)"
+    },
+    {
+      "lesson": "11",
+      "file": "01-example/echo-server.c",
+      "kind": "pair",
+      "intentional": "",
+      "category": "pair-runs",
+      "detail": "statuses stopped/0 (stopped on schedule)",
+      "output": "Server] Received from fd 4: \"Hello!!!!\" — echoing back\n[Server] Data available on fd 4\n[Server] Client disconnected (fd: 4)\n^C\n══════════════════════════════════════\n  TCP echo server with select() for mu\n══════════════════════════════════════\n\n\n[Server] Signal 2 received — shutting down.\nstudent:~$\n--- echo-client.c ---\nbytes)\n[Client] Sent: \"Hello!!\" (8 bytes)\n[Client] Received echo: \"Hello!!\" (8 bytes)\n[Client] Sent: \"Hello!!!\" (9 bytes)\n[Client] Received echo: \"Hello!!!\" (9 bytes)\n[Client] Sent: \"Hello!!!!\" (10 bytes)\n[Client] Received echo: \"Hello!!!!\" (10 bytes)\n[Client] All done. Connection closed.\nstudent:~$"
+    },
+    {
+      "lesson": "11",
+      "file": "02-chat/chat-client.c",
+      "kind": "pair",
+      "intentional": "",
+      "category": "pair-partner",
+      "detail": "runs with 02-chat/chat-server.c (Run pair)"
+    },
+    {
+      "lesson": "11",
+      "file": "02-chat/chat-server.c",
+      "kind": "pair",
+      "intentional": "",
+      "category": "pair-runs",
+      "detail": "statuses stopped/0 (stopped on schedule)",
+      "output": "selec\n══════════════════════════════════════\n\n[Server] Listening on port 3880 (main_socket fd=3).\n[Server] Waiting for connections...\n\n[Server] New client connected (fd=4, total fds monitored: 1)\n[Server] Received 15 bytes from fd=4: \"hello everyone\"\n[Server] Client disconnected (fd=4)\n^C\nstudent:~$\n--- chat-client.c ---\nhat_client 127.0.0.1\n\n══════════════════════════════════════\n  Chat client — connects to chat ser\n══════════════════════════════════════\n\nChat client: connected to server.\nType messages to send. Type 'exit' to quit.\nhello everyone\nexit\nChat client: exiting.\nChat client: connection closed.\nstudent:~$"
+    },
+    {
+      "lesson": "11",
+      "file": "03-arithmetic/client.c",
+      "kind": "pair",
+      "intentional": "",
+      "category": "pair-partner",
+      "detail": "runs with 03-arithmetic/server.c (Run pair)"
+    },
+    {
+      "lesson": "11",
+      "file": "03-arithmetic/server.c",
+      "kind": "pair",
+      "intentional": "",
+      "category": "pair-runs",
+      "detail": "statuses stopped/0 (stopped on schedule)",
+      "output": "═══════\n\n[Server] Listening on port 3890...\n[Server] New client connected (fd=4)\n[Server] Received from fd=4: \"2 + 3\"\nArithmetic server: sent 'Result: 5.00' to fd 4\n[Server] Received from fd=4: \"10 * 4\"\nArithmetic server: sent 'Result: 40.00' to fd 4\n[Server] Client disconnected (fd=4)\n^C\nstudent:~$\n--- client.c ---\nressi\n══════════════════════════════════════\n\nArithmetic client: connected to server.\nEnter arithmetic expressions (e.g., '2 + 3'). Type 'exit' to quit.\n> 2 + 3\n10 * 4\nexit\nResult: 'Result: 5.00'\n> Result: 'Result: 40.00'\n> Arithmetic client: exiting.\nArithmetic client: connection closed.\nstudent:~$"
+    },
+    {
+      "lesson": "12",
+      "file": "01-pthread_create.c",
+      "kind": "",
+      "intentional": "",
+      "category": "runs-and-exits",
+      "detail": "status 0",
+      "output": "40075268901672] PID=2097, iteration 3/5 (val=1)\n[Thread 140075268901672] PID=2097, iteration 4/5 (val=1)\n[Thread 140075268184888] PID=2097, iteration 2/5 (val=1)\n[Thread 140075268184888] PID=2097, iteration 3/5 (val=1)\n[Thread 140075268184888] PID=2097, iteration 4/5 (val=1)\n[Thread 140075268901672] PID=2097, iteration 5/5 (val=1)\n[Thread 140075268184888] PID=2097, iteration 5/5 (val=1)\nstudent:~$",
+      "capture": "\n══════════════════════════════════════\n  Creating your first thread\n══════════════════════════════════════\n\n\n[Main] Creating a new thread...\n[Main] Thread created (ID: 140075268184888). Now main also calls my_func.\n[Main] Watch the interleaved output — both threads run concurrently!\n\n[Thread 140075268901672] PID=2097, iteration 1/5 (val=1)\n[Thread 140075268184888] PID=2097, iteration 1/5 (val=1)\n[Thread 140075268901672] PID=2097, iteration 2/5 (val=1)\n[Thread 140075268901672] PID=2097, iteration 3/5 (val=1)\n[Thread 140075268901672] PID=2097, iteration 4/5 (val=1)\n[Thread 140075268184888] PID=2097, iteration 2/5 (val=1)\n[Thread 140075268184888] PID=2097, iteration 3/5 (val=1)\n[Thread 140075268184888] PID=2097, iteration 4/5 (val=1)\n[Thread 140075268901672] PID=2097, iteration 5/5 (val=1)\n[Thread 140075268184888] PID=2097, iteration 5/5 (val=1)"
+    },
+    {
+      "lesson": "12",
+      "file": "02-pthread_exit.c",
+      "kind": "",
+      "intentional": "",
+      "category": "runs-and-exits",
+      "detail": "status 0",
+      "output": "═════════════════\n\n\n[Main] Input array: 17 38 79 3879 \n\n[Main] Creating thread to negate all values...\n[Main] Waiting for thread to finish (pthread_join)...\n[Thread] Received input: 17 38 79 3879 \n[Thread] Negating each value...\n\n[Main] Thread finished! Returned array: -17 -38 -79 -3879 \n[Main] The thread allocated memory, returned it via pthread_exit, and main read it via pthread_join.\nstudent:~$",
+      "capture": "\n══════════════════════════════════════\n  pthread_exit with return values\n══════════════════════════════════════\n\n\n[Main] Input array: 17 38 79 3879 \n\n[Main] Creating thread to negate all values...\n[Main] Waiting for thread to finish (pthread_join)...\n[Thread] Received input: 17 38 79 3879 \n[Thread] Negating each value...\n\n[Main] Thread finished! Returned array: -17 -38 -79 -3879 \n[Main] The thread allocated memory, returned it via pthread_exit, and main read it via pthread_join."
+    },
+    {
+      "lesson": "12",
+      "file": "03-pthread_cleanup.c",
+      "kind": "",
+      "intentional": "Sometimes crashes on purpose: the thread may return from inside pthread_cleanup_push/pop (1 in 10 per second) — undefined behaviour, which musl punishes with SIGSEGV",
+      "category": "runs-and-exits",
+      "detail": "status 0",
+      "output": ".\n\n[Main] Cancelling the thread with pthread_cancel()...\n[Main] This should trigger the cleanup handlers.\n  [Cleanup Handler 2] cleanup_malloc called — freeing memory.\n\n  [Cleanup Handler 1] cleanup_msg called!\n  [Cleanup Handler 1] Message: \"thank you, and come again\"\n\n[Main] Finishing. Note: using return instead of pthread_exit —\n       the secondary thread may not finish its cleanup!\nstudent:~$",
+      "capture": "\n══════════════════════════════════════\n  pthread_cleanup — Cleanup Handlers\n══════════════════════════════════════\n\n[Main] Cleanup handlers are functions that run automatically\n       when a thread is cancelled or calls pthread_exit.\n\n[Main] Creating secondary thread...\n[Thread] Started. Registering cleanup handlers...\n[Thread] Cleanup handlers registered (2 handlers on stack).\n[Thread] Running... (will be cancelled by main after ~2 seconds)\n\n[Thread] Still running...\n[Thread] Still running...\n[Thread] Still running...\n\n[Main] Cancelling the thread with pthread_cancel()...\n[Main] This should trigger the cleanup handlers.\n  [Cleanup Handler 2] cleanup_malloc called — freeing memory.\n\n  [Cleanup Handler 1] cleanup_msg called!\n  [Cleanup Handler 1] Message: \"thank you, and come again\"\n\n[Main] Finishing. Note: using return instead of pthread_exit —\n       the secondary thread may not finish its cleanup!"
+    },
+    {
+      "lesson": "12",
+      "file": "04-pthread_join.c",
+      "kind": "",
+      "intentional": "",
+      "category": "long-running",
+      "detail": "still printing when stopped",
+      "output": "counter++ → 48 (NO mutex — race condition possible!)\n[Thread 4] counter++ → 49 (NO mutex — race condition possible!)\n[Thread 0] counter++ → 50 (NO mutex — race condition possible!)\n\n══════════════════════════════════════\n  Results\n══════════════════════════════════════\n  Expected counter: 50 (5 threads × 10 increments)\n  Actual counter:   50 ← correct (got lucky this time)\nstudent:~$ ^C\nstudent:~$",
+      "capture": "\n[Main] Creating 5 threads, each will increment a shared counter 10 times.\n[Main] NO mutex is used — watch for the race condition!\n\n[Main] Created thread 0\n[Main] Created thread 1\n[Main] Created thread 2\n[Main] Created thread 3\n[Main] Created thread 4\n[Thread 0] counter++ → 1 (NO mutex — race condition possible!)\n[Thread 3] counter++ → 4 (NO mutex — race condition possible!)\n[Thread 4] counter++ → 5 (NO mutex — race condition possible!)\n[Thread 1] counter++ → 2 (NO mutex — race condition possible!)\n[Thread 2] counter++ → 3 (NO mutex — race condition possible!)\n\n[Main] All threads created. Calling pthread_join on each...\n\n[Thread 2] counter++ → 6 (NO mutex — race condition possible!)\n[Thread 1] counter++ → 7 (NO mutex — race condition possible!)\n[Thread 0] counter++ → 8 (NO mutex — race condition possible!)\n[Thread 3] counter++ → 9 (NO mutex — race condition possible!)\n[Thread 3] counter++ → 10 (NO mutex — race condition possible!)\n[Thread 3] counter++ → 11 (NO mutex — race condition possible!)\n[Thread 3] counter++ → 12 (NO mutex — race condition possible!)\n[Thread 3] counter++ → 13 (NO mutex — race condition possible!)\n[Thread 4] counter++ → 14 (NO mutex — race condition possible!)\n[Thread 2] counter++ → 15 (NO mutex — race condition possible!)\n[Thread 1] counter++ → 16 (NO mutex — race condition possible!)\n[Thread 2] counter++ → 17 (NO mutex — race condition possible!)\n[Thread 0] counter++ → 18 (NO mutex — race condition possible!)\n[Thread 3] counter++ → 19 (NO mutex — race condition possible!)\n[Thread 3] counter++ → 20 (NO mutex — race condition possible!)\n[Thread 4] counter++ → 21 (NO mutex — race condition possible!)\n[Thread 1] counter++ → 22 (NO mutex — race condition possible!)\n[Thread 2] counter++ → 23 (NO mutex — race condition possible!)\n[Thread 1] counter++ → 24 (NO mutex — race condition possible!)\n[Thread 0] counter++ → 25 (NO mutex — race condition possible!)\n[Thread 3] counter++ → 26 (NO mutex — race condition possible!)\n[Thread 4] counter++ → 27 (NO mutex — race condition possible!)\n[Thread 2] counter++ → 28 (NO mutex — race condition possible!)\n[Thread 1] counter++ → 29 (NO mutex — race condition possible!)\n[Thread 0] counter++ → 30 (NO mutex — race condition possible!)\n[Thread 3] counter++ → 31 (NO mutex — race condition possible!)\n[Thread 0] counter++ → 32 (NO mutex — race condition possible!)\n[Thread 1] counter++ → 33 (NO mutex — race condition possible!)\n[Thread 4] counter++ → 34 (NO mutex — race condition possible!)\n[Thread 4] counter++ → 35 (NO mutex — race condition possible!)\n[Thread 2] counter++ → 36 (NO mutex — race condition possible!)\n[Thread 1] counter++ → 37 (NO mutex — race condition possible!)\n[Thread 0] counter++ → 38 (NO mutex — race condition possible!)\n[Thread 1] counter++ → 39 (NO mutex — race condition possible!)\n[Thread 2] counter++ → 40 (NO mutex — race condition possible!)\n[Thread 4] counter++ → 41 (NO mutex — race condition possible!)\n[Thread 2] counter++ → 42 (NO mutex — race condition possible!)\n[Thread 1] counter++ → 43 (NO mutex — race condition possible!)\n[Thread 0] counter++ → 44 (NO mutex — race condition possible!)\n[Thread 2] counter++ → 45 (NO mutex — race condition possible!)\n[Thread 4] counter++ → 46 (NO mutex — race condition possible!)\n[Thread 4] counter++ → 47 (NO mutex — race condition possible!)\n[Thread 0] counter++ → 48 (NO mutex — race condition possible!)\n[Thread 4] counter++ → 49 (NO mutex — race condition possible!)\n[Thread 0] counter++ → 50 (NO mutex — race condition possible!)\n\n══════════════════════════════════════\n  Results\n══════════════════════════════════════\n  Expected counter: 50 (5 threads × 10 increments)\n  Actual counter:   50 ← correct (got lucky this time)\nstudent:~$ ^C\n\n[runs until stopped — the site stops it after NaNs]"
+    },
+    {
+      "lesson": "12",
+      "file": "05-pthread_ping_pong.c",
+      "kind": "",
+      "intentional": "",
+      "category": "runs-and-exits",
+      "detail": "status 0",
+      "output": "pproaches: mutex + cond_wait (lesson 13).\n\n[Thread 0] Ping! (round 1)\n[Thread 1]   Pong! (round 1)\n[Thread 0] Ping! (round 2)\n[Thread 1]   Pong! (round 2)\n[Thread 0] Ping! (round 3)\n[Thread 1]   Pong! (round 3)\n[Thread 0] Ping! (round 4)\n[Thread 1]   Pong! (round 4)\n[Thread 0] Ping! (round 5)\n[Thread 1]   Pong! (round 5)\n\n[Main] Ping-Pong complete — 5 rounds each, perfectly alternating.\nstudent:~$",
+      "capture": "\n══════════════════════════════════════\n  Ping-pong between threads using busy waiting\n══════════════════════════════════════\n\n\n[Main] Two threads take turns printing — coordinated via a shared 'turn' flag.\n[Main] Thread 0 = Ping, Thread 1 = Pong. Each waits in a spin loop (busy wait).\n[Main] Note: busy waiting wastes CPU! Better approaches: mutex + cond_wait (lesson 13).\n\n[Thread 0] Ping! (round 1)\n[Thread 1]   Pong! (round 1)\n[Thread 0] Ping! (round 2)\n[Thread 1]   Pong! (round 2)\n[Thread 0] Ping! (round 3)\n[Thread 1]   Pong! (round 3)\n[Thread 0] Ping! (round 4)\n[Thread 1]   Pong! (round 4)\n[Thread 0] Ping! (round 5)\n[Thread 1]   Pong! (round 5)\n\n[Main] Ping-Pong complete — 5 rounds each, perfectly alternating."
+    },
+    {
+      "lesson": "12",
+      "file": "06-pthread-once.c",
+      "kind": "",
+      "intentional": "",
+      "category": "runs-and-exits",
+      "detail": "status 0",
+      "output": "in] Only the FIRST thread to call pthread_once will execute init().\n\n[Main] Created thread 0\n[Main] Created thread 1\n[Main] Created thread 2\n  [init()] This runs EXACTLY ONCE — allocating shared array.\n\n[Main] Created thread 3\n[Main] Created thread 4\n\n[Main] All threads finished. Shared array contents: 3 9 9 5 9 \n[Main] init() ran exactly once, even though 5 threads called pthread_once.\nstudent:~$",
+      "capture": "\n══════════════════════════════════════\n  pthread_once\n══════════════════════════════════════\n\n\n[Main] Creating 5 threads. Each calls pthread_once() to ensure init() runs ONCE.\n[Main] Only the FIRST thread to call pthread_once will execute init().\n\n[Main] Created thread 0\n[Main] Created thread 1\n[Main] Created thread 2\n  [init()] This runs EXACTLY ONCE — allocating shared array.\n\n[Main] Created thread 3\n[Main] Created thread 4\n\n[Main] All threads finished. Shared array contents: 3 9 9 5 9 \n[Main] init() ran exactly once, even though 5 threads called pthread_once."
+    },
+    {
+      "lesson": "12",
+      "file": "07-partial-sum.c",
+      "kind": "",
+      "intentional": "",
+      "category": "runs-and-exits",
+      "detail": "status 0",
+      "output": "14 + 15 = 65\n[Thread 3] Processing indices 15..19: 16 + 17 + 18 + 19 + 20 = 90\n[Main] Thread 0 finished — partial sum = 15\n[Main] Thread 1 finished — partial sum = 40\n[Main] Thread 2 finished — partial sum = 65\n[Main] Thread 3 finished — partial sum = 90\n\n══════════════════════════════════════\n  Total sum = 210  (sum of 1..20 = 20 × 21 / 2 = 210 ✓)\n══════════════════════════════════════\nstudent:~$",
+      "capture": "\nInitializing array with values: 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20\n\n[Main] Splitting into 4 threads (5 elements each)...\n\n[Thread 0] Processing indices 0..4: 1 + 2 + 3 + 4 + 5 = 15\n[Thread 1] Processing indices 5..9: 6 + 7 + 8 + 9 + 10 = 40\n[Thread 2] Processing indices 10..14: 11 + 12 + 13 + 14 + 15 = 65\n[Thread 3] Processing indices 15..19: 16 + 17 + 18 + 19 + 20 = 90\n[Main] Thread 0 finished — partial sum = 15\n[Main] Thread 1 finished — partial sum = 40\n[Main] Thread 2 finished — partial sum = 65\n[Main] Thread 3 finished — partial sum = 90\n\n══════════════════════════════════════\n  Total sum = 210  (sum of 1..20 = 20 × 21 / 2 = 210 ✓)\n══════════════════════════════════════"
+    },
+    {
+      "lesson": "12",
+      "file": "08-pthread-exit.c",
+      "kind": "long-running",
+      "intentional": "",
+      "category": "runs-and-exits",
+      "detail": "status 0",
+      "output": "unning after main exited!\n[Thread 3] Iteration 9/10 — still running after main exited!\n[Thread 1] Iteration 10/10 — still running after main exited!\n[Thread 2] Iteration 10/10 — still running after main exited!\n[Thread 3] Iteration 10/10 — still running after main exited!\n[Thread 1] Finished all 10 iterations.\n[Thread 2] Finished all 10 iterations.\n[Thread 3] Finished all 10 iterations.\nstudent:~$",
+      "capture": "\n══════════════════════════════════════\n  Main thread exits early, worker threads continue\n══════════════════════════════════════\n\n\n[Main] Key concept: if main calls return/exit, ALL threads die.\n[Main] But if main calls pthread_exit, the process stays alive for worker threads!\n\n[Main] Created thread 1\n[Main] Created thread 2\n[Main] Created thread 3\n\n[Main] Calling pthread_exit() NOW — main thread stops, but threads keep running!\n[Main] Watch: the thread output continues even though main is gone.\n\n[Thread 1] Iteration 1/10 — still running after main exited!\n[Thread 2] Iteration 1/10 — still running after main exited!\n[Thread 3] Iteration 1/10 — still running after main exited!\n[Thread 3] Iteration 2/10 — still running after main exited!\n[Thread 2] Iteration 2/10 — still running after main exited!\n[Thread 1] Iteration 2/10 — still running after main exited!\n[Thread 2] Iteration 3/10 — still running after main exited!\n[Thread 3] Iteration 3/10 — still running after main exited!\n[Thread 1] Iteration 3/10 — still running after main exited!\n[Thread 3] Iteration 4/10 — still running after main exited!\n[Thread 2] Iteration 4/10 — still running after main exited!\n[Thread 1] Iteration 4/10 — still running after main exited!\n[Thread 3] Iteration 5/10 — still running after main exited!\n[Thread 1] Iteration 5/10 — still running after main exited!\n[Thread 2] Iteration 5/10 — still running after main exited!\n[Thread 3] Iteration 6/10 — still running after main exited!\n[Thread 1] Iteration 6/10 — still running after main exited!\n[Thread 2] Iteration 6/10 — still running after main exited!\n[Thread 3] Iteration 7/10 — still running after main exited!\n[Thread 1] Iteration 7/10 — still running after main exited!\n[Thread 2] Iteration 7/10 — still running after main exited!\n[Thread 1] Iteration 8/10 — still running after main exited!\n[Thread 3] Iteration 8/10 — still running after main exited!\n[Thread 2] Iteration 8/10 — still running after main exited!\n[Thread 1] Iteration 9/10 — still running after main exited!\n[Thread 2] Iteration 9/10 — still running after main exited!\n[Thread 3] Iteration 9/10 — still running after main exited!\n[Thread 1] Iteration 10/10 — still running after main exited!\n[Thread 2] Iteration 10/10 — still running after main exited!\n[Thread 3] Iteration 10/10 — still running after main exited!\n[Thread 1] Finished all 10 iterations.\n[Thread 2] Finished all 10 iterations.\n[Thread 3] Finished all 10 iterations."
+    },
+    {
+      "lesson": "12",
+      "file": "09-countdown-race.c",
+      "kind": "",
+      "intentional": "",
+      "category": "long-running",
+      "detail": "still printing when stopped",
+      "output": "aining\n[Thread 0] Counting down: 4 remaining\n[Thread 2] Counting down: 4 remaining\n[Thread 0] Counting down: 3 remaining\n[Thread 1] Counting down: 4 remaining\n[Thread 2] Counting down: 3 remaining\n[Thread 0] Counting down: 2 remaining\n[Thread 1] Counting down: 3 remaining\n[Thread 2] Counting down: 2 remaining\n[Thread 0] Counting down: 1 remaining\n[Thread 1] Counting down: 2 remaining\n^C\nstudent:~$",
+      "capture": "\n══════════════════════════════════════\n  Thread race: first to count down to zero wins\n══════════════════════════════════════\n\n\n[Main] Each thread gets a random countdown (5-10 seconds). First to 0 wins!\n[Main] WARNING: the winner check has NO mutex — a race condition on purpose.\n\n[Main] Thread 0 starts with countdown = 8\n[Main] Thread 1 starts with countdown = 9\n[Main] Thread 2 starts with countdown = 9\n\n[Main] Race started! Main thread calling pthread_exit (threads keep running).\n\n[Thread 0] Counting down: 7 remaining\n[Thread 2] Counting down: 8 remaining\n[Thread 1] Counting down: 8 remaining\n[Thread 0] Counting down: 6 remaining\n[Thread 2] Counting down: 7 remaining\n[Thread 1] Counting down: 7 remaining\n[Thread 2] Counting down: 6 remaining\n[Thread 0] Counting down: 5 remaining\n[Thread 1] Counting down: 6 remaining\n[Thread 2] Counting down: 5 remaining\n[Thread 1] Counting down: 5 remaining\n[Thread 0] Counting down: 4 remaining\n[Thread 2] Counting down: 4 remaining\n[Thread 0] Counting down: 3 remaining\n[Thread 1] Counting down: 4 remaining\n[Thread 2] Counting down: 3 remaining\n[Thread 0] Counting down: 2 remaining\n[Thread 1] Counting down: 3 remaining\n[Thread 2] Counting down: 2 remaining\n[Thread 0] Counting down: 1 remaining\n[Thread 1] Counting down: 2 remaining\n^C\n\n[runs until stopped — the site stops it after NaNs]"
+    },
+    {
+      "lesson": "12",
+      "file": "10-async-chat.c",
+      "kind": "long-running",
+      "intentional": "",
+      "category": "runs-and-exits",
+      "detail": "status 0",
+      "output": "icipant 1] Posted message 3/5: \"P1 msg 2\" (log position: 9)\n[Participant 2] Posted message 4/5: \"P2 msg 3\" (log position: 10)\n[Participant 0] Posted message 5/5: \"P0 msg 4\" (log position: 11)\n[Participant 1] Posted message 4/5: \"P1 msg 3\" (log position: 12)\n[Participant 2] Posted message 5/5: \"P2 msg 4\" (log position: 13)\n[Participant 1] Posted message 5/5: \"P1 msg 4\" (log position: 14)\nstudent:~$",
+      "capture": "\n══════════════════════════════════════\n  Async chat simulator with threads\n══════════════════════════════════════\n\n\n[Main] Starting 3 chat participants, each will post 5 messages.\n[Main] WARNING: no mutex on shared log — messages may get lost or corrupted!\n\n[Main] All participants started. Main exits, chat continues...\n\n[Participant 0] Posted message 1/5: \"P0 msg 0\" (log position: 0)\n[Participant 2] Posted message 1/5: \"P2 msg 0\" (log position: 1)\n[Participant 1] Posted message 1/5: \"P1 msg 0\" (log position: 2)\n[Participant 0] Posted message 2/5: \"P0 msg 1\" (log position: 3)\n[Participant 2] Posted message 2/5: \"P2 msg 1\" (log position: 4)\n[Participant 0] Posted message 3/5: \"P0 msg 2\" (log position: 5)\n[Participant 1] Posted message 2/5: \"P1 msg 1\" (log position: 6)\n[Participant 2] Posted message 3/5: \"P2 msg 2\" (log position: 7)\n[Participant 0] Posted message 4/5: \"P0 msg 3\" (log position: 8)\n[Participant 1] Posted message 3/5: \"P1 msg 2\" (log position: 9)\n[Participant 2] Posted message 4/5: \"P2 msg 3\" (log position: 10)\n[Participant 0] Posted message 5/5: \"P0 msg 4\" (log position: 11)\n[Participant 1] Posted message 4/5: \"P1 msg 3\" (log position: 12)\n[Participant 2] Posted message 5/5: \"P2 msg 4\" (log position: 13)\n[Participant 1] Posted message 5/5: \"P1 msg 4\" (log position: 14)"
+    },
+    {
+      "lesson": "12",
+      "file": "11-pthreads-fifo.c",
+      "kind": "",
+      "intentional": "",
+      "category": "runs-and-exits",
+      "detail": "status 0",
+      "output": "rom writer\"\n[Reader] Got: \"Message 8 from writer\"\n[Reader] Sent ACK: \"Acknowledged: Message 8 from writer\"\n[Writer] Sent \"Message 8 from writer\"\n[Writer] Got ACK: \"Acknowledged: Message 8 from writer\"\n[Writer] Sent \"Message 9 from writer\"\n[Reader] Got: \"Message 9 from writer\"\n[Writer] Got ACK: \"Acknowledged: Message 9 from writer\"\n[Reader] Sent ACK: \"Acknowledged: Message 9 from writer\"\nstudent:~$",
+      "capture": "\n══════════════════════════════════════\n  Threads + FIFO Communication\n══════════════════════════════════════\n\n[Main] Two threads communicate via named pipes (FIFOs).\n[Main] Writer sends 10 messages, Reader acknowledges each.\n\n[Writer] Sent \"Message 0 from writer\"\n[Reader] Got: \"Message 0 from writer\"\n[Writer] Got ACK: \"Acknowledged: Message 0 from writer\"\n[Writer] Sent \"Message 1 from writer\"\n[Reader] Sent ACK: \"Acknowledged: Message 0 from writer\"\n[Reader] Got: \"Message 1 from writer\"\n[Reader] Sent ACK: \"Acknowledged: Message 1 from writer\"\n[Writer] Got ACK: \"Acknowledged: Message 1 from writer\"\n[Writer] Sent \"Message 2 from writer\"\n[Reader] Got: \"Message 2 from writer\"\n[Reader] Sent ACK: \"Acknowledged: Message 2 from writer\"\n[Writer] Got ACK: \"Acknowledged: Message 2 from writer\"\n[Writer] Sent \"Message 3 from writer\"\n[Reader] Got: \"Message 3 from writer\"\n[Reader] Sent ACK: \"Acknowledged: Message 3 from writer\"\n[Writer] Got ACK: \"Acknowledged: Message 3 from writer\"\n[Writer] Sent \"Message 4 from writer\"\n[Reader] Got: \"Message 4 from writer\"\n[Reader] Sent ACK: \"Acknowledged: Message 4 from writer\"\n[Writer] Got ACK: \"Acknowledged: Message 4 from writer\"\n[Writer] Sent \"Message 5 from writer\"\n[Reader] Got: \"Message 5 from writer\"\n[Reader] Sent ACK: \"Acknowledged: Message 5 from writer\"\n[Writer] Got ACK: \"Acknowledged: Message 5 from writer\"\n[Writer] Sent \"Message 6 from writer\"\n[Reader] Got: \"Message 6 from writer\"\n[Reader] Sent ACK: \"Acknowledged: Message 6 from writer\"\n[Writer] Got ACK: \"Acknowledged: Message 6 from writer\"\n[Writer] Sent \"Message 7 from writer\"\n[Reader] Got: \"Message 7 from writer\"\n[Reader] Sent ACK: \"Acknowledged: Message 7 from writer\"\n[Writer] Got ACK: \"Acknowledged: Message 7 from writer\"\n[Reader] Got: \"Message 8 from writer\"\n[Reader] Sent ACK: \"Acknowledged: Message 8 from writer\"\n[Writer] Sent \"Message 8 from writer\"\n[Writer] Got ACK: \"Acknowledged: Message 8 from writer\"\n[Writer] Sent \"Message 9 from writer\"\n[Reader] Got: \"Message 9 from writer\"\n[Writer] Got ACK: \"Acknowledged: Message 9 from writer\"\n[Reader] Sent ACK: \"Acknowledged: Message 9 from writer\""
+    },
+    {
+      "lesson": "13",
+      "file": "07-named-semaphore.c",
+      "kind": "long-running",
+      "intentional": "",
+      "category": "runs-and-exits",
+      "detail": "status 0",
+      "output": "NTERED critical section (iteration 3/3)\n[Thread 5] <<< LEAVING critical section — calling sem_post\n[Thread 4] >>> ENTERED critical section (iteration 3/3)\n[Thread 4] <<< LEAVING critical section — calling sem_post\n\n[Main] All threads finished.\n[Main] Notice: only ONE thread was in the critical section at a time!\n[Main] Semaphore \"/my_named_semaphore\" unlinked (cleaned up from /dev/shm).\nstudent:~$",
+      "capture": "\n══════════════════════════════════════\n  Named semaphores for thread synchronization\n══════════════════════════════════════\n\n\n[Main] Named semaphore \"/my_named_semaphore\" created (initial value=1, acts as mutex).\n[Thread 1] >>> ENTERED critical section (iteration 1/3)\n[Thread 1] <<< LEAVING critical section — calling sem_post\n[Thread 2] >>> ENTERED critical section (iteration 1/3)\n[Thread 2] <<< LEAVING critical section — calling sem_post\n[Thread 3] >>> ENTERED critical section (iteration 1/3)\n[Thread 3] <<< LEAVING critical section — calling sem_post\n[Thread 2] >>> ENTERED critical section (iteration 2/3)\n[Thread 2] <<< LEAVING critical section — calling sem_post\n[Thread 5] >>> ENTERED critical section (iteration 1/3)\n[Thread 5] <<< LEAVING critical section — calling sem_post\n[Thread 1] >>> ENTERED critical section (iteration 2/3)\n[Thread 1] <<< LEAVING critical section — calling sem_post\n[Thread 4] >>> ENTERED critical section (iteration 1/3)\n[Thread 4] <<< LEAVING critical section — calling sem_post\n[Thread 3] >>> ENTERED critical section (iteration 2/3)\n[Thread 3] <<< LEAVING critical section — calling sem_post\n[Thread 2] >>> ENTERED critical section (iteration 3/3)\n[Thread 2] <<< LEAVING critical section — calling sem_post\n[Thread 5] >>> ENTERED critical section (iteration 2/3)\n[Thread 5] <<< LEAVING critical section — calling sem_post\n[Thread 1] >>> ENTERED critical section (iteration 3/3)\n[Thread 1] <<< LEAVING critical section — calling sem_post\n[Thread 4] >>> ENTERED critical section (iteration 2/3)\n[Thread 4] <<< LEAVING critical section — calling sem_post\n[Thread 3] >>> ENTERED critical section (iteration 3/3)\n[Thread 3] <<< LEAVING critical section — calling sem_post\n[Thread 5] >>> ENTERED critical section (iteration 3/3)\n[Thread 5] <<< LEAVING critical section — calling sem_post\n[Thread 4] >>> ENTERED critical section (iteration 3/3)\n[Thread 4] <<< LEAVING critical section — calling sem_post\n\n[Main] All threads finished.\n[Main] Notice: only ONE thread was in the critical section at a time!\n[Main] Semaphore \"/my_named_semaphore\" unlinked (cleaned up from /dev/shm)."
+    },
+    {
+      "lesson": "13",
+      "file": "08-pthread-mutex.c",
+      "kind": "",
+      "intentional": "",
+      "category": "runs-and-exits",
+      "detail": "status 0",
+      "output": "ex held — safe!)\n[Thread 3] counter++ → 497 (mutex held — safe!)\n[Thread 1] counter++ → 498 (mutex held — safe!)\n[Thread 2] counter++ → 499 (mutex held — safe!)\n[Thread 4] counter++ → 500 (mutex held — safe!)\n\n══════════════════════════════════════\n  Results (with mutex)\n══════════════════════════════════════\n  Expected: 500 (5 threads × 100)\n  Actual:   500 ✓ ALWAYS correct with mutex!\nstudent:~$",
+      "capture": "\n[Main] Creating 5 threads, each increments counter 100 times WITH mutex.\n[Main] Compare with lesson-12/04-pthread_join.c (same thing, NO mutex).\n\n[Thread 1] counter++ → 1 (mutex held — safe!)\n[Thread 2] counter++ → 2 (mutex held — safe!)\n[Thread 3] counter++ → 3 (mutex held — safe!)\n[Thread 4] counter++ → 4 (mutex held — safe!)\n[Thread 5] counter++ → 5 (mutex held — safe!)\n[Thread 5] counter++ → 6 (mutex held — safe!)\n[Thread 4] counter++ → 7 (mutex held — safe!)\n[Thread 3] counter++ → 8 (mutex held — safe!)\n[Thread 2] counter++ → 9 (mutex held — safe!)\n[Thread 1] counter++ → 10 (mutex held — safe!)\n[Thread 4] counter++ → 11 (mutex held — safe!)\n[Thread 3] counter++ → 12 (mutex held — safe!)\n[Thread 1] counter++ → 13 (mutex held — safe!)\n[Thread 2] counter++ → 14 (mutex held — safe!)\n[Thread 5] counter++ → 15 (mutex held — safe!)\n[Thread 2] counter++ → 16 (mutex held — safe!)\n[Thread 5] counter++ → 17 (mutex held — safe!)\n[Thread 1] counter++ → 18 (mutex held — safe!)\n[Thread 3] counter++ → 19 (mutex held — safe!)\n[Thread 4] counter++ → 20 (mutex held — safe!)\n[Thread 1] counter++ → 21 (mutex held — safe!)\n[Thread 5] counter++ → 22 (mutex held — safe!)\n[Thread 3] counter++ → 23 (mutex held — safe!)\n[Thread 4] counter++ → 24 (mutex held — safe!)\n[Thread 2] counter++ → 25 (mutex held — safe!)\n[Thread 1] counter++ → 26 (mutex held — safe!)\n[Thread 4] counter++ → 27 (mutex held — safe!)\n[Thread 3] counter++ → 28 (mutex held — safe!)\n[Thread 5] counter++ → 29 (mutex held — safe!)\n[Thread 2] counter++ → 30 (mutex held — safe!)\n[Thread 3] counter++ → 31 (mutex held — safe!)\n[Thread 5] counter++ → 32 (mutex held — safe!)\n[Thread 2] counter++ → 33 (mutex held — safe!)\n[Thread 4] counter++ → 34 (mutex held — safe!)\n[Thread 1] counter++ → 35 (mutex held — safe!)\n[Thread 5] counter++ → 36 (mutex held — safe!)\n[Thread 2] counter++ → 37 (mutex held — safe!)\n[Thread 4] counter++ → 38 (mutex held — safe!)\n[Thread 3] counter++ → 39 (mutex held — safe!)\n[Thread 1] counter++ → 40 (mutex held — safe!)\n[Thread 2] counter++ → 41 (mutex held — safe!)\n[Thread 1] counter++ → 42 (mutex held — safe!)\n[Thread 4] counter++ → 43 (mutex held — safe!)\n[Thread 5] counter++ → 44 (mutex held — safe!)\n[Thread 3] counter++ → 45 (mutex held — safe!)\n[Thread 2] counter++ → 46 (mutex held — safe!)\n[Thread 3] counter++ → 47 (mutex held — safe!)\n[Thread 4] counter++ → 48 (mutex held — safe!)\n[Thread 5] counter++ → 49 (mutex held — safe!)\n[Thread 1] counter++ → 50 (mutex held — safe!)\n[Thread 2] counter++ → 51 (mutex held — safe!)\n[Thread 3] counter++ → 52 (mutex held — safe!)\n[Thread 4] counter++ → 53 (mutex held — safe!)\n[Thread 5] counter++ → 54 (mutex held — safe!)\n[Thread 1] counter++ → 55 (mutex held — safe!)\n[Thread 4] counter++ → 56 (mutex held — safe!)\n[Thread 3] counter++ → 57 (mutex held — safe!)\n[Thread 5] counter++ → 58 (mutex held — safe!)\n[Thread 2] counter++ → 59 (mutex held — safe!)\n[Thread 1] counter++ → 60 (mutex held — safe!)\n[Thread 3] counter++ → 61 (mutex held — safe!)\n[Thread 5] counter++ → 62 (mutex held — safe!)\n[Thread 4] counter++ → 63 (mutex held — safe!)\n[Thread 2] counter++ → 64 (mutex held — safe!)\n[Thread 1] counter++ → 65 (mutex held — safe!)\n[Thread 3] counter++ → 66 (mutex held — safe!)\n[Thread 1] counter++ → 67 (mutex held — safe!)\n[Thread 2] counter++ → 68 (mutex held — safe!)\n[Thread 5] counter++ → 69 (mutex held — safe!)\n[Thread 4] counter++ → 70 (mutex held — safe!)\n[Thread 4] counter++ → 71 (mutex held — safe!)\n[Thread 5] counter++ → 72 (mutex held — safe!)\n[Thread 2] counter++ → 73 (mutex held — safe!)\n[Thread 1] counter++ → 74 (mutex held — safe!)\n[Thread 3] counter++ → 75 (mutex held — safe!)\n[Thread 5] counter++ → 76 (mutex held — safe!)\n[Thread 2] counter++ → 77 (mutex held — safe!)\n[Thread 4] counter++ → 78 (mutex held — safe!)\n[Thread 3] counter++ → 79 (mutex held — safe!)\n[Thread 1] counter++ → 80 (mutex held — safe!)\n[Thread 2] counter++ → 81 (mutex held — safe!)\n[Thread 5] counter++ → 82 (mutex held — safe!)\n[Thread 1] counter++ → 83 (mutex held — safe!)\n[Thread 3] counter++ → 84 (mutex held — safe!)\n[Thread 4] counter++ → 85 (mutex held — safe!)\n[Thread 2] counter++ → 86 (mutex held — safe!)\n[Thread 5] counter++ → 87 (mutex held — safe!)\n[Thread 3] counter++ → 88 (mutex held — safe!)\n[Thread 1] counter++ → 89 (mutex held — safe!)\n[Thread 4] counter++ → 90 (mutex held — safe!)\n[Thread 2] counter++ → 91 (mutex held — safe!)\n[Thread 5] counter++ → 92 (mutex held — safe!)\n[Thread 4] counter++ → 93 (mutex held — safe!)\n[Thread 3] counter++ → 94 (mutex held — safe!)\n[Thread 1] counter++ → 95 (mutex held — safe!)\n[Thread 5] counter++ → 96 (mutex held — safe!)\n[Thread 1] counter++ → 97 (mutex held — safe!)\n[Thread 3] counter++ → 98 (mutex held — safe!)\n[Thread 4] counter++ → 99 (mutex held — safe!)\n[Thread 2] counter++ → 100 (mutex held — safe!)\n[Thread 5] counter++ → 101 (mutex held — safe!)\n[Thread 4] counter++ → 102 (mutex held — safe!)\n[Thread 1] counter++ → 103 (mutex held — safe!)\n[Thread 3] counter++ → 104 (mutex held — safe!)\n[Thread 2] counter++ → 105 (mutex held — safe!)\n[Thread 2] counter++ → 106 (mutex held — safe!)\n[Thread 3] counter++ → 107 (mutex held — safe!)\n[Thread 5] counter++ → 108 (mutex held — safe!)\n[Thread 1] counter++ → 109 (mutex held — safe!)\n[Thread 4] counter++ → 110 (mutex held — safe!)\n[Thread 3] counter++ → 111 (mutex held — safe!)\n[Thread 1] counter++ → 112 (mutex held — safe!)\n[Thread 4] counter++ → 113 (mutex held — safe!)\n[Thread 2] counter++ → 114 (mutex held — safe!)\n[Thread 5] counter++ → 115 (mutex held — safe!)\n[Thread 5] counter++ → 116 (mutex held — safe!)\n[Thread 2] counter++ → 117 (mutex held — safe!)\n[Thread 4] counter++ → 118 (mutex held — safe!)\n[Thread 1] counter++ → 119 (mutex held — safe!)\n[Thread 3] counter++ → 120 (mutex held — safe!)\n[Thread 2] counter++ → 121 (mutex held — safe!)\n[Thread 4] counter++ → 122 (mutex held — safe!)\n[Thread 5] counter++ → 123 (mutex held — safe!)\n[Thread 1] counter++ → 124 (mutex held — safe!)\n[Thread 3] counter++ → 125 (mutex held — safe!)\n[Thread 4] counter++ → 126 (mutex held — safe!)\n[Thread 5] counter++ → 127 (mutex held — safe!)\n[Thread 2] counter++ → 128 (mutex held — safe!)\n[Thread 1] counter++ → 129 (mutex held — safe!)\n[Thread 3] counter++ → 130 (mutex held — safe!)\n[Thread 4] counter++ → 131 (mutex held — safe!)\n[Thread 5] counter++ → 132 (mutex held — safe!)\n[Thread 2] counter++ → 133 (mutex held — safe!)\n[Thread 3] counter++ → 134 (mutex held — safe!)\n[Thread 1] counter++ → 135 (mutex held — safe!)\n[Thread 4] counter++ → 136 (mutex held — safe!)\n[Thread 2] counter++ → 137 (mutex held — safe!)\n[Thread 5] counter++ → 138 (mutex held — safe!)\n[Thread 3] counter++ → 139 (mutex held — safe!)\n[Thread 1] counter++ → 140 (mutex held — safe!)\n[Thread 4] counter++ → 141 (mutex held — safe!)\n[Thread 2] counter++ → 142 (mutex held — safe!)\n[Thread 5] counter++ → 143 (mutex held — safe!)\n[Thread 3] counter++ → 144 (mutex held — safe!)\n[Thread 1] counter++ → 145 (mutex held — safe!)\n[Thread 4] counter++ → 146 (mutex held — safe!)\n[Thread 2] counter++ → 147 (mutex held — safe!)\n[Thread 5] counter++ → 148 (mutex held — safe!)\n[Thread 3] counter++ → 149 (mutex held — safe!)\n[Thread 1] counter++ → 150 (mutex held — safe!)\n[Thread 5] counter++ → 151 (mutex held — safe!)\n[Thread 2] counter++ → 152 (mutex held — safe!)\n[Thread 4] counter++ → 153 (mutex held — safe!)\n[Thread 3] counter++ → 154 (mutex held — safe!)\n[Thread 1] counter++ → 155 (mutex held — safe!)\n[Thread 2] counter++ → 156 (mutex held — safe!)\n[Thread 5] counter++ → 157 (mutex held — safe!)\n[Thread 4] counter++ → 158 (mutex held — safe!)\n[Thread 3] counter++ → 159 (mutex held — safe!)\n[Thread 1] counter++ → 160 (mutex held — safe!)\n[Thread 2] counter++ → 161 (mutex held — safe!)\n[Thread 4] counter++ → 162 (mutex held — safe!)\n[Thread 5] counter++ → 163 (mutex held — safe!)\n[Thread 3] counter++ → 164 (mutex held — safe!)\n[Thread 1] counter++ → 165 (mutex held — safe!)\n[Thread 5] counter++ → 166 (mutex held — safe!)\n[Thread 4] counter++ → 167 (mutex held — safe!)\n[Thread 2] counter++ → 168 (mutex held — safe!)\n[Thread 3] counter++ → 169 (mutex held — safe!)\n[Thread 1] counter++ → 170 (mutex held — safe!)\n[Thread 4] counter++ → 171 (mutex held — safe!)\n[Thread 5] counter++ → 172 (mutex held — safe!)\n[Thread 2] counter++ → 173 (mutex held — safe!)\n[Thread 3] counter++ → 174 (mutex held — safe!)\n[Thread 1] counter++ → 175 (mutex held — safe!)\n[Thread 2] counter++ → 176 (mutex held — safe!)\n[Thread 5] counter++ → 177 (mutex held — safe!)\n[Thread 4] counter++ → 178 (mutex held — safe!)\n[Thread 3] counter++ → 179 (mutex held — safe!)\n[Thread 1] counter++ → 180 (mutex held — safe!)\n[Thread 2] counter++ → 181 (mutex held — safe!)\n[Thread 4] counter++ → 182 (mutex held — safe!)\n[Thread 5] counter++ → 183 (mutex held — safe!)\n[Thread 3] counter++ → 184 (mutex held — safe!)\n[Thread 1] counter++ → 185 (mutex held — safe!)\n[Thread 2] counter++ → 186 (mutex held — safe!)\n[Thread 4] counter++ → 187 (mutex held — safe!)\n[Thread 5] counter++ → 188 (mutex held — safe!)\n[Thread 3] counter++ → 189 (mutex held — safe!)\n[Thread 1] counter++ → 190 (mutex held — safe!)\n[Thread 4] counter++ → 191 (mutex held — safe!)\n[Thread 2] counter++ → 192 (mutex held — safe!)\n[Thread 5] counter++ → 193 (mutex held — safe!)\n[Thread 3] counter++ → 194 (mutex held — safe!)\n[Thread 1] counter++ → 195 (mutex held — safe!)\n[Thread 4] counter++ → 196 (mutex held — safe!)\n[Thread 3] counter++ → 197 (mutex held — safe!)\n[Thread 5] counter++ → 198 (mutex held — safe!)\n[Thread 2] counter++ → 199 (mutex held — safe!)\n[Thread 1] counter++ → 200 (mutex held — safe!)\n[Thread 2] counter++ → 201 (mutex held — safe!)\n[Thread 5] counter++ → 202 (mutex held — safe!)\n[Thread 3] counter++ → 203 (mutex held — safe!)\n[Thread 4] counter++ → 204 (mutex held — safe!)\n[Thread 1] counter++ → 205 (mutex held — safe!)\n[Thread 5] counter++ → 206 (mutex held — safe!)\n[Thread 3] counter++ → 207 (mutex held — safe!)\n[Thread 4] counter++ → 208 (mutex held — safe!)\n[Thread 2] counter++ → 209 (mutex held — safe!)\n[Thread 1] counter++ → 210 (mutex held — safe!)\n[Thread 5] counter++ → 211 (mutex held — safe!)\n[Thread 4] counter++ → 212 (mutex held — safe!)\n[Thread 2] counter++ → 213 (mutex held — safe!)\n[Thread 3] counter++ → 214 (mutex held — safe!)\n[Thread 1] counter++ → 215 (mutex held — safe!)\n[Thread 5] counter++ → 216 (mutex held — safe!)\n[Thread 2] counter++ → 217 (mutex held — safe!)\n[Thread 4] counter++ → 218 (mutex held — safe!)\n[Thread 3] counter++ → 219 (mutex held — safe!)\n[Thread 1] counter++ → 220 (mutex held — safe!)\n[Thread 4] counter++ → 221 (mutex held — safe!)\n[Thread 2] counter++ → 222 (mutex held — safe!)\n[Thread 3] counter++ → 223 (mutex held — safe!)\n[Thread 5] counter++ → 224 (mutex held — safe!)\n[Thread 1] counter++ → 225 (mutex held — safe!)\n[Thread 5] counter++ → 226 (mutex held — safe!)\n[Thread 2] counter++ → 227 (mutex held — safe!)\n[Thread 3] counter++ → 228 (mutex held — safe!)\n[Thread 4] counter++ → 229 (mutex held — safe!)\n[Thread 1] counter++ → 230 (mutex held — safe!)\n[Thread 3] counter++ → 231 (mutex held — safe!)\n[Thread 2] counter++ → 232 (mutex held — safe!)\n[Thread 5] counter++ → 233 (mutex held — safe!)\n[Thread 4] counter++ → 234 (mutex held — safe!)\n[Thread 1] counter++ → 235 (mutex held — safe!)\n[Thread 2] counter++ → 236 (mutex held — safe!)\n[Thread 3] counter++ → 237 (mutex held — safe!)\n[Thread 4] counter++ → 238 (mutex held — safe!)\n[Thread 5] counter++ → 239 (mutex held — safe!)\n[Thread 1] counter++ → 240 (mutex held — safe!)\n[Thread 3] counter++ → 241 (mutex held — safe!)\n[Thread 5] counter++ → 242 (mutex held — safe!)\n[Thread 4] counter++ → 243 (mutex held — safe!)\n[Thread 2] counter++ → 244 (mutex held — safe!)\n[Thread 1] counter++ → 245 (mutex held — safe!)\n[Thread 3] counter++ → 246 (mutex held — safe!)\n[Thread 4] counter++ → 247 (mutex held — safe!)\n[Thread 2] counter++ → 248 (mutex held — safe!)\n[Thread 5] counter++ → 249 (mutex held — safe!)\n[Thread 1] counter++ → 250 (mutex held — safe!)\n[Thread 5] counter++ → 251 (mutex held — safe!)\n[Thread 2] counter++ → 252 (mutex held — safe!)\n[Thread 4] counter++ → 253 (mutex held — safe!)\n[Thread 3] counter++ → 254 (mutex held — safe!)\n[Thread 1] counter++ → 255 (mutex held — safe!)\n[Thread 2] counter++ → 256 (mutex held — safe!)\n[Thread 5] counter++ → 257 (mutex held — safe!)\n[Thread 4] counter++ → 258 (mutex held — safe!)\n[Thread 3] counter++ → 259 (mutex held — safe!)\n[Thread 1] counter++ → 260 (mutex held — safe!)\n[Thread 4] counter++ → 261 (mutex held — safe!)\n[Thread 3] counter++ → 262 (mutex held — safe!)\n[Thread 5] counter++ → 263 (mutex held — safe!)\n[Thread 2] counter++ → 264 (mutex held — safe!)\n[Thread 1] counter++ → 265 (mutex held — safe!)\n[Thread 3] counter++ → 266 (mutex held — safe!)\n[Thread 4] counter++ → 267 (mutex held — safe!)\n[Thread 2] counter++ → 268 (mutex held — safe!)\n[Thread 5] counter++ → 269 (mutex held — safe!)\n[Thread 1] counter++ → 270 (mutex held — safe!)\n[Thread 3] counter++ → 271 (mutex held — safe!)\n[Thread 5] counter++ → 272 (mutex held — safe!)\n[Thread 4] counter++ → 273 (mutex held — safe!)\n[Thread 2] counter++ → 274 (mutex held — safe!)\n[Thread 1] counter++ → 275 (mutex held — safe!)\n[Thread 3] counter++ → 276 (mutex held — safe!)\n[Thread 2] counter++ → 277 (mutex held — safe!)\n[Thread 4] counter++ → 278 (mutex held — safe!)\n[Thread 5] counter++ → 279 (mutex held — safe!)\n[Thread 1] counter++ → 280 (mutex held — safe!)\n[Thread 5] counter++ → 281 (mutex held — safe!)\n[Thread 4] counter++ → 282 (mutex held — safe!)\n[Thread 2] counter++ → 283 (mutex held — safe!)\n[Thread 3] counter++ → 284 (mutex held — safe!)\n[Thread 1] counter++ → 285 (mutex held — safe!)\n[Thread 2] counter++ → 286 (mutex held — safe!)\n[Thread 4] counter++ → 287 (mutex held — safe!)\n[Thread 5] counter++ → 288 (mutex held — safe!)\n[Thread 3] counter++ → 289 (mutex held — safe!)\n[Thread 1] counter++ → 290 (mutex held — safe!)\n[Thread 3] counter++ → 291 (mutex held — safe!)\n[Thread 4] counter++ → 292 (mutex held — safe!)\n[Thread 1] counter++ → 293 (mutex held — safe!)\n[Thread 5] counter++ → 294 (mutex held — safe!)\n[Thread 2] counter++ → 295 (mutex held — safe!)\n[Thread 1] counter++ → 296 (mutex held — safe!)\n[Thread 5] counter++ → 297 (mutex held — safe!)\n[Thread 4] counter++ → 298 (mutex held — safe!)\n[Thread 2] counter++ → 299 (mutex held — safe!)\n[Thread 3] counter++ → 300 (mutex held — safe!)\n[Thread 5] counter++ → 301 (mutex held — safe!)\n[Thread 2] counter++ → 302 (mutex held — safe!)\n[Thread 3] counter++ → 303 (mutex held — safe!)\n[Thread 1] counter++ → 304 (mutex held — safe!)\n[Thread 4] counter++ → 305 (mutex held — safe!)\n[Thread 2] counter++ → 306 (mutex held — safe!)\n[Thread 1] counter++ → 307 (mutex held — safe!)\n[Thread 3] counter++ → 308 (mutex held — safe!)\n[Thread 4] counter++ → 309 (mutex held — safe!)\n[Thread 5] counter++ → 310 (mutex held — safe!)\n[Thread 3] counter++ → 311 (mutex held — safe!)\n[Thread 4] counter++ → 312 (mutex held — safe!)\n[Thread 1] counter++ → 313 (mutex held — safe!)\n[Thread 5] counter++ → 314 (mutex held — safe!)\n[Thread 2] counter++ → 315 (mutex held — safe!)\n[Thread 1] counter++ → 316 (mutex held — safe!)\n[Thread 4] counter++ → 317 (mutex held — safe!)\n[Thread 3] counter++ → 318 (mutex held — safe!)\n[Thread 2] counter++ → 319 (mutex held — safe!)\n[Thread 5] counter++ → 320 (mutex held — safe!)\n[Thread 4] counter++ → 321 (mutex held — safe!)\n[Thread 1] counter++ → 322 (mutex held — safe!)\n[Thread 5] counter++ → 323 (mutex held — safe!)\n[Thread 2] counter++ → 324 (mutex held — safe!)\n[Thread 3] counter++ → 325 (mutex held — safe!)\n[Thread 4] counter++ → 326 (mutex held — safe!)\n[Thread 3] counter++ → 327 (mutex held — safe!)\n[Thread 2] counter++ → 328 (mutex held — safe!)\n[Thread 5] counter++ → 329 (mutex held — safe!)\n[Thread 1] counter++ → 330 (mutex held — safe!)\n[Thread 4] counter++ → 331 (mutex held — safe!)\n[Thread 5] counter++ → 332 (mutex held — safe!)\n[Thread 1] counter++ → 333 (mutex held — safe!)\n[Thread 2] counter++ → 334 (mutex held — safe!)\n[Thread 3] counter++ → 335 (mutex held — safe!)\n[Thread 3] counter++ → 336 (mutex held — safe!)\n[Thread 2] counter++ → 337 (mutex held — safe!)\n[Thread 1] counter++ → 338 (mutex held — safe!)\n[Thread 5] counter++ → 339 (mutex held — safe!)\n[Thread 4] counter++ → 340 (mutex held — safe!)\n[Thread 2] counter++ → 341 (mutex held — safe!)\n[Thread 3] counter++ → 342 (mutex held — safe!)\n[Thread 4] counter++ → 343 (mutex held — safe!)\n[Thread 5] counter++ → 344 (mutex held — safe!)\n[Thread 1] counter++ → 345 (mutex held — safe!)\n[Thread 2] counter++ → 346 (mutex held — safe!)\n[Thread 3] counter++ → 347 (mutex held — safe!)\n[Thread 5] counter++ → 348 (mutex held — safe!)\n[Thread 4] counter++ → 349 (mutex held — safe!)\n[Thread 1] counter++ → 350 (mutex held — safe!)\n[Thread 2] counter++ → 351 (mutex held — safe!)\n[Thread 3] counter++ → 352 (mutex held — safe!)\n[Thread 4] counter++ → 353 (mutex held — safe!)\n[Thread 5] counter++ → 354 (mutex held — safe!)\n[Thread 1] counter++ → 355 (mutex held — safe!)\n[Thread 2] counter++ → 356 (mutex held — safe!)\n[Thread 3] counter++ → 357 (mutex held — safe!)\n[Thread 1] counter++ → 358 (mutex held — safe!)\n[Thread 5] counter++ → 359 (mutex held — safe!)\n[Thread 4] counter++ → 360 (mutex held — safe!)\n[Thread 3] counter++ → 361 (mutex held — safe!)\n[Thread 1] counter++ → 362 (mutex held — safe!)\n[Thread 5] counter++ → 363 (mutex held — safe!)\n[Thread 2] counter++ → 364 (mutex held — safe!)\n[Thread 4] counter++ → 365 (mutex held — safe!)\n[Thread 3] counter++ → 366 (mutex held — safe!)\n[Thread 5] counter++ → 367 (mutex held — safe!)\n[Thread 1] counter++ → 368 (mutex held — safe!)\n[Thread 2] counter++ → 369 (mutex held — safe!)\n[Thread 4] counter++ → 370 (mutex held — safe!)\n[Thread 1] counter++ → 371 (mutex held — safe!)\n[Thread 5] counter++ → 372 (mutex held — safe!)\n[Thread 3] counter++ → 373 (mutex held — safe!)\n[Thread 2] counter++ → 374 (mutex held — safe!)\n[Thread 4] counter++ → 375 (mutex held — safe!)\n[Thread 5] counter++ → 376 (mutex held — safe!)\n[Thread 1] counter++ → 377 (mutex held — safe!)\n[Thread 3] counter++ → 378 (mutex held — safe!)\n[Thread 2] counter++ → 379 (mutex held — safe!)\n[Thread 4] counter++ → 380 (mutex held — safe!)\n[Thread 5] counter++ → 381 (mutex held — safe!)\n[Thread 1] counter++ → 382 (mutex held — safe!)\n[Thread 3] counter++ → 383 (mutex held — safe!)\n[Thread 2] counter++ → 384 (mutex held — safe!)\n[Thread 4] counter++ → 385 (mutex held — safe!)\n[Thread 1] counter++ → 386 (mutex held — safe!)\n[Thread 5] counter++ → 387 (mutex held — safe!)\n[Thread 3] counter++ → 388 (mutex held — safe!)\n[Thread 2] counter++ → 389 (mutex held — safe!)\n[Thread 4] counter++ → 390 (mutex held — safe!)\n[Thread 1] counter++ → 391 (mutex held — safe!)\n[Thread 5] counter++ → 392 (mutex held — safe!)\n[Thread 3] counter++ → 393 (mutex held — safe!)\n[Thread 2] counter++ → 394 (mutex held — safe!)\n[Thread 4] counter++ → 395 (mutex held — safe!)\n[Thread 5] counter++ → 396 (mutex held — safe!)\n[Thread 1] counter++ → 397 (mutex held — safe!)\n[Thread 3] counter++ → 398 (mutex held — safe!)\n[Thread 2] counter++ → 399 (mutex held — safe!)\n[Thread 4] counter++ → 400 (mutex held — safe!)\n[Thread 5] counter++ → 401 (mutex held — safe!)\n[Thread 1] counter++ → 402 (mutex held — safe!)\n[Thread 3] counter++ → 403 (mutex held — safe!)\n[Thread 2] counter++ → 404 (mutex held — safe!)\n[Thread 4] counter++ → 405 (mutex held — safe!)\n[Thread 1] counter++ → 406 (mutex held — safe!)\n[Thread 3] counter++ → 407 (mutex held — safe!)\n[Thread 5] counter++ → 408 (mutex held — safe!)\n[Thread 2] counter++ → 409 (mutex held — safe!)\n[Thread 4] counter++ → 410 (mutex held — safe!)\n[Thread 1] counter++ → 411 (mutex held — safe!)\n[Thread 3] counter++ → 412 (mutex held — safe!)\n[Thread 5] counter++ → 413 (mutex held — safe!)\n[Thread 2] counter++ → 414 (mutex held — safe!)\n[Thread 4] counter++ → 415 (mutex held — safe!)\n[Thread 1] counter++ → 416 (mutex held — safe!)\n[Thread 3] counter++ → 417 (mutex held — safe!)\n[Thread 5] counter++ → 418 (mutex held — safe!)\n[Thread 2] counter++ → 419 (mutex held — safe!)\n[Thread 4] counter++ → 420 (mutex held — safe!)\n[Thread 1] counter++ → 421 (mutex held — safe!)\n[Thread 3] counter++ → 422 (mutex held — safe!)\n[Thread 5] counter++ → 423 (mutex held — safe!)\n[Thread 2] counter++ → 424 (mutex held — safe!)\n[Thread 4] counter++ → 425 (mutex held — safe!)\n[Thread 3] counter++ → 426 (mutex held — safe!)\n[Thread 1] counter++ → 427 (mutex held — safe!)\n[Thread 5] counter++ → 428 (mutex held — safe!)\n[Thread 2] counter++ → 429 (mutex held — safe!)\n[Thread 4] counter++ → 430 (mutex held — safe!)\n[Thread 3] counter++ → 431 (mutex held — safe!)\n[Thread 1] counter++ → 432 (mutex held — safe!)\n[Thread 5] counter++ → 433 (mutex held — safe!)\n[Thread 2] counter++ → 434 (mutex held — safe!)\n[Thread 4] counter++ → 435 (mutex held — safe!)\n[Thread 3] counter++ → 436 (mutex held — safe!)\n[Thread 1] counter++ → 437 (mutex held — safe!)\n[Thread 5] counter++ → 438 (mutex held — safe!)\n[Thread 2] counter++ → 439 (mutex held — safe!)\n[Thread 4] counter++ → 440 (mutex held — safe!)\n[Thread 3] counter++ → 441 (mutex held — safe!)\n[Thread 1] counter++ → 442 (mutex held — safe!)\n[Thread 5] counter++ → 443 (mutex held — safe!)\n[Thread 2] counter++ → 444 (mutex held — safe!)\n[Thread 4] counter++ → 445 (mutex held — safe!)\n[Thread 3] counter++ → 446 (mutex held — safe!)\n[Thread 1] counter++ → 447 (mutex held — safe!)\n[Thread 5] counter++ → 448 (mutex held — safe!)\n[Thread 2] counter++ → 449 (mutex held — safe!)\n[Thread 4] counter++ → 450 (mutex held — safe!)\n[Thread 3] counter++ → 451 (mutex held — safe!)\n[Thread 1] counter++ → 452 (mutex held — safe!)\n[Thread 5] counter++ → 453 (mutex held — safe!)\n[Thread 2] counter++ → 454 (mutex held — safe!)\n[Thread 4] counter++ → 455 (mutex held — safe!)\n[Thread 3] counter++ → 456 (mutex held — safe!)\n[Thread 1] counter++ → 457 (mutex held — safe!)\n[Thread 5] counter++ → 458 (mutex held — safe!)\n[Thread 2] counter++ → 459 (mutex held — safe!)\n[Thread 4] counter++ → 460 (mutex held — safe!)\n[Thread 1] counter++ → 461 (mutex held — safe!)\n[Thread 5] counter++ → 462 (mutex held — safe!)\n[Thread 3] counter++ → 463 (mutex held — safe!)\n[Thread 4] counter++ → 464 (mutex held — safe!)\n[Thread 2] counter++ → 465 (mutex held — safe!)\n[Thread 1] counter++ → 466 (mutex held — safe!)\n[Thread 5] counter++ → 467 (mutex held — safe!)\n[Thread 3] counter++ → 468 (mutex held — safe!)\n[Thread 4] counter++ → 469 (mutex held — safe!)\n[Thread 2] counter++ → 470 (mutex held — safe!)\n[Thread 1] counter++ → 471 (mutex held — safe!)\n[Thread 5] counter++ → 472 (mutex held — safe!)\n[Thread 3] counter++ → 473 (mutex held — safe!)\n[Thread 4] counter++ → 474 (mutex held — safe!)\n[Thread 2] counter++ → 475 (mutex held — safe!)\n[Thread 5] counter++ → 476 (mutex held — safe!)\n[Thread 3] counter++ → 477 (mutex held — safe!)\n[Thread 1] counter++ → 478 (mutex held — safe!)\n[Thread 4] counter++ → 479 (mutex held — safe!)\n[Thread 2] counter++ → 480 (mutex held — safe!)\n[Thread 5] counter++ → 481 (mutex held — safe!)\n[Thread 3] counter++ → 482 (mutex held — safe!)\n[Thread 1] counter++ → 483 (mutex held — safe!)\n[Thread 2] counter++ → 484 (mutex held — safe!)\n[Thread 4] counter++ → 485 (mutex held — safe!)\n[Thread 5] counter++ → 486 (mutex held — safe!)\n[Thread 3] counter++ → 487 (mutex held — safe!)\n[Thread 1] counter++ → 488 (mutex held — safe!)\n[Thread 2] counter++ → 489 (mutex held — safe!)\n[Thread 4] counter++ → 490 (mutex held — safe!)\n[Thread 3] counter++ → 491 (mutex held — safe!)\n[Thread 1] counter++ → 492 (mutex held — safe!)\n[Thread 5] counter++ → 493 (mutex held — safe!)\n[Thread 2] counter++ → 494 (mutex held — safe!)\n[Thread 4] counter++ → 495 (mutex held — safe!)\n[Thread 5] counter++ → 496 (mutex held — safe!)\n[Thread 3] counter++ → 497 (mutex held — safe!)\n[Thread 1] counter++ → 498 (mutex held — safe!)\n[Thread 2] counter++ → 499 (mutex held — safe!)\n[Thread 4] counter++ → 500 (mutex held — safe!)\n\n══════════════════════════════════════\n  Results (with mutex)\n══════════════════════════════════════\n  Expected: 500 (5 threads × 100)\n  Actual:   500 ✓ ALWAYS correct with mutex!"
+    },
+    {
+      "lesson": "13",
+      "file": "09-pthread-mutex-cond-wait.c",
+      "kind": "long-running",
+      "intentional": "",
+      "category": "long-running",
+      "detail": "stopped after 8000ms as configured",
+      "output": "] (buffer: 1/5)\n[Producer] Produced item 5 → buffer[4] (buffer: 2/5)\n[Producer] Produced item 6 → buffer[0] (buffer: 3/5)\n[Consumer] Consumed item 4 ← buffer[3] (buffer: 2/5)\n[Producer] Produced item 7 → buffer[1] (buffer: 3/5)\n[Producer] Produced item 8 → buffer[2] (buffer: 4/5)\n[Consumer] Consumed item 5 ← buffer[4] (buffer: 3/5)\n[Producer] Produced item 9 → buffer[3] (buffer: 4/5)\n^C\nstudent:~$",
+      "capture": "\n[Main] Buffer size: 5, producing 10 items total.\n[Main] Producer is faster (1s) than consumer (2s) — watch the buffer fill up!\n\n[Producer] Produced item 1 → buffer[0] (buffer: 1/5)\n[Consumer] Consumed item 1 ← buffer[0] (buffer: 0/5)\n[Producer] Produced item 2 → buffer[1] (buffer: 1/5)\n[Consumer] Consumed item 2 ← buffer[1] (buffer: 0/5)\n[Producer] Produced item 3 → buffer[2] (buffer: 1/5)\n[Producer] Produced item 4 → buffer[3] (buffer: 2/5)\n[Consumer] Consumed item 3 ← buffer[2] (buffer: 1/5)\n[Producer] Produced item 5 → buffer[4] (buffer: 2/5)\n[Producer] Produced item 6 → buffer[0] (buffer: 3/5)\n[Consumer] Consumed item 4 ← buffer[3] (buffer: 2/5)\n[Producer] Produced item 7 → buffer[1] (buffer: 3/5)\n[Producer] Produced item 8 → buffer[2] (buffer: 4/5)\n[Consumer] Consumed item 5 ← buffer[4] (buffer: 3/5)\n[Producer] Produced item 9 → buffer[3] (buffer: 4/5)\n^C\n\n[runs until stopped — the site stops it after 8s]"
+    },
+    {
+      "lesson": "14",
+      "file": "01-cli.c",
+      "kind": "",
+      "intentional": "",
+      "category": "runs-and-exits",
+      "detail": "status 0",
+      "output": ". \\Fetching data... |Fetching data... /Fetching data... -Fetching data... \\Fetching data... |Fetching data... /Fetching data... -Fetching data... \\Fetching data... |Fetching data... /Fetching data... -Fetching data... \\Fetching data... |Fetching data... /[Worker] Data fetch completed!\nFetching data... Done!      \n[Main] All tasks completed. The spinner ran while the worker fetched data.\nstudent:~$",
+      "capture": "\n══════════════════════════════════════\n  CLI loading animation with a spinner thread\n══════════════════════════════════════\n\n\nFetching data... |[Worker] Starting data fetch (simulating 5 seconds)...\nFetching data... /Fetching data... -Fetching data... \\Fetching data... |Fetching data... /Fetching data... -Fetching data... \\Fetching data... |Fetching data... /Fetching data... -Fetching data... \\Fetching data... |Fetching data... /Fetching data... -Fetching data... \\Fetching data... |Fetching data... /Fetching data... -Fetching data... \\Fetching data... |Fetching data... /Fetching data... -Fetching data... \\Fetching data... |Fetching data... /Fetching data... -Fetching data... \\Fetching data... |Fetching data... /Fetching data... -Fetching data... \\Fetching data... |Fetching data... /Fetching data... -Fetching data... \\Fetching data... |Fetching data... /Fetching data... -Fetching data... \\Fetching data... |Fetching data... /Fetching data... -Fetching data... \\Fetching data... |Fetching data... /Fetching data... -Fetching data... \\Fetching data... |Fetching data... /[Worker] Data fetch completed!\nFetching data... Done!      \n[Main] All tasks completed. The spinner ran while the worker fetched data."
+    },
+    {
+      "lesson": "14",
+      "file": "02-bit-more-cli/cli.c",
+      "kind": "interactive",
+      "intentional": "",
+      "category": "runs-with-input",
+      "detail": "status 0, fed sampleInput",
+      "output": "#################################################] 100%\nFile_5.txt: [##################################################] 100%\n\nPress Ctrl+C to exit.\n\n========== Multithreaded File Loader ==========\nCommands:\n1. load   - Simulate loading multiple files\n2. status - Display loading progress\n3. exit   - Exit the program\nEnter command number: Exiting program...\nProgram terminated gracefully.\nstudent:~$",
+      "capture": "\n══════════════════════════════════════\n  Advanced CLI simulator with progress bars and spinners\n══════════════════════════════════════\n\n\n========== Multithreaded File Loader ==========\nCommands:\n1. load   - Simulate loading multiple files\n2. status - Display loading progress\n3. exit   - Exit the program\nEnter command number: 1\n2\n3\nStarting to load 5 files...\nFile_1.txt: [--------------------------------------------------] 0%\nFile_2.txt: [--------------------------------------------------] 0%\nFile_3.txt: [--------------------------------------------------] 0%\nFile_4.txt: [--------------------------------------------------] 0%\nFile_5.txt: [--------------------------------------------------] 0%\n\nPress Ctrl+C to exit.\nFile_1.txt: [#########-----------------------------------------] 19%\nFile_2.txt: [##########----------------------------------------] 20%\nFile_3.txt: [#-------------------------------------------------] 3%\nFile_4.txt: [#######-------------------------------------------] 14%\nFile_5.txt: [#######-------------------------------------------] 14%\n\nPress Ctrl+C to exit.\nFile_1.txt: [###################-------------------------------] 38%\nFile_2.txt: [###############-----------------------------------] 31%\nFile_3.txt: [########------------------------------------------] 17%\nFile_4.txt: [#############-------------------------------------] 26%\nFile_5.txt: [###############-----------------------------------] 31%\n\nPress Ctrl+C to exit.\nFile_1.txt: [#######################---------------------------] 46%\nFile_2.txt: [###################-------------------------------] 38%\nFile_3.txt: [##########----------------------------------------] 21%\nFile_4.txt: [################----------------------------------] 33%\nFile_5.txt: [####################------------------------------] 41%\n\nPress Ctrl+C to exit.\nFile_1.txt: [###########################-----------------------] 54%\nFile_2.txt: [#############################---------------------] 58%\nFile_3.txt: [#################---------------------------------] 35%\nFile_4.txt: [##################--------------------------------] 37%\nFile_5.txt: [########################--------------------------] 48%\n\nPress Ctrl+C to exit.\nFile_1.txt: [############################----------------------] 57%\nFile_2.txt: [##################################----------------] 69%\nFile_3.txt: [###################-------------------------------] 39%\nFile_4.txt: [#######################---------------------------] 46%\nFile_5.txt: [##############################--------------------] 60%\n\nPress Ctrl+C to exit.\nFile_1.txt: [################################------------------] 65%\nFile_2.txt: [####################################--------------] 72%\nFile_3.txt: [######################----------------------------] 45%\nFile_4.txt: [###########################-----------------------] 55%\nFile_5.txt: [#######################################-----------] 79%\n\nPress Ctrl+C to exit.\nFile_1.txt: [####################################--------------] 72%\nFile_2.txt: [#########################################---------] 83%\nFile_3.txt: [###############################-------------------] 62%\nFile_4.txt: [#################################-----------------] 67%\nFile_5.txt: [###############################################---] 95%\n\nPress Ctrl+C to exit.\nFile_1.txt: [#######################################-----------] 79%\nFile_2.txt: [###########################################-------] 86%\nFile_3.txt: [#####################################-------------] 75%\nFile_4.txt: [##########################################--------] 84%\nFile_5.txt: [##################################################] 100%\n\nPress Ctrl+C to exit.\nFile_1.txt: [############################################------] 88%\nFile_2.txt: [##################################################] 100%\nFile_3.txt: [##############################################----] 92%\nFile_4.txt: [###########################################-------] 87%\nFile_5.txt: [##################################################] 100%\n\nPress Ctrl+C to exit.\nFile_1.txt: [##################################################] 100%\nFile_2.txt: [##################################################] 100%\nFile_3.txt: [##################################################] 100%\nFile_4.txt: [################################################--] 96%\nFile_5.txt: [##################################################] 100%\n\nPress Ctrl+C to exit.\nFile_1.txt: [##################################################] 100%\nFile_2.txt: [##################################################] 100%\nFile_3.txt: [##################################################] 100%\nFile_4.txt: [##################################################] 100%\nFile_5.txt: [##################################################] 100%\n\nPress Ctrl+C to exit.\n\nAll files have been loaded successfully!\n\n========== Multithreaded File Loader ==========\nCommands:\n1. load   - Simulate loading multiple files\n2. status - Display loading progress\n3. exit   - Exit the program\nEnter command number: File_1.txt: [##################################################] 100%\nFile_2.txt: [##################################################] 100%\nFile_3.txt: [##################################################] 100%\nFile_4.txt: [##################################################] 100%\nFile_5.txt: [##################################################] 100%\n\nPress Ctrl+C to exit.\n\n========== Multithreaded File Loader ==========\nCommands:\n1. load   - Simulate loading multiple files\n2. status - Display loading progress\n3. exit   - Exit the program\nEnter command number: Exiting program...\nProgram terminated gracefully."
+    },
+    {
+      "lesson": "14",
+      "file": "03-forks-mutex.c",
+      "kind": "",
+      "intentional": "",
+      "category": "runs-and-exits",
+      "detail": "status 0",
+      "output": " Acquired semaphore → wrote to file → releasing.\n[Child 4, PID 2231] Acquired semaphore → wrote to file → releasing.\n[Child 2, PID 2229] Acquired semaphore → wrote to file → releasing.\n[Child 3, PID 2230] Acquired semaphore → wrote to file → releasing.\n[Child 5, PID 2232] Acquired semaphore → wrote to file → releasing.\n\n[Parent] All children finished. Check output: cat shared_output.txt\nstudent:~$",
+      "capture": "\n══════════════════════════════════════\n  Fork + Semaphore — File Sync\n══════════════════════════════════════\n\n[Parent] 5 child processes will write to 'shared_output.txt' protected by semaphore.\n\n[Child 1, PID 2228] Acquired semaphore → wrote to file → releasing.\n[Child 4, PID 2231] Acquired semaphore → wrote to file → releasing.\n[Child 2, PID 2229] Acquired semaphore → wrote to file → releasing.\n[Child 3, PID 2230] Acquired semaphore → wrote to file → releasing.\n[Child 5, PID 2232] Acquired semaphore → wrote to file → releasing.\n\n[Parent] All children finished. Check output: cat shared_output.txt"
+    },
+    {
+      "lesson": "14",
+      "file": "04-forks-mutex.c",
+      "kind": "",
+      "intentional": "",
+      "category": "runs-and-exits",
+      "detail": "status 0",
+      "output": " 109 → buffer[4]\n[Producer 1] Finished — produced 10 items.\n[Consumer 1] Consumed item 208 ← buffer[1]\n[Consumer 2] Consumed item 108 ← buffer[2]\n[Consumer 2] Consumed item 209 ← buffer[3]\n[Consumer 1] Consumed item 109 ← buffer[4]\n[Consumer 2] Finished — consumed 10 items.\n[Consumer 1] Finished — consumed 10 items.\n\n[Parent] All producers and consumers finished. Shared memory released.\nstudent:~$",
+      "capture": "\n══════════════════════════════════════\n  IPC Producer-Consumer (Shared Memory)\n══════════════════════════════════════\n\n[Parent] 2 producers, 2 consumers, buffer size 5, 10 items each.\n[Parent] Uses fork + shared memory + named semaphores.\n\n[Producer 1] Produced item 100 → buffer[0]\n[Producer 2] Produced item 200 → buffer[1]\n[Consumer 1] Consumed item 100 ← buffer[0]\n[Consumer 2] Consumed item 200 ← buffer[1]\n[Producer 2] Produced item 201 → buffer[2]\n[Producer 1] Produced item 101 → buffer[3]\n[Consumer 2] Consumed item 201 ← buffer[2]\n[Consumer 1] Consumed item 101 ← buffer[3]\n[Producer 1] Produced item 102 → buffer[4]\n[Producer 2] Produced item 202 → buffer[0]\n[Producer 1] Produced item 103 → buffer[1]\n[Consumer 2] Consumed item 102 ← buffer[4]\n[Consumer 1] Consumed item 202 ← buffer[0]\n[Producer 2] Produced item 203 → buffer[2]\n[Producer 1] Produced item 104 → buffer[3]\n[Producer 2] Produced item 204 → buffer[4]\n[Consumer 1] Consumed item 103 ← buffer[1]\n[Consumer 2] Consumed item 203 ← buffer[2]\n[Producer 2] Produced item 205 → buffer[0]\n[Producer 1] Produced item 105 → buffer[1]\n[Consumer 1] Consumed item 104 ← buffer[3]\n[Producer 2] Produced item 206 → buffer[2]\n[Producer 1] Produced item 106 → buffer[3]\n[Consumer 2] Consumed item 204 ← buffer[4]\n[Producer 2] Produced item 207 → buffer[4]\n[Consumer 1] Consumed item 205 ← buffer[0]\n[Producer 1] Produced item 107 → buffer[0]\n[Consumer 2] Consumed item 105 ← buffer[1]\n[Producer 2] Produced item 208 → buffer[1]\n[Consumer 1] Consumed item 206 ← buffer[2]\n[Consumer 2] Consumed item 106 ← buffer[3]\n[Producer 1] Produced item 108 → buffer[2]\n[Producer 2] Produced item 209 → buffer[3]\n[Producer 2] Finished — produced 10 items.\n[Consumer 1] Consumed item 207 ← buffer[4]\n[Consumer 2] Consumed item 107 ← buffer[0]\n[Producer 1] Produced item 109 → buffer[4]\n[Producer 1] Finished — produced 10 items.\n[Consumer 1] Consumed item 208 ← buffer[1]\n[Consumer 2] Consumed item 108 ← buffer[2]\n[Consumer 2] Consumed item 209 ← buffer[3]\n[Consumer 1] Consumed item 109 ← buffer[4]\n[Consumer 2] Finished — consumed 10 items.\n[Consumer 1] Finished — consumed 10 items.\n\n[Parent] All producers and consumers finished. Shared memory released."
+    },
+    {
+      "lesson": "14",
+      "file": "05-forks-philosph.c",
+      "kind": "",
+      "intentional": "",
+      "category": "runs-and-exits",
+      "detail": "status 0",
+      "output": "mes total.\n[Philosopher 4] Put down fork 4\n[Philosopher 4] Put down fork 0 — done eating.\n[Philosopher 4] Finished! Ate 3 times total.\n\n--- Dining Status (from shared memory) ---\n  Philosopher 0: ate 3 times\n  Philosopher 1: ate 3 times\n  Philosopher 2: ate 3 times\n  Philosopher 3: ate 3 times\n  Philosopher 4: ate 3 times\n\n--- Dining Philosophers simulation completed (no deadlocks!) ---\nstudent:~$",
+      "capture": "\n══════════════════════════════════════\n  Dining Philosophers Problem\n══════════════════════════════════════\n\n[Main] Classic deadlock scenario solved with resource ordering.\n[Main] Each philosopher picks up the lower-numbered fork first.\n\n[Philosopher 0] 💭 Thinking... (round 1/3)\n[Philosopher 1] 💭 Thinking... (round 1/3)\n[Philosopher 2] 💭 Thinking... (round 1/3)\n[Philosopher 3] 💭 Thinking... (round 1/3)\n[Philosopher 4] 💭 Thinking... (round 1/3)\n[Philosopher 1] Hungry! Reaching for fork 1 (lower-numbered first to prevent deadlock)\n[Philosopher 1] ✓ Got fork 1. Now reaching for fork 2...\n[Philosopher 1] ✓ Got fork 2. 🍝 EATING!\n[Philosopher 0] Hungry! Reaching for fork 0 (lower-numbered first to prevent deadlock)\n[Philosopher 0] ✓ Got fork 0. Now reaching for fork 1...\n[Philosopher 3] Hungry! Reaching for fork 3 (lower-numbered first to prevent deadlock)\n[Philosopher 3] ✓ Got fork 3. Now reaching for fork 4...\n[Philosopher 3] ✓ Got fork 4. 🍝 EATING!\n[Philosopher 2] Hungry! Reaching for fork 2 (lower-numbered first to prevent deadlock)\n[Philosopher 4] Hungry! Reaching for fork 0 (lower-numbered first to prevent deadlock)\n[Philosopher 1] Put down fork 2\n[Philosopher 1] Put down fork 1 — done eating.\n[Philosopher 1] 💭 Thinking... (round 2/3)\n[Philosopher 2] ✓ Got fork 2. Now reaching for fork 3...\n[Philosopher 3] Put down fork 4\n[Philosopher 2] ✓ Got fork 3. 🍝 EATING!\n[Philosopher 3] Put down fork 3 — done eating.\n[Philosopher 0] ✓ Got fork 1. 🍝 EATING!\n[Philosopher 3] 💭 Thinking... (round 2/3)\n[Philosopher 2] Put down fork 3\n[Philosopher 2] Put down fork 2 — done eating.\n[Philosopher 2] 💭 Thinking... (round 2/3)\n[Philosopher 0] Put down fork 1\n[Philosopher 0] Put down fork 0 — done eating.\n[Philosopher 0] 💭 Thinking... (round 2/3)\n[Philosopher 4] ✓ Got fork 0. Now reaching for fork 4...\n[Philosopher 4] ✓ Got fork 4. 🍝 EATING!\n[Philosopher 1] Hungry! Reaching for fork 1 (lower-numbered first to prevent deadlock)\n[Philosopher 1] ✓ Got fork 1. Now reaching for fork 2...\n[Philosopher 1] ✓ Got fork 2. 🍝 EATING!\n[Philosopher 3] Hungry! Reaching for fork 3 (lower-numbered first to prevent deadlock)\n[Philosopher 3] ✓ Got fork 3. Now reaching for fork 4...\n[Philosopher 3] ✓ Got fork 4. 🍝 EATING!\n[Philosopher 4] Put down fork 4\n[Philosopher 4] Put down fork 0 — done eating.\n[Philosopher 4] 💭 Thinking... (round 2/3)\n[Philosopher 2] Hungry! Reaching for fork 2 (lower-numbered first to prevent deadlock)\n[Philosopher 0] Hungry! Reaching for fork 0 (lower-numbered first to prevent deadlock)\n[Philosopher 0] ✓ Got fork 0. Now reaching for fork 1...\n[Philosopher 2] ✓ Got fork 2. Now reaching for fork 3...\n[Philosopher 1] Put down fork 2\n[Philosopher 1] Put down fork 1 — done eating.\n[Philosopher 1] 💭 Thinking... (round 3/3)\n[Philosopher 0] ✓ Got fork 1. 🍝 EATING!\n[Philosopher 3] Put down fork 4\n[Philosopher 3] Put down fork 3 — done eating.\n[Philosopher 3] 💭 Thinking... (round 3/3)\n[Philosopher 2] ✓ Got fork 3. 🍝 EATING!\n[Philosopher 4] Hungry! Reaching for fork 0 (lower-numbered first to prevent deadlock)\n[Philosopher 0] Put down fork 1\n[Philosopher 4] ✓ Got fork 0. Now reaching for fork 4...\n[Philosopher 4] ✓ Got fork 4. 🍝 EATING!\n[Philosopher 0] Put down fork 0 — done eating.\n[Philosopher 0] 💭 Thinking... (round 3/3)\n[Philosopher 1] Hungry! Reaching for fork 1 (lower-numbered first to prevent deadlock)\n[Philosopher 1] ✓ Got fork 1. Now reaching for fork 2...\n[Philosopher 2] Put down fork 3\n[Philosopher 1] ✓ Got fork 2. 🍝 EATING!\n[Philosopher 2] Put down fork 2 — done eating.\n[Philosopher 2] 💭 Thinking... (round 3/3)\n[Philosopher 3] Hungry! Reaching for fork 3 (lower-numbered first to prevent deadlock)\n[Philosopher 3] ✓ Got fork 3. Now reaching for fork 4...\n[Philosopher 3] ✓ Got fork 4. 🍝 EATING!\n[Philosopher 4] Put down fork 4\n[Philosopher 4] Put down fork 0 — done eating.\n[Philosopher 4] 💭 Thinking... (round 3/3)\n[Philosopher 0] Hungry! Reaching for fork 0 (lower-numbered first to prevent deadlock)\n[Philosopher 0] ✓ Got fork 0. Now reaching for fork 1...\n[Philosopher 1] Put down fork 2\n[Philosopher 1] Put down fork 1 — done eating.\n[Philosopher 1] Finished! Ate 3 times total.\n[Philosopher 0] ✓ Got fork 1. 🍝 EATING!\n[Philosopher 2] Hungry! Reaching for fork 2 (lower-numbered first to prevent deadlock)\n[Philosopher 2] ✓ Got fork 2. Now reaching for fork 3...\n[Philosopher 3] Put down fork 4\n[Philosopher 2] ✓ Got fork 3. 🍝 EATING!\n[Philosopher 3] Put down fork 3 — done eating.\n[Philosopher 3] Finished! Ate 3 times total.\n[Philosopher 4] Hungry! Reaching for fork 0 (lower-numbered first to prevent deadlock)\n[Philosopher 0] Put down fork 1\n[Philosopher 0] Put down fork 0 — done eating.\n[Philosopher 0] Finished! Ate 3 times total.\n[Philosopher 4] ✓ Got fork 0. Now reaching for fork 4...\n[Philosopher 4] ✓ Got fork 4. 🍝 EATING!\n[Philosopher 2] Put down fork 3\n[Philosopher 2] Put down fork 2 — done eating.\n[Philosopher 2] Finished! Ate 3 times total.\n[Philosopher 4] Put down fork 4\n[Philosopher 4] Put down fork 0 — done eating.\n[Philosopher 4] Finished! Ate 3 times total.\n\n--- Dining Status (from shared memory) ---\n  Philosopher 0: ate 3 times\n  Philosopher 1: ate 3 times\n  Philosopher 2: ate 3 times\n  Philosopher 3: ate 3 times\n  Philosopher 4: ate 3 times\n\n--- Dining Philosophers simulation completed (no deadlocks!) ---"
+    },
+    {
+      "lesson": "14",
+      "file": "06-pthreads.c",
+      "kind": "",
+      "intentional": "",
+      "category": "runs-and-exits",
+      "detail": "status 0",
+      "output": "each incrementing 1000000 times = 5000000 total.\n[Main] Using mutex for every increment (safe but slow).\n\n[Main] Thread 0 created\n[Main] Thread 1 created\n[Main] Thread 2 created\n[Main] Thread 3 created\n[Main] Thread 4 created\n[Main] Waiting for all threads...\n\n══════════════════════════════════════\n  Expected: 5000000\n  Actual:   5000000 ✓ correct!\n══════════════════════════════════════\nstudent:~$",
+      "capture": "\n[Main] 5 threads, each incrementing 1000000 times = 5000000 total.\n[Main] Using mutex for every increment (safe but slow).\n\n[Main] Thread 0 created\n[Main] Thread 1 created\n[Main] Thread 2 created\n[Main] Thread 3 created\n[Main] Thread 4 created\n[Main] Waiting for all threads...\n\n══════════════════════════════════════\n  Expected: 5000000\n  Actual:   5000000 ✓ correct!\n══════════════════════════════════════"
+    },
+    {
+      "lesson": "14",
+      "file": "07-pthreads-2.c",
+      "kind": "",
+      "intentional": "",
+      "category": "runs-and-exits",
+      "detail": "status 0",
+      "output": "./thread_log\n\n══════════════════════════════════════\n  Thread-Safe File Logging\n══════════════════════════════════════\n\n[Main] 5 threads each write 1000 log entries to thread_log.txt.\n[Main] Mutex ensures log lines don't get interleaved.\n\n[Main] All threads finished. 5000 log entries written to thread_log.txt.\n[Main] Check with: wc -l thread_log.txt (should be 5000)\nstudent:~$",
+      "capture": "\n══════════════════════════════════════\n  Thread-Safe File Logging\n══════════════════════════════════════\n\n[Main] 5 threads each write 1000 log entries to thread_log.txt.\n[Main] Mutex ensures log lines don't get interleaved.\n\n[Main] All threads finished. 5000 log entries written to thread_log.txt.\n[Main] Check with: wc -l thread_log.txt (should be 5000)"
+    },
+    {
+      "lesson": "14",
+      "file": "08-cool-bank.c",
+      "kind": "",
+      "intentional": "",
+      "category": "runs-and-exits",
+      "detail": "status 0",
+      "output": "— deposited $1000 total\n[Withdraw Thread] Finished — withdrew $1000 total\n[Deposit Thread] Finished — deposited $1000 total\n[Withdraw Thread] Finished — withdrew $1000 total\n[Deposit Thread] Finished — deposited $1000 total\n[Withdraw Thread] Finished — withdrew $1000 total\n\n══════════════════════════════════════\n  Final balance: $0 (expected: $0) ✓\n══════════════════════════════════════\nstudent:~$",
+      "capture": "\n══════════════════════════════════════\n  Bank Simulation — Concurrent Transfers\n══════════════════════════════════════\n\n[Main] 6 threads: 3 deposit, 3 withdraw. Each does 1000 operations ($1 each).\n[Main] With mutex: balance should end at $0 (deposits == withdrawals).\n\n[Deposit Thread] Finished — deposited $1000 total\n[Withdraw Thread] Finished — withdrew $1000 total\n[Deposit Thread] Finished — deposited $1000 total\n[Withdraw Thread] Finished — withdrew $1000 total\n[Deposit Thread] Finished — deposited $1000 total\n[Withdraw Thread] Finished — withdrew $1000 total\n\n══════════════════════════════════════\n  Final balance: $0 (expected: $0) ✓\n══════════════════════════════════════"
+    },
+    {
+      "lesson": "14",
+      "file": "09-cool-canvas.c",
+      "kind": "long-running",
+      "intentional": "",
+      "category": "long-running",
+      "detail": "stopped after 8000ms as configured",
+      "output": " B B B B . . C C \nE E C A A A A C A A A A B B B B . . C C \nE E C A A A A B D D D A B B B B D . C C \nE D C A A A A B D D D . B B B B D . C C \nA A C B B B B B A A A . . E E D D C . . \nA A C B B B B B A A A E E . . D C C C . \nE C C C B B A A . B B E E A . B C C C B \nD D D D B B B B B B B E E A E B B B D B \nD D D D . . B B B B B B D E E D D D D A \n. C C C . . A A . . B B D E E . . . A A \n^C\nstudent:~$",
+      "capture": "\n══════════════════════════════════════\n  Shared Canvas — Concurrent Drawing\n══════════════════════════════════════\n\n. . . . . . . . . . . . . . . . . . . . \n. . . . . . . . . . . . . . . . . . . . \n. . . . . . . . . . . . . . . . . . . . \n. . . . . . . . . . . . . . . . . . . . \n. . . . . . . . . . . . . . . . . . . . \n. . . . . . . . . . . . . . . . . . . . \n. . . . . . . . . . . . . . . . . . . . \n. . . . . . . . . . . . . . . . . . . . \n. . . . . . . . . . . . . . . . . . . . \n. . . . . . . . . . . . . . . . . . . . \n. . . . . . . . . . . . . . . . . . . . \n. . . . . . . . . . . E E E E . . . . . \n. . . . . . . . . . . E E E E . . . . . \n. . . . . . . . . . . . . . . . . . . . \n. . . . . . . . . . . . . . . . . . . . \n. C C . . . . . . B B B B . . . . . . . \n. C C . . . . . . B B B B . . . . . . . \n. C C . . . . . . B B B B . . . . . A A \n. C C . . . . . . B B D D . . . . . A A \n. . . . . . . . . . . D D . . . . . A A \n. . . . . . . . . . . . . . . . . . C C \nE E E . . . . . . . . E E E E . . . C C \nE E E . . . . . . . . E E E E . . . C C \nE E E . . . . . . . . . . . . . . . C C \n. . . . . . . . . . . . . . . . . . . . \n. C C . . . . . . B B B B . . . . . . . \n. C C . . . A A . B B D D D . . . . B B \n. C C . . . A A . B B D D D . . . . B B \n. C C . . . A A . B B D D D . . . . A A \n. . . . . . A A . . . D D D . . . . A A \n. . . . . . . . . . . . . . . . . . C C \nE E E . . . . . . . . E E E E . . . C C \nE E E . . . . . . . . E E E E . . . C C \nE E E . . . . . . . . . . . . . . . C C \n. . . . . . . . . . . . . . . . . . . . \n. C C . . . . . . B B B B . . . . . . . \n. C C . . . A A . B B D D D . . . . B B \n. C C . . . A A . B B D D D . . . . B B \n. C C . . . A A . B B D D D . . . . A A \n. . . . . . A A . . . D D D . . . . A A \n. . . . . . . . . . . . A A A . . . C C \nE E E . . . . . . . . E A A A . . . C C \nE E E . . D D D D . . E A A A . . . C C \nE E E C . D D D D . . . . . . . . . C C \nE E E C . D D D D . . . . . . . . . . . \nC C C C . D D D D B B B B . . . . . . . \n. C C . . . A A . B B D D D . . . . B B \n. C C . . . A A . B B D D D . . . . B B \n. C C . . . A A . B B B D D . . . . A A \n. . . . . . A A . . B B D D . . . . A A \n. . . . . . . . . . . . A A A . . . C C \nE E E . . . . . . . . E A A A . . . C C \nE E E . . D D D D . . E A A A . . . C C \nE E E C . D D D D . . . . . . . . . C C \nE E E C . D D D D . . . . . . . . . . . \nC C C C . D D D D B B B B . . . . . . . \n. C C . . . A A . B B D D D . . . . B B \n. C C . . . A A . B B D D D . . . . B B \n. C C . . . A A . B B B D D . . . . A A \n. . . . . . A A . . B B D D . . . . A A \n. . C C . . E E . . . . A A A . . . C C \nE E C C . . E E A A . E A A A . . . C C \nE E C C . D D D A A . E A A A . . . C C \nE D C C . D D D A A . . . . . . . . C C \nE D D D . D D D A A . . . . . . . . . . \nC D D D . D D D D B B B B . . . . . . . \n. C C . . . A A . B B D D D . . . . B B \n. C C . . . B B B B B D D D . . . . B B \n. C C . . . B B B B B B D D . . . . A A \n. . . . . . A A . . B B D D . . . . A A \n. . C C . . E E . . . . A A A . . . C C \nE E C C . . E E A A . E A A A . . . C C \nE E C C . D D D A A . E A A A . . . C C \nE D C C . D D D A A . . . . . . . . C C \nE D D D . D D D A A . . . . . . . . . . \nC D D D . D D D D B B B B . . . . . . . \n. C C . . . A A . B B D D D . . . . B B \n. C C . . . B B B B B D D D . . . . B B \n. C C . . . B B B B B B D D . . . . A A \n. . . . . . A A . . B B D D . . . . A A \n. . C B B B B E . . . . A A A . . . C C \nE E C B B B B E A A . E A A A . . . C C \nE E C B B B B D D D . E A E E E . . C C \nE D C C . D D D D D . . . E E E . . C C \nA A D D . D D D A A . . . E E C C C . . \nA A D D . D D D D B B B B . . C C C . . \nA A C . . . A A . B B D D D . . . . B B \nA A C . . . B B B B B D D D . . . . B B \n. C C . . . B B B B B B D D . . . . A A \n. . . . . . A A . . B B D D . . . . A A \n. . C B B B B E . . . . A A A . . . C C \nE E C B B B B E A A . E A A A . . . C C \nE E C B B B B D D D . E A E E E . . C C \nE D C C . D D D D D . . . E E E . . C C \nA A D D . D D D A A . . . E E C C C . . \nA A D D . D D D D B B B B . . C C C . . \nA A C . . . A A . B B D D D . . . . B B \nA A C . . . B B B B B D D D . . . . B B \n. C C . . . B B B B B B D D . . . . A A \n. . . . . . A A . . B B D D . . . . A A \n. . C B B B B E . . . . A A A . . . C C \nE E C B C C C C A A A A A A A . . . C C \nE E C B C C C C D A A A A E E E . . C C \nE D C C C C C E E D . . . E E E . . C C \nA A D D . D D E E A . . . E E C C C . . \nA A D D . D D E E B B B B . . B B B . . \nA A C . . . A A . B B D D D . B B B B B \nA A C . . . B B B B B D D D . B B B D B \n. C C . . . B B B B B B D D . D D D D A \n. . . . . . A A . . B B D D . . . . A A \n. . C B B B B E . . . . A A A . . . C C \nE E C B C C C C A A A A A A A . . . C C \nE E C B C C C C D A A A A E E E . . C C \nE D C C C C C E E D . . . E E E . . C C \nA A D D . D D E E A . . . E E C C C . . \nA A D D . D D E E B B B B . . B B B . . \nA A C . . . A A . B B D D D . B B B B B \nA A C . . . B B B B B D D D . B B B D B \n. C C . . . B B B B B B D D . D D D D A \n. . . . . . A A . . B B D D . . . . A A \n. . C A A A A E . . . . A A A . . . C C \nE E C A A A A C A A A A A A A . . . C C \nE E C A A A A B D D D A A E E E . . C C \nE D C A A A A B D D D . . E E E . . C C \nA A C C C B B B D D D . . E E C C C . . \nA A C C C B B B E B B B B . . B B B . . \nE E E E C . A A . B B D D D . B B B B B \nE E E E . . B B B B B D D D . B B B D B \n. C C . . . B B B B B B D D . D D D D A \n. . . . . . A A . . B B D D . . . . A A \n. . C A A A A E . . . . A A A . . . C C \nE E C A A A A C A A A A A A A . . . C C \nE E C A A A A B D D D A A E E E . . C C \nE D C A A A A B D D D . . E E E . . C C \nA A C C C B B B D D D . . E E C C C . . \nA A C C C B B B E B B B B . . B B B . . \nE E E E C . A A . B B D D D . B B B B B \nE E E E . . B B B B B D D D . B B B D B \n. C C . . . B B B B B B D D . D D D D A \n. . . . . . A A . . B B D D . . . . A A \n. . C A A A A E . . . . A A A . . . C C \nE E C A A A A C A A A A A A A . . . C C \nE E C A A A A B D D D A A E E D D . C C \nE D C A A A A B D D D . . E E D D . C C \nA A C B B B B B A A A . . E E D D C . . \nA A C B B B B B A A A B B . . D C C C . \nE E E B B B A A . B B D D D . B C C C B \nE E E B B B B B B B B D D E E B B B D B \n. C C . . . B B B B B B D E E D D D D A \n. . . . . . A A . . B B D E E . . . A A \n. . C A A A A E . . . . A A A . . . C C \nE E C A A A A C A A A A A A A . . . C C \nE E C A A A A B D D D A A E E D D . C C \nE D C A A A A B D D D . . E E D D . C C \nA A C B B B B B A A A . . E E D D C . . \nA A C B B B B B A A A B B . . D C C C . \nE E E B B B A A . B B D D D . B C C C B \nE E E B B B B B B B B D D E E B B B D B \n. C C . . . B B B B B B D E E D D D D A \n. . . . . . A A . . B B D E E . . . A A \n. . C A A A A E . . . . B B B B . . C C \nE E C A A A A C A A A A B B B B . . C C \nE E C A A A A B D D D A B B B B D . C C \nE D C A A A A B D D D . B B B B D . C C \nA A C B B B B B A A A . . E E D D C . . \nA A C B B B B B A A A E E . . D C C C . \nE C C C B B A A . B B E E A . B C C C B \nD D D D B B B B B B B E E A E B B B D B \nD D D D . . B B B B B B D E E D D D D A \n. C C C . . A A . . B B D E E . . . A A \n. . C A A A A E . . . . B B B B . . C C \nE E C A A A A C A A A A B B B B . . C C \nE E C A A A A B D D D A B B B B D . C C \nE D C A A A A B D D D . B B B B D . C C \nA A C B B B B B A A A . . E E D D C . . \nA A C B B B B B A A A E E . . D C C C . \nE C C C B B A A . B B E E A . B C C C B \nD D D D B B B B B B B E E A E B B B D B \nD D D D . . B B B B B B D E E D D D D A \n. C C C . . A A . . B B D E E . . . A A \n^C\n\n[runs until stopped — the site stops it after 8s]"
+    },
+    {
+      "lesson": "14",
+      "file": "10-spinners.c",
+      "kind": "long-running",
+      "intentional": "",
+      "category": "long-running",
+      "detail": "stopped after 8000ms as configured",
+      "output": ": \\Spinner 3: /Spinner 1: /Spinner 8: \\Spinner 7: /Spinner 9: -Spinner 5: -Spinner 2: |Spinner 7: -Spinner 1: -Spinner 3: -Spinner 8: |Spinner 6: |Spinner 4: |Spinner 9: \\Spinner 4: /Spinner 6: /Spinner 8: /Spinner 3: \\Spinner 1: \\Spinner 7: \\Spinner 2: /Spinner 5: \\Spinner 9: |Spinner 1: |Spinner 3: |Spinner 8: -Spinner 6: -Spinner 2: -Spinner 5: |Spinner 7: |Spinner 4: -Spinner 9: /^C\nstudent:~$",
+      "capture": "\n══════════════════════════════════════\n  Concurrent Spinner Animations\n══════════════════════════════════════\n\nSpinner 1: |Spinner 1: /Spinner 1: -Spinner 1: \\Spinner 1: |Spinner 1: /Spinner 1: -Spinner 1: \\Spinner 1: |Spinner 1: /Spinner 2: |Spinner 1: -Spinner 2: /Spinner 1: \\Spinner 2: -Spinner 1: |Spinner 2: \\Spinner 1: /Spinner 2: |Spinner 1: -Spinner 2: /Spinner 1: \\Spinner 2: -Spinner 1: |Spinner 2: \\Spinner 1: /Spinner 2: |Spinner 1: -Spinner 2: /Spinner 1: \\Spinner 3: |Spinner 2: -Spinner 1: |Spinner 3: /Spinner 2: \\Spinner 1: /Spinner 3: -Spinner 2: |Spinner 1: -Spinner 3: \\Spinner 2: /Spinner 1: \\Spinner 3: |Spinner 2: -Spinner 1: |Spinner 3: /Spinner 2: \\Spinner 1: /Spinner 3: -Spinner 2: |Spinner 1: -Spinner 3: \\Spinner 2: /Spinner 1: \\Spinner 3: |Spinner 2: -Spinner 1: |Spinner 3: /Spinner 2: \\Spinner 1: /Spinner 4: |Spinner 3: -Spinner 2: |Spinner 1: -Spinner 4: /Spinner 3: \\Spinner 2: /Spinner 1: \\Spinner 4: -Spinner 3: |Spinner 2: -Spinner 1: |Spinner 4: \\Spinner 3: /Spinner 2: \\Spinner 1: /Spinner 4: |Spinner 3: -Spinner 2: |Spinner 1: -Spinner 4: /Spinner 3: \\Spinner 2: /Spinner 1: \\Spinner 4: -Spinner 3: |Spinner 2: -Spinner 1: |Spinner 4: \\Spinner 3: /Spinner 2: \\Spinner 1: /Spinner 4: |Spinner 3: -Spinner 2: |Spinner 1: -Spinner 4: /Spinner 3: \\Spinner 2: /Spinner 1: \\Spinner 5: |Spinner 4: -Spinner 3: |Spinner 2: -Spinner 1: |Spinner 5: /Spinner 4: \\Spinner 3: /Spinner 2: \\Spinner 1: /Spinner 5: -Spinner 4: |Spinner 3: -Spinner 2: |Spinner 1: -Spinner 5: \\Spinner 4: /Spinner 3: \\Spinner 2: /Spinner 1: \\Spinner 5: |Spinner 4: -Spinner 3: |Spinner 2: -Spinner 1: |Spinner 5: /Spinner 4: \\Spinner 3: /Spinner 2: \\Spinner 1: /Spinner 4: |Spinner 5: -Spinner 3: -Spinner 2: |Spinner 1: -Spinner 4: /Spinner 5: \\Spinner 3: \\Spinner 2: /Spinner 1: \\Spinner 4: -Spinner 5: |Spinner 3: |Spinner 2: -Spinner 1: |Spinner 4: \\Spinner 5: /Spinner 3: /Spinner 2: \\Spinner 1: /Spinner 6: |Spinner 4: |Spinner 5: -Spinner 3: -Spinner 2: |Spinner 1: -Spinner 6: /Spinner 4: /Spinner 3: \\Spinner 5: \\Spinner 2: /Spinner 1: \\Spinner 6: -Spinner 4: -Spinner 3: |Spinner 5: |Spinner 2: -Spinner 1: |Spinner 6: \\Spinner 4: \\Spinner 3: /Spinner 5: /Spinner 2: \\Spinner 1: /Spinner 6: |Spinner 4: |Spinner 3: -Spinner 5: -Spinner 2: |Spinner 1: -Spinner 6: /Spinner 4: /Spinner 3: \\Spinner 5: \\Spinner 2: /Spinner 1: \\Spinner 6: -Spinner 4: -Spinner 5: |Spinner 3: |Spinner 2: -Spinner 1: |Spinner 6: \\Spinner 4: \\Spinner 5: /Spinner 3: /Spinner 2: \\Spinner 1: /Spinner 6: |Spinner 4: |Spinner 5: -Spinner 3: -Spinner 2: |Spinner 1: -Spinner 6: /Spinner 4: /Spinner 3: \\Spinner 5: \\Spinner 2: /Spinner 1: \\Spinner 7: |Spinner 6: -Spinner 4: -Spinner 3: |Spinner 5: |Spinner 2: -Spinner 1: |Spinner 7: /Spinner 6: \\Spinner 4: \\Spinner 3: /Spinner 5: /Spinner 2: \\Spinner 1: /Spinner 7: -Spinner 6: |Spinner 4: |Spinner 3: -Spinner 5: -Spinner 2: |Spinner 1: -Spinner 7: \\Spinner 6: /Spinner 4: /Spinner 3: \\Spinner 5: \\Spinner 2: /Spinner 1: \\Spinner 7: |Spinner 6: -Spinner 4: -Spinner 5: |Spinner 3: |Spinner 2: -Spinner 1: |Spinner 7: /Spinner 6: \\Spinner 4: \\Spinner 3: /Spinner 5: /Spinner 2: \\Spinner 1: /Spinner 7: -Spinner 6: |Spinner 4: |Spinner 3: -Spinner 5: -Spinner 2: |Spinner 1: -Spinner 7: \\Spinner 6: /Spinner 4: /Spinner 3: \\Spinner 5: \\Spinner 2: /Spinner 1: \\Spinner 7: |Spinner 6: -Spinner 4: -Spinner 3: |Spinner 5: |Spinner 2: -Spinner 1: |Spinner 7: /Spinner 6: \\Spinner 4: \\Spinner 3: /Spinner 5: /Spinner 2: \\Spinner 1: /Spinner 8: |Spinner 7: -Spinner 6: |Spinner 4: |Spinner 3: -Spinner 5: -Spinner 2: |Spinner 1: -Spinner 8: /Spinner 7: \\Spinner 6: /Spinner 4: /Spinner 3: \\Spinner 5: \\Spinner 2: /Spinner 1: \\Spinner 8: -Spinner 7: |Spinner 6: -Spinner 4: -Spinner 5: |Spinner 3: |Spinner 2: -Spinner 1: |Spinner 8: \\Spinner 7: /Spinner 6: \\Spinner 4: \\Spinner 5: /Spinner 3: /Spinner 2: \\Spinner 1: /Spinner 8: |Spinner 7: -Spinner 6: |Spinner 4: |Spinner 5: -Spinner 3: -Spinner 2: |Spinner 1: -Spinner 8: /Spinner 7: \\Spinner 6: /Spinner 4: /Spinner 5: \\Spinner 3: \\Spinner 2: /Spinner 1: \\Spinner 8: -Spinner 7: |Spinner 6: -Spinner 4: -Spinner 5: |Spinner 3: |Spinner 2: -Spinner 1: |Spinner 8: \\Spinner 7: /Spinner 6: \\Spinner 4: \\Spinner 5: /Spinner 3: /Spinner 2: \\Spinner 1: /Spinner 8: |Spinner 7: -Spinner 6: |Spinner 4: |Spinner 5: -Spinner 3: -Spinner 2: |Spinner 1: -Spinner 1: \\Spinner 2: /Spinner 8: /Spinner 7: \\Spinner 6: /Spinner 4: /Spinner 5: \\Spinner 3: \\Spinner 9: |Spinner 3: |Spinner 5: |Spinner 4: -Spinner 2: -Spinner 6: -Spinner 7: |Spinner 8: -Spinner 1: |Spinner 9: /Spinner 4: \\Spinner 5: /Spinner 2: \\Spinner 6: \\Spinner 3: /Spinner 1: /Spinner 8: \\Spinner 7: /Spinner 9: -Spinner 5: -Spinner 2: |Spinner 7: -Spinner 1: -Spinner 3: -Spinner 8: |Spinner 6: |Spinner 4: |Spinner 9: \\Spinner 4: /Spinner 6: /Spinner 8: /Spinner 3: \\Spinner 1: \\Spinner 7: \\Spinner 2: /Spinner 5: \\Spinner 9: |Spinner 1: |Spinner 3: |Spinner 8: -Spinner 6: -Spinner 2: -Spinner 5: |Spinner 7: |Spinner 4: -Spinner 9: /^C\n\n[runs until stopped — the site stops it after 8s]"
+    },
+    {
+      "lesson": "14",
+      "file": "11-5-cond-waiting-bad.c",
+      "kind": "long-running",
+      "intentional": "Hangs forever on purpose: the signal is sent before anyone waits (a lost wakeup)",
+      "category": "long-running",
+      "detail": "stopped after 6000ms as configured",
+      "output": " Threads created. They're waiting for signals that already fired.\n[Thread 0] Starting — will wait for condition...\n[Thread 0] Calling cond_wait (blocking)...\n[Thread 1] Starting — will wait for condition...\n[Thread 1] Calling cond_wait (blocking)...\n[Main] This program will hang forever! (Ctrl+C to exit)\n[Main] Fix: set condition_met=1 before signaling, or signal after threads start.\n^C\nstudent:~$",
+      "capture": "\n══════════════════════════════════════\n  Condition Variable Pitfalls\n══════════════════════════════════════\n\n[Main] BUG DEMO: signals sent BEFORE threads are created!\n[Main] The signals are lost — threads will block forever.\n\n[Main] Sending cond_signal #1... (nobody is listening!)\n[Main] Sending cond_signal #2... (still nobody listening!)\n[Main] Both signals are LOST — they don't queue up.\n\n[Main] Threads created. They're waiting for signals that already fired.\n[Thread 0] Starting — will wait for condition...\n[Thread 0] Calling cond_wait (blocking)...\n[Thread 1] Starting — will wait for condition...\n[Thread 1] Calling cond_wait (blocking)...\n[Main] This program will hang forever! (Ctrl+C to exit)\n[Main] Fix: set condition_met=1 before signaling, or signal after threads start.\n^C\n\n[runs until stopped — the site stops it after 6s]"
+    },
+    {
+      "lesson": "14",
+      "file": "12-cond-simple.c",
+      "kind": "",
+      "intentional": "",
+      "category": "runs-and-exits",
+      "detail": "status 0",
+      "output": "read 12] Condition met — proceeding!\n[Thread 13] Condition met — proceeding!\n[Thread 14] Condition met — proceeding!\n[Thread 15] Condition met — proceeding!\n[Thread 16] Condition met — proceeding!\n[Thread 17] Condition met — proceeding!\n[Thread 18] Condition met — proceeding!\n[Thread 19] Condition met — proceeding!\n\n[Main] All 20 threads finished. Compare with 11-5 (the broken version).\nstudent:~$",
+      "capture": "\n══════════════════════════════════════\n  Correct Condition Variable Usage\n══════════════════════════════════════\n\n[Main] Creating 20 threads. All will wait on cond_wait.\n[Main] After 2 seconds, main sets condition=1 and signals each one.\n\n[Main] All 20 threads created and waiting.\n\n[Main] Setting condition_met = 1\n[Main] Sending cond_signal to each thread (one at a time)...\n\n[Thread  0] Condition met — proceeding!\n[Thread  1] Condition met — proceeding!\n[Thread  2] Condition met — proceeding!\n[Thread  3] Condition met — proceeding!\n[Thread  4] Condition met — proceeding!\n[Thread  5] Condition met — proceeding!\n[Thread  6] Condition met — proceeding!\n[Thread  7] Condition met — proceeding!\n[Thread  8] Condition met — proceeding!\n[Thread  9] Condition met — proceeding!\n[Thread 10] Condition met — proceeding!\n[Thread 11] Condition met — proceeding!\n[Thread 12] Condition met — proceeding!\n[Thread 13] Condition met — proceeding!\n[Thread 14] Condition met — proceeding!\n[Thread 15] Condition met — proceeding!\n[Thread 16] Condition met — proceeding!\n[Thread 17] Condition met — proceeding!\n[Thread 18] Condition met — proceeding!\n[Thread 19] Condition met — proceeding!\n\n[Main] All 20 threads finished. Compare with 11-5 (the broken version)."
+    },
+    {
+      "lesson": "14",
+      "file": "13-broadcast.c",
+      "kind": "",
+      "intentional": "",
+      "category": "runs-and-exits",
+      "detail": "status 0",
+      "output": "ng — condition is true.\n[Thread 18] Woke up! Re-checking condition (mutex acquired)...\n[Thread 18] Proceeding — condition is true.\n[Thread 19] Woke up! Re-checking condition (mutex acquired)...\n[Thread 19] Proceeding — condition is true.\n[Thread  1] Proceeding — condition is true.\n\n[Main] All 20 threads finished.\n[Main] Compare with 12-cond-simple.c where we used signal (one at a time).\nstudent:~$",
+      "capture": "\n══════════════════════════════════════\n  Broadcast vs Signal\n══════════════════════════════════════\n\n[Main] cond_signal:    wakes ONE waiting thread\n[Main] cond_broadcast: wakes ALL waiting threads\n\n[Main] Creating 20 threads, all will call cond_wait...\n\n[Main] All threads are waiting. Calling pthread_cond_broadcast!\n[Main] All 20 threads will wake up at once (but mutex serializes them).\n\n[Thread  0] Woke up! Re-checking condition (mutex acquired)...\n[Thread  0] Proceeding — condition is true.\n[Thread  1] Woke up! Re-checking condition (mutex acquired)...\n[Thread  2] Woke up! Re-checking condition (mutex acquired)...\n[Thread  2] Proceeding — condition is true.\n[Thread  3] Woke up! Re-checking condition (mutex acquired)...\n[Thread  3] Proceeding — condition is true.\n[Thread  4] Woke up! Re-checking condition (mutex acquired)...\n[Thread  4] Proceeding — condition is true.\n[Thread  5] Woke up! Re-checking condition (mutex acquired)...\n[Thread  5] Proceeding — condition is true.\n[Thread  6] Woke up! Re-checking condition (mutex acquired)...\n[Thread  6] Proceeding — condition is true.\n[Thread  7] Woke up! Re-checking condition (mutex acquired)...\n[Thread  7] Proceeding — condition is true.\n[Thread  8] Woke up! Re-checking condition (mutex acquired)...\n[Thread  8] Proceeding — condition is true.\n[Thread  9] Woke up! Re-checking condition (mutex acquired)...\n[Thread  9] Proceeding — condition is true.\n[Thread 10] Woke up! Re-checking condition (mutex acquired)...\n[Thread 10] Proceeding — condition is true.\n[Thread 11] Woke up! Re-checking condition (mutex acquired)...\n[Thread 11] Proceeding — condition is true.\n[Thread 12] Woke up! Re-checking condition (mutex acquired)...\n[Thread 12] Proceeding — condition is true.\n[Thread 13] Woke up! Re-checking condition (mutex acquired)...\n[Thread 13] Proceeding — condition is true.\n[Thread 14] Woke up! Re-checking condition (mutex acquired)...\n[Thread 14] Proceeding — condition is true.\n[Thread 15] Woke up! Re-checking condition (mutex acquired)...\n[Thread 15] Proceeding — condition is true.\n[Thread 16] Woke up! Re-checking condition (mutex acquired)...\n[Thread 16] Proceeding — condition is true.\n[Thread 17] Woke up! Re-checking condition (mutex acquired)...\n[Thread 17] Proceeding — condition is true.\n[Thread 18] Woke up! Re-checking condition (mutex acquired)...\n[Thread 18] Proceeding — condition is true.\n[Thread 19] Woke up! Re-checking condition (mutex acquired)...\n[Thread 19] Proceeding — condition is true.\n[Thread  1] Proceeding — condition is true.\n\n[Main] All 20 threads finished.\n[Main] Compare with 12-cond-simple.c where we used signal (one at a time)."
+    },
+    {
+      "lesson": "16",
+      "file": "ctrl-c-path.c",
+      "kind": "long-running",
+      "intentional": "",
+      "category": "long-running",
+      "detail": "stopped after 4000ms as configured",
+      "output": "e path of Ctrl+C\n══════════════════════════════════════\n\n[Parent PID 2181] process group 2181; the terminal's foreground group is 2181\n[Parent] Both of us now wait. Press Ctrl+C...\n[Child  PID 2182] same process group 2181 — fork() does not change it\n^C[Child PID 2182] got signal 2 (SIGINT) — I am in process group 2181\n[Parent PID 2181] got signal 2 (SIGINT) — I am in process group 2181\nstudent:~$",
+      "capture": "\n══════════════════════════════════════\n  The path of Ctrl+C\n══════════════════════════════════════\n\n[Parent PID 2181] process group 2181; the terminal's foreground group is 2181\n[Parent] Both of us now wait. Press Ctrl+C...\n[Child  PID 2182] same process group 2181 — fork() does not change it\n^C[Child PID 2182] got signal 2 (SIGINT) — I am in process group 2181\n[Parent PID 2181] got signal 2 (SIGINT) — I am in process group 2181\n\n[runs until stopped — the site stops it after 4s]"
+    },
+    {
+      "lesson": "16",
+      "file": "fork-until-eagain.c",
+      "kind": "",
+      "intentional": "",
+      "category": "runs-and-exits",
+      "detail": "status 0",
+      "output": "kernel says no\n══════════════════════════════════════\n\n[Parent PID 2103] My user may own at most 64 processes (RLIMIT_NPROC).\n[Parent] fork() #63 failed: errno=11 (Resource temporarily unavailable) — the process limit did its job\n[Parent] Created 62 children before the limit (the shell and I count too).\n[Parent] Sent SIGTERM to all of them and reaped 62 with wait(). Nothing left behind.\nstudent:~$",
+      "capture": "\n══════════════════════════════════════\n  fork() until the kernel says no\n══════════════════════════════════════\n\n[Parent PID 2103] My user may own at most 64 processes (RLIMIT_NPROC).\n[Parent] fork() #63 failed: errno=11 (Resource temporarily unavailable) — the process limit did its job\n[Parent] Created 62 children before the limit (the shell and I count too).\n[Parent] Sent SIGTERM to all of them and reaped 62 with wait(). Nothing left behind."
+    },
+    {
+      "lesson": "16",
+      "file": "sandbox-launch.c",
+      "kind": "",
+      "intentional": "Exits 1 on purpose: EPERM — you are not root",
+      "category": "runs-and-exits",
+      "detail": "status 1",
+      "output": "./sandbox-launch 1234 1234 . example; sh -c './sandbox-launch 1234 1234 . example; exit $?'\n[sandbox] setsid failed: Operation not permitted\n[sandbox] setgroups failed: Operation not permitted\nstudent:~$",
+      "capture": "[sandbox] setsid failed: Operation not permitted\n[sandbox] setgroups failed: Operation not permitted"
+    },
+    {
+      "lesson": "16",
+      "file": "whoami-sandbox.c",
+      "kind": "",
+      "intentional": "",
+      "category": "runs-and-exits",
+      "detail": "status 0",
+      "output": ") returns NULL\n  file blocks    20971520   -> SIGXFSZ when a file grows too big\n  open files     128        -> open()/pipe() fail with EMFILE (Lesson 08)\n\n[Namespaces — this session's private copies]\n  ipc  ipc:[4026532290]\n  net  net:[4026532291]\n  mnt  mnt:[4026532358]\n  Open a second terminal (Two Terminals) and run this again:\n  same ids there, different ids for every other student.\nstudent:~$",
+      "capture": "\n══════════════════════════════════════\n  Who am I inside the course sandbox?\n══════════════════════════════════════\n\n[Identity]  uid=1002 gid=101 — not 0, so not root (setuid() in the launcher)\n  CapEff:\t0000000000000000\n            all zeros = no special powers left\n\n[Process group / session — Lessons 03 and 06]\n  my pid=2091  process group=2091  session=2068\n  foreground group of this terminal=2091  <- that's me: Ctrl+C will be sent to MY group\n\n[Limits — set with setrlimit() before the launcher dropped root]\n  processes      64         -> fork() fails with EAGAIN (Lesson 02)\n  CPU seconds    120        -> SIGXCPU, then SIGKILL\n  memory bytes   536870912  -> malloc() returns NULL\n  file blocks    20971520   -> SIGXFSZ when a file grows too big\n  open files     128        -> open()/pipe() fail with EMFILE (Lesson 08)\n\n[Namespaces — this session's private copies]\n  ipc  ipc:[4026532290]\n  net  net:[4026532291]\n  mnt  mnt:[4026532358]\n  Open a second terminal (Two Terminals) and run this again:\n  same ids there, different ids for every other student."
+    }
+  ]
+}

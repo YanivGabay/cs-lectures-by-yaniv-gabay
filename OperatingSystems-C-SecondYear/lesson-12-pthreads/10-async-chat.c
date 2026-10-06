@@ -13,6 +13,7 @@
 #include <pthread.h>
 #include <unistd.h>
 #include <time.h>
+#include <string.h>
 
 #define NUM_PARTICIPANTS 3
 #define NUM_MESSAGES 5

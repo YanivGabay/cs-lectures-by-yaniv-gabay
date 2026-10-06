@@ -1,0 +1,73 @@
+---
+import fs from 'node:fs';
+import path from 'node:path';
+import CodeBlock from './CodeBlock.astro';
+import { lessons } from '../data/os-lessons';
+import type { Challenge } from '../data/challenges';
+
+interface Props {
+  challenge: Challenge;
+}
+
+const { challenge: c } = Astro.props;
+const starter = fs.readFileSync(path.resolve(process.cwd(), 'src/data/challenges', c.starter), 'utf-8');
+const back = lessons.find((l) => l.number === c.lesson);
+---
+
+<article class="challenge-card card p-5 sm:p-6" id={`challenge-${c.id}`} data-challenge={JSON.stringify(c)}>
+  <div class="flex flex-wrap items-center gap-2 mb-2">
+    <span class="text-xs font-semibold uppercase tracking-wider text-cyan-800 dark:text-cyan-300">Challenge</span>
+    {back && (
+      <a href={`/os/${back.slug}/`} class="text-xs px-2 py-0.5 rounded-full bg-primary-100 text-primary-800 dark:bg-primary-900/40 dark:text-primary-200 hover:underline">Lesson {back.number}</a>
+    )}
+    <span class="challenge-done hidden ml-auto text-xs font-semibold px-2 py-0.5 rounded-full bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-200">✓ Completed</span>
+  </div>
+  <h3 class="text-lg font-bold text-surface-900 dark:text-white">{c.title}</h3>
+  <p class="mt-1 mb-4 text-sm text-surface-700 dark:text-surface-300 leading-relaxed">{c.goal} Click <strong>Edit</strong>, change the code, then <strong>Run</strong> — the site checks how it ended.</p>
+
+  <CodeBlock
+    code={starter}
+    filename={c.starter}
+    compileCmd={c.compileCmd}
+    stopAfterMs={c.stopAfterMs}
+    stopSignal={c.stopSignal}
+    interruptAfterMs={c.interruptAfterMs}
+  />
+  <p class="challenge-result mt-3 text-sm font-medium min-h-5" role="status" aria-live="polite"></p>
+</article>
+
+<script>
+  import { judge } from '../data/challenges';
+  import type { Challenge } from '../data/challenges';
+  import { describeStatus } from '../lib/terminal';
+
+  const stripAnsi = (s: string) => s.replace(/\x1b\[[0-9;?]*[ -\/]*[@-~]/g, '').replace(/\r/g, '');
+
+  document.querySelectorAll<HTMLElement>('.challenge-card').forEach((card) => {
+    const c = JSON.parse(card.dataset.challenge!) as Challenge;
+    const result = card.querySelector('.challenge-result') as HTMLElement;
+    const done = card.querySelector('.challenge-done') as HTMLElement;
+    const key = `challenge-${c.id}`;
+    const markDone = () => done.classList.remove('hidden');
+    try { if (localStorage.getItem(key) === 'done') markDone(); } catch {}
+
+    const say = (text: string, tone: 'ok' | 'bad' | 'info') => {
+      result.textContent = text;
+      result.className = `challenge-result mt-3 text-sm font-medium min-h-5 ${
+        tone === 'ok' ? 'text-green-700 dark:text-green-300' : tone === 'bad' ? 'text-red-700 dark:text-red-300' : 'text-surface-600 dark:text-surface-400'}`;
+      result.dataset.state = tone;
+    };
+
+    card.addEventListener('term:run', () => say('Running… checking how it ends.', 'info'));
+    card.addEventListener('term:compile-failed', () => say('It did not compile — fix the errors shown in the terminal.', 'bad'));
+    card.addEventListener('term:exit', (e) => {
+      const { code, output } = (e as CustomEvent).detail;
+      const verdict = judge(c, code, stripAnsi(output || ''));
+      say(`${describeStatus(code).text}. ${verdict.text}`, verdict.passed ? 'ok' : 'bad');
+      if (verdict.passed) {
+        markDone();
+        try { localStorage.setItem(key, 'done'); } catch {}
+      }
+    });
+  });
+</script>

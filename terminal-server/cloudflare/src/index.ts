@@ -1,12 +1,10 @@
 import { Container } from "@cloudflare/containers";
-
-interface Limiter { limit(opts: { key: string }): Promise<{ success: boolean }> }
+import { DurableObject } from "cloudflare:workers";
 
 interface Env {
   TERMINAL: DurableObjectNamespace<TerminalContainer>;
   PRESENTER: DurableObjectNamespace<PresenterContainer>;
-  CONNECT_LIMITER: Limiter;
-  LOGIN_LIMITER: Limiter;
+  IP_COUNTER: DurableObjectNamespace<IpCounter>;
   PRESENTER_PASSWORD?: string; // chosen by the lecturer: wrangler secret put PRESENTER_PASSWORD
   TOKEN_SECRET?: string;       // random HMAC key that signs presenter passes
 }
@@ -14,19 +12,59 @@ interface Env {
 const POOL_SIZE = 3;
 const SESSIONS_PER_CONTAINER = 6;
 const PASS_DAYS = 90;
+// Per client IP. A classroom shares one public IP: 10 students clicking Run a few times a
+// minute stay far below this; a script opening connections in a loop does not.
+const CONNECTS_PER_MINUTE = 150;
+const LOGINS_PER_MINUTE = 5;
+
+// One tiny Durable Object per client IP counts requests in a fixed one-minute window.
+// A Durable Object handles one request at a time, so the count is exact — unlike the
+// built-in rate limiter, which is approximate and per data centre.
+export class IpCounter extends DurableObject {
+  windows = new Map<string, { start: number; count: number }>();
+
+  async hit(kind: string, limit: number, windowMs: number): Promise<boolean> {
+    const now = Date.now();
+    let w = this.windows.get(kind);
+    if (!w || now - w.start >= windowMs) {
+      w = { start: now, count: 0 };
+      this.windows.set(kind, w);
+    }
+    w.count++;
+    return w.count <= limit;
+  }
+}
+
+const allow = (env: Env, ip: string, kind: string, limit: number) =>
+  env.IP_COUNTER.getByName(ip).hit(kind, limit, 60_000);
+
+// Shared by both kinds: report state for the status page WITHOUT waking a sleeping container
+// or resetting its sleep timer (a status page left open must not keep containers running)
+class SandboxContainer extends Container {
+  defaultPort = 8080;
+  enableInternet = false;
+
+  async peek(): Promise<Record<string, unknown>> {
+    const state = await this.getState();
+    const awake = state.status === "running" || state.status === "healthy";
+    if (!awake || !this.ctx.container?.running) return { state: "asleep" };
+    try {
+      const res = await this.ctx.container.getTcpPort(8080).fetch("http://container/health");
+      return { state: "awake", ...((await res.json()) as object) };
+    } catch {
+      return { state: "starting" };
+    }
+  }
+}
 
 // Student sandboxes: small instances, shared by up to 6 students each
-export class TerminalContainer extends Container {
-  defaultPort = 8080;
+export class TerminalContainer extends SandboxContainer {
   sleepAfter = "5m";
-  enableInternet = false;
 }
 
 // The lecturer's reserved sandbox for live lectures: faster instance, never shared with students
-export class PresenterContainer extends Container {
-  defaultPort = 8080;
+export class PresenterContainer extends SandboxContainer {
   sleepAfter = "30m";
-  enableInternet = false;
 }
 
 // ---------- presenter passes: password -> signed token stored in the lecturer's browser ----------
@@ -127,11 +165,21 @@ export default {
     if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: corsHeaders(request) });
     if (url.pathname === "/health") return json(request, { status: "ok" });
 
+    // Status page: every container's state, read without waking any of them
+    if (url.pathname === "/status") {
+      const names = [...Array.from({ length: POOL_SIZE }, (_, i) => `pool-${i}`), "presenter"];
+      const containers = await Promise.all(names.map(async (name) => {
+        const stub: any = name === "presenter" ? env.PRESENTER.getByName(name) : env.TERMINAL.getByName(name);
+        try { return { name, ...(await stub.peek()) }; } catch (e) { return { name, state: "unknown", error: String(e) }; }
+      }));
+      return json(request, { containers, checkedAt: Date.now() });
+    }
+
     // Lecturer signs in on any computer: password -> 90-day presenter pass for that browser
     if (url.pathname === "/presenter/login" && request.method === "POST") {
       if (!allowedOrigin(request.headers.get("Origin"))) return json(request, { error: "forbidden" }, 403);
       if (!env.PRESENTER_PASSWORD || !env.TOKEN_SECRET) return json(request, { error: "not configured" }, 503);
-      if (!(await env.LOGIN_LIMITER.limit({ key: ip })).success) return json(request, { error: "too many attempts" }, 429);
+      if (!(await allow(env, ip, "login", LOGINS_PER_MINUTE))) return json(request, { error: "too many attempts" }, 429);
       let password = "";
       try { password = String(((await request.json()) as { password?: unknown }).password ?? ""); } catch {}
       if (!sameBytes(await sha256(password), await sha256(env.PRESENTER_PASSWORD))) {
@@ -155,14 +203,15 @@ export default {
     if (!allowedOrigin(request.headers.get("Origin"))) {
       return new Response("Forbidden origin", { status: 403 });
     }
-    if (!(await env.CONNECT_LIMITER.limit({ key: ip })).success) {
-      return new Response("Too many connections — wait a minute", { status: 429 });
-    }
-
+    // The lecturer's pass skips the limit: a live demo must never be refused
     if (await validPass(env, url.searchParams.get("presenter"))) {
       const stub = env.PRESENTER.getByName("presenter");
       await start(stub, "presenter");
       return stub.fetch(request);
+    }
+
+    if (!(await allow(env, ip, "connect", CONNECTS_PER_MINUTE))) {
+      return new Response("Too many connections — wait a minute", { status: 429 });
     }
 
     // Start at a random student container; if it is full, try the others

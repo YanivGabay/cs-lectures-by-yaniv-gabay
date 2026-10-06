@@ -1,0 +1,48 @@
+{
+  "counts": {
+    "reference-only": 1,
+    "runs-and-exits": 2,
+    "runs-with-input": 1
+  },
+  "unexplained": 0,
+  "results": [
+    {
+      "lesson": "07",
+      "file": "alarm_manager/alarm_handler.c",
+      "kind": "reference",
+      "intentional": "",
+      "category": "reference-only",
+      "detail": "marked in data (not run)"
+    },
+    {
+      "lesson": "07",
+      "file": "alarm_manager/alarm_manager.c",
+      "kind": "interactive",
+      "intentional": "",
+      "category": "runs-with-input",
+      "detail": "status 0, fed sampleInput",
+      "output": "ked child PID 2519 — alarm set for 2 seconds.\nmyalarm> Exiting Alarm Manager.\n\n══════════════════════════════════════\n  Alarm Handler (Child Process)\n══════════════════════════════════════\n\n[Handler PID 2519] Will sleep 2 seconds, then signal parent PID 2516\n\n[ALARM #1] Signal 10 received — a child timer fired!\nmyalarm> [Handler PID 2519] Sent SIGUSR1 to parent PID 2516 after 2 seconds.\nstudent:~$",
+      "capture": "\n══════════════════════════════════════\n  Alarm Manager (fork + exec)\n  Each alarm spawns a child process\n══════════════════════════════════════\n\n[Parent PID 2516] Alarm Manager ready.\n[Info]  Type seconds to set an alarm, 'exit' to quit.\n[Info]  Each alarm forks a child that sleeps, then signals back.\n\nmyalarm> 2\nexit\n[Parent] Forked child PID 2519 — alarm set for 2 seconds.\nmyalarm> Exiting Alarm Manager.\n\n══════════════════════════════════════\n  Alarm Handler (Child Process)\n══════════════════════════════════════\n\n[Handler PID 2519] Will sleep 2 seconds, then signal parent PID 2516\n\n[ALARM #1] Signal 10 received — a child timer fired!\nmyalarm> [Handler PID 2519] Sent SIGUSR1 to parent PID 2516 after 2 seconds."
+    },
+    {
+      "lesson": "07",
+      "file": "coordination.c",
+      "kind": "",
+      "intentional": "",
+      "category": "runs-and-exits",
+      "detail": "status 0",
+      "output": " signal from Parent...\n[Child 1 PID 2320] Done! Sending SIGUSR1 to Parent (PID 2319).\n\n[Parent] Received SIGUSR1 from Child 1 — task acknowledged.\n[Parent] Sending SIGUSR2 to Child 2 (PID 2321) to start its task...\n[Child 2 PID 2321] Received signal! Task done. Sending SIGUSR2 to Parent.\n\n[Parent] Received SIGUSR2 from Child 2 — all tasks completed!\n[Parent] Terminating both children...\nstudent:~$",
+      "capture": "\n══════════════════════════════════════\n  Parent-Child Signal Coordination\n  Child1 → Parent → Child2 → Parent\n══════════════════════════════════════\n\n[Parent PID 2319] Signal handlers registered.\n\n[Parent] Forked Child 1 (PID 2320) and Child 2 (PID 2321).\n[Parent] Waiting for Child 1 to finish its work...\n\n[Child 1 PID 2320] Started. Working for 2 seconds...\n[Child 2 PID 2321] Started. Waiting for signal from Parent...\n[Child 1 PID 2320] Done! Sending SIGUSR1 to Parent (PID 2319).\n\n[Parent] Received SIGUSR1 from Child 1 — task acknowledged.\n[Parent] Sending SIGUSR2 to Child 2 (PID 2321) to start its task...\n[Child 2 PID 2321] Received signal! Task done. Sending SIGUSR2 to Parent.\n\n[Parent] Received SIGUSR2 from Child 2 — all tasks completed!\n[Parent] Terminating both children..."
+    },
+    {
+      "lesson": "07",
+      "file": "multiply_signals.c",
+      "kind": "",
+      "intentional": "",
+      "category": "runs-and-exits",
+      "detail": "status 0",
+      "output": " Handling gracefully.\n\n[Child 1 PID 2513] Sending SIGUSR1 to Parent (PID 2511)...\n[Handler] SIGUSR1 (signal 10) — User-defined signal 1 received.\n\n[Child 2 PID 2514] Sending SIGUSR2 to Parent (PID 2511)...\n[Handler] SIGUSR2 (signal 12) — User-defined signal 2 received.\n\n[Child 3 PID 2515] Sending SIGTERM to Parent (PID 2511)...\n[Handler] SIGTERM (signal 15) — Termination. Cleaning up...\nstudent:~$",
+      "capture": "\n══════════════════════════════════════\n  Signal Multiplexing — 4 Children\n  Each child sends a different signal\n══════════════════════════════════════\n\n[Parent PID 2511] Handlers registered for SIGINT, SIGUSR1, SIGUSR2, SIGTERM.\n\n\n[Child 0 PID 2512] Will send SIGINT in 2 seconds.\n[Parent] All children forked. Waiting for signals...\n[Parent] Signals will arrive staggered: 2s, 4s, 6s, 8s.\n\n[Child 1 PID 2513] Will send SIGUSR1 in 4 seconds.\n[Child 2 PID 2514] Will send SIGUSR2 in 6 seconds.\n[Child 3 PID 2515] Will send SIGTERM in 8 seconds.\n[Child 0 PID 2512] Sending SIGINT to Parent (PID 2511)...\n\n[Handler] SIGINT (signal 2) — Interrupt. Handling gracefully.\n\n[Child 1 PID 2513] Sending SIGUSR1 to Parent (PID 2511)...\n[Handler] SIGUSR1 (signal 10) — User-defined signal 1 received.\n\n[Child 2 PID 2514] Sending SIGUSR2 to Parent (PID 2511)...\n[Handler] SIGUSR2 (signal 12) — User-defined signal 2 received.\n\n[Child 3 PID 2515] Sending SIGTERM to Parent (PID 2511)...\n[Handler] SIGTERM (signal 15) — Termination. Cleaning up..."
+    }
+  ]
+}

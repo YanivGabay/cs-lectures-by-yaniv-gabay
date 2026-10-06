@@ -1,9 +1,37 @@
+// How an example behaves when run — filled from the readiness audit (validate/examples.mjs)
+//   run          compiles, runs and exits on its own
+//   interactive  waits for keyboard input (sampleInput is offered with one click)
+//   pair         talks to another program (pairWith) — use "Run pair"
+//   long-running keeps running until stopped (stopAfterMs sends Ctrl+C automatically)
+//   reference    not meant to be run on its own (header, fragment, needs arguments, ...)
+//   windows      written for Windows (windows.h) — read only
+export type ExampleKind = 'run' | 'interactive' | 'pair' | 'long-running' | 'reference' | 'windows';
+
 export interface Example {
   file: string;
   title: string;
   description: string;
   compileCmd: string;
   needsInput?: boolean;
+  kind?: ExampleKind;
+  sampleInput?: string;
+  pairWith?: string;       // file of the partner program, started second
+  startDelayMs?: number;   // how long after this program the partner starts
+  stopAfterMs?: number;
+  stopSignal?: 'SIGINT' | 'SIGQUIT'; // SIGQUIT (Ctrl+\) for programs that ignore Ctrl+C
+  // A shell command run in a second pane, e.g. sending this program a signal
+  companion?: { label: string; cmd: string; startDelayMs?: number };
+  extraFiles?: string[];   // other lesson files the compile/run command needs
+  runCmd?: string;         // when the program needs arguments, e.g. "./prog 3"
+  note?: string;           // shown instead of the Run button for reference/windows
+  intentional?: string;    // a crash/hang that is the point of the example (shown as a hint)
+  source?: string;         // read the code from this repo path instead of the lesson folder
+}
+
+export interface Exercise {
+  title: string;
+  text: string;
+  lesson: string;          // lesson number it builds on
 }
 
 export interface Lesson {
@@ -19,6 +47,7 @@ export interface Lesson {
   examples: Example[];
   diffPairs?: Array<{ mistakeIndex: number; fixIndex: number }>;
   visualization?: string;
+  exercises?: Exercise[];
 }
 
 export const OS_COURSE = {
@@ -54,6 +83,8 @@ export const lessons: Lesson[] = [
         title: 'Basic Input & Output',
         description: 'Side-by-side comparison of C scanf/printf versus C++ cin/cout, showing equivalent I/O operations.',
         compileCmd: 'gcc -o basic_io 01-basic-input-output.c',
+        kind: 'interactive',
+        sampleInput: '42',
         needsInput: true,
       },
       {
@@ -61,13 +92,18 @@ export const lessons: Lesson[] = [
         title: 'More Basic I/O',
         description: 'Extended I/O examples covering multiple data types and format specifiers.',
         compileCmd: 'gcc -o more_io 02-more-basic-input-output.c',
+        kind: 'interactive',
+        sampleInput: '7',
         needsInput: true,
       },
       {
         file: '03-more-basic-input-output.c',
         title: 'String Reading with fgets',
         description: 'Safe string input using fgets instead of the dangerous gets function, with buffer size handling.',
-        compileCmd: 'gcc -o string_io 03-more-basic-input-output.c',
+        compileCmd: 'gcc -std=gnu99 -o string_io 03-more-basic-input-output.c',
+        kind: 'interactive',
+        sampleInput: 'hello gets\nhello fgets\nA\nB',
+        intentional: 'gets() was removed in C11 — compiled with -std=gnu99 so the unsafe version still builds (expect a warning)',
         needsInput: true,
       },
       {
@@ -89,6 +125,8 @@ export const lessons: Lesson[] = [
         title: 'Complex Format Specifiers',
         description: 'Advanced printf/scanf formatting: width, precision, padding, and field alignment.',
         compileCmd: 'gcc -o complex_fmt 06-complex-usage-scanf-printf.c',
+        kind: 'interactive',
+        sampleInput: '42 3.14 A hello\nMarch 5, 2024',
         needsInput: true,
       },
       {
@@ -96,6 +134,8 @@ export const lessons: Lesson[] = [
         title: 'More Complex Formatting',
         description: 'Parsing mixed-type input with sscanf, handling whitespace in format strings, and using scansets to extract substrings.',
         compileCmd: 'gcc -o another_complex 07-another-complex.c',
+        kind: 'interactive',
+        sampleInput: '90 85 72 John Smith',
         needsInput: true,
       },
       {
@@ -103,6 +143,8 @@ export const lessons: Lesson[] = [
         title: 'Functions with Pointers',
         description: 'Passing pointers to functions for output parameters — the C pattern for returning multiple values.',
         compileCmd: 'gcc -o functions 08-dont-forget-functions.c',
+        kind: 'interactive',
+        sampleInput: '90 85 72 John Smith',
         needsInput: true,
       },
       {
@@ -142,6 +184,7 @@ export const lessons: Lesson[] = [
         title: 'File Open with Validation',
         description: 'Opening a file passed via command line, with perror for error messages and EXIT_FAILURE for clean exits.',
         compileCmd: 'gcc -o argc_file argc_argv_another_example.c',
+        runCmd: './argc_file argc_argv_another_example.c',
       },
     ],
   },
@@ -164,6 +207,8 @@ export const lessons: Lesson[] = [
         title: 'POSIX Includes Reference',
         description: 'A reference file listing the key POSIX headers used throughout the course: unistd.h, sys/types.h, sys/wait.h, and more.',
         compileCmd: 'gcc -o includes 00-some-includes.c',
+        kind: 'reference',
+        note: 'Snippets of common includes and calls — not a complete program.',
       },
       {
         file: '01-basic-forking.c',
@@ -176,6 +221,8 @@ export const lessons: Lesson[] = [
         title: 'Zombie Processes',
         description: 'What happens when a child exits before the parent calls wait — creating and observing zombie processes, with an explanation of orphan adoption by init.',
         compileCmd: 'gcc -o zombies 01.5-forking-zombies.c',
+        kind: 'reference',
+        note: 'Explains zombies and orphans in comments — there is no main() to run.',
       },
       {
         file: '02-basic-fork-mistake.c',
@@ -214,12 +261,20 @@ export const lessons: Lesson[] = [
         title: 'Basic Signal Handling',
         description: 'Registering a handler for SIGINT (Ctrl+C) using the signal() function.',
         compileCmd: 'gcc -o basic_sig 01-basic_signals.c',
+        kind: 'long-running',
+        stopAfterMs: 8000,
+        stopSignal: 'SIGQUIT',
+        intentional: 'Ctrl+C is caught and ignored on purpose — stop it with Ctrl+\\ (SIGQUIT)',
       },
       {
         file: '02-ignore_signal.c',
         title: 'Ignoring Signals',
         description: 'Using SIG_IGN to make a process immune to specific signals like SIGINT.',
         compileCmd: 'gcc -o ignore_sig 02-ignore_signal.c',
+        kind: 'long-running',
+        stopAfterMs: 8000,
+        stopSignal: 'SIGQUIT',
+        intentional: 'SIGINT is ignored on purpose — stop it with Ctrl+\\ (SIGQUIT)',
       },
       {
         file: '03-sig_alarm.c',
@@ -232,12 +287,19 @@ export const lessons: Lesson[] = [
         title: 'One-Shot Handler',
         description: 'A handler that resets itself to SIG_DFL after the first catch, so the second signal terminates the process.',
         compileCmd: 'gcc -o sig_once 04-sig_init_once.c',
+        kind: 'long-running',
+        stopAfterMs: 8000,
+        stopSignal: 'SIGQUIT',
+        intentional: 'The first Ctrl+C is handled, the second one kills it',
       },
       {
         file: '05-sighandler_behaviour.c',
         title: 'Signal Handler Behavior',
         description: 'Exploring what happens when a signal arrives while another handler is already executing.',
         compileCmd: 'gcc -o sig_behave 05-sighandler_behaviour.c',
+        kind: 'interactive',
+        sampleInput: '5',
+        intentional: 'Press Ctrl+C while it waits for input to see what the handler does to scanf',
         needsInput: true,
       },
       {
@@ -245,6 +307,9 @@ export const lessons: Lesson[] = [
         title: 'sigaction vs signal',
         description: 'Comparing the behavior of sigaction() to signal() — why sigaction is the preferred, portable choice.',
         compileCmd: 'gcc -o sigaction_cmp 06-sigaction_behaviour.c',
+        kind: 'interactive',
+        sampleInput: '5',
+        intentional: 'Press Ctrl+C while it waits for input — compare with the previous example',
         needsInput: true,
       },
     ],
@@ -272,6 +337,7 @@ export const lessons: Lesson[] = [
         title: 'Calculator (Child Program)',
         description: 'A standalone calculator that reads operands and an operator from argv — designed to be launched via exec.',
         compileCmd: 'gcc -o calculator calculator.c',
+        runCmd: './calculator 6 + 7',
       },
       {
         file: 'calculator_exec.c',
@@ -304,18 +370,23 @@ export const lessons: Lesson[] = [
         title: 'Calculator for Spawn',
         description: 'A calculator child program adapted for use with the Windows spawn functions.',
         compileCmd: 'gcc -o calculator calculator.c',
+        runCmd: './calculator 6 + 7',
       },
       {
         file: 'main.c',
         title: 'Spawn Variants',
         description: 'Using _spawnl, _spawnlp, and _spawnv to create child processes on Windows — analogous to fork+exec on Linux.',
         compileCmd: 'gcc -o spawn_main main.c',
+        kind: 'windows',
+        note: 'Uses process.h / _spawn — read along; Lesson 04 shows the Linux fork+exec version.',
       },
       {
         file: 'weird_behaviours/shell.c',
         title: 'Windows argv Parsing Quirks',
         description: 'Demonstrating surprising Windows behavior when argv values contain spaces or special characters.',
         compileCmd: 'gcc -o shell weird_behaviours/shell.c',
+        kind: 'windows',
+        note: 'Uses process.h — Windows only.',
         needsInput: true,
       },
       {
@@ -343,42 +414,63 @@ export const lessons: Lesson[] = [
         title: 'sigaction Struct Reference',
         description: 'A thorough 124-line reference documenting every field and flag of the sigaction struct with inline explanations.',
         compileCmd: 'gcc -o sigact_info 01-basic-info.c',
+        kind: 'reference',
+        note: 'Annotated definition of struct sigaction — read it, nothing to run.',
       },
       {
         file: '02-usage.c',
         title: 'Basic sigaction Usage',
         description: 'Setting up a signal handler using sigaction instead of signal — the minimal working example.',
         compileCmd: 'gcc -o sigact_usage 02-usage.c',
+        kind: 'long-running',
+        stopAfterMs: 8000,
       },
       {
         file: '03-multi-signals.c',
         title: 'Multi-Signal Handling',
         description: 'Registering different handlers for multiple signals (SIGINT, SIGTERM, SIGUSR1) in a single program.',
         compileCmd: 'gcc -o multi_sig 03-multi-signals.c',
+        kind: 'long-running',
+        stopAfterMs: 12000,
+        stopSignal: 'SIGQUIT',
+        intentional: 'Ignores Ctrl+C on purpose — the second terminal ends it with SIGTERM',
+        companion: { label: 'kill -TERM multi_sig', cmd: 'sleep 5; pkill -TERM -x multi_sig && echo sent SIGTERM', startDelayMs: 500 },
       },
       {
         file: '04-using-sa-mask.c',
         title: 'Signal Blocking with sa_mask',
         description: 'Using sa_mask to block specific signals while a handler is executing, preventing re-entrant handler chaos.',
         compileCmd: 'gcc -o sa_mask 04-using-sa-mask.c',
+        kind: 'long-running',
+        stopAfterMs: 8000,
       },
       {
         file: '05-some-flags.c',
         title: 'SA_RESTART and SA_RESETHAND',
         description: 'SA_RESTART automatically restarts interrupted syscalls; SA_RESETHAND makes a handler fire only once.',
         compileCmd: 'gcc -o sa_flags 05-some-flags.c',
+        intentional: 'The second SIGUSR1 kills it on purpose (SA_RESETHAND restored the default action)',
+        kind: 'long-running',
+        stopAfterMs: 12000,
+        companion: { label: 'kill -SIGUSR1 sa_flags (twice)', cmd: 'sleep 3; pkill -USR1 -x sa_flags && echo sent SIGUSR1; sleep 3; pkill -USR1 -x sa_flags && echo sent SIGUSR1 again', startDelayMs: 500 },
       },
       {
         file: '06-sig-info.c',
         title: 'SA_SIGINFO — Detailed Signal Info',
         description: 'Using SA_SIGINFO to receive a siginfo_t struct with the sender PID, signal code, and other metadata.',
         compileCmd: 'gcc -o sig_info 06-sig-info.c',
+        kind: 'long-running',
+        stopAfterMs: 10000,
+        companion: { label: 'kill -SIGUSR1 sig_info', cmd: 'sleep 3; pkill -USR1 -x sig_info && echo sent SIGUSR1', startDelayMs: 500 },
       },
       {
         file: '07-before-ex2.c',
         title: 'Practical Alarm Example',
         description: 'Combining sigaction with alarm() for a practical timed-operation pattern, preparing for exercise 2.',
         compileCmd: 'gcc -o before_ex2 07-before-ex2.c',
+        stopAfterMs: 30000,
+        kind: 'interactive',
+        sampleInput: '1\n2\n3\n4\n5\n6\n7\n8\n9\n10',
         needsInput: true,
       },
     ],
@@ -400,12 +492,18 @@ export const lessons: Lesson[] = [
         title: 'Alarm Handler (Child)',
         description: 'The child program that handles alarm signals — launched by the alarm manager via exec.',
         compileCmd: 'gcc -o alarm_handler alarm_manager/alarm_handler.c',
+        kind: 'reference',
+        note: 'Started by alarm_manager.c with exec — run that example.',
       },
       {
         file: 'alarm_manager/alarm_manager.c',
         title: 'Alarm Manager (Parent)',
         description: 'A parent program that forks and execs the alarm handler, then coordinates alarm scheduling across processes.',
-        compileCmd: 'gcc -o alarm_manager alarm_manager/alarm_manager.c',
+        compileCmd: 'gcc -o alarm_handler alarm_manager/alarm_handler.c && gcc -o alarm_mgr alarm_manager/alarm_manager.c',
+        kind: 'interactive',
+        sampleInput: '2\nexit',
+        runCmd: './alarm_mgr',
+        extraFiles: ['alarm_manager/alarm_handler.c'],
         needsInput: true,
       },
       {
@@ -419,6 +517,7 @@ export const lessons: Lesson[] = [
         title: 'Signals Across 4 Children',
         description: 'A parent process that forks four children and coordinates them by sending different signals to each.',
         compileCmd: 'gcc -o multi_sig multiply_signals.c',
+        stopAfterMs: 12000,
       },
     ],
   },
@@ -440,6 +539,8 @@ export const lessons: Lesson[] = [
         title: 'Pipe Concepts',
         description: 'Conceptual overview of how pipes work — unidirectional byte streams between related processes.',
         compileCmd: 'gcc -o pipe_basics 01-basics.c',
+        kind: 'reference',
+        note: 'Pipe basics explained in comments — no main() to run.',
       },
       {
         file: '02-pipe-operator-with-programs/producer.c',
@@ -451,7 +552,9 @@ export const lessons: Lesson[] = [
         file: '02-pipe-operator-with-programs/consumer.c',
         title: 'Shell Pipe Consumer',
         description: 'A program that reads from stdin, completing the shell pipe: ./producer | ./consumer.',
-        compileCmd: 'gcc -o consumer 02-pipe-operator-with-programs/consumer.c',
+        compileCmd: 'gcc -o producer 02-pipe-operator-with-programs/producer.c && gcc -o consumer 02-pipe-operator-with-programs/consumer.c',
+        runCmd: './producer | ./consumer',
+        extraFiles: ['02-pipe-operator-with-programs/producer.c'],
       },
       {
         file: '03-pipe-system-call.c',
@@ -493,19 +596,27 @@ export const lessons: Lesson[] = [
         file: '08-two-ways-with-dupes/parent-program.c',
         title: 'Bidirectional Parent (dup2)',
         description: 'Parent side of a two-way pipe setup using dup2 for clean fd management.',
-        compileCmd: 'gcc -o parent_dup 08-two-ways-with-dupes/parent-program.c',
+        compileCmd: 'gcc -o child_program 08-two-ways-with-dupes/child.c && gcc -o parent_dup 08-two-ways-with-dupes/parent-program.c',
+        runCmd: './parent_dup',
+        extraFiles: ['08-two-ways-with-dupes/child.c'],
       },
       {
         file: '08-two-ways-with-dupes/child.c',
         title: 'Bidirectional Child (dup2)',
         description: 'Child side that communicates with the parent through redirected stdin/stdout.',
         compileCmd: 'gcc -o child_dup 08-two-ways-with-dupes/child.c',
+        kind: 'reference',
+        note: 'Started by parent-program.c with exec (as ./child_program) — run that example.',
       },
       {
         file: '09-mkfifo/reader.c',
         title: 'Named Pipe Reader',
         description: 'Introduction to mkfifo — creating a named pipe on the filesystem and reading from it.',
         compileCmd: 'gcc -o fifo_reader 09-mkfifo/reader.c',
+        kind: 'pair',
+        pairWith: '09-mkfifo/writer.c',
+        runCmd: 'mkfifo /tmp/my_fifo 2>/dev/null; ./fifo_reader',
+        startDelayMs: 1000,
       },
       {
         file: '09-mkfifo/writer.c',
@@ -532,36 +643,53 @@ export const lessons: Lesson[] = [
         title: 'FIFO Reader',
         description: 'Reading from a named pipe created with mkfifo — blocks until a writer opens the other end.',
         compileCmd: 'gcc -o fifo_reader 02-mkfifo-example/fifo-reader.c',
+        kind: 'pair',
+        pairWith: '02-mkfifo-example/fifo-writer.c',
+        startDelayMs: 1000,
       },
       {
         file: '02-mkfifo-example/fifo-writer.c',
         title: 'FIFO Writer',
         description: 'Writing to a named pipe — demonstrates how data flows to the reader process.',
         compileCmd: 'gcc -o fifo_writer 02-mkfifo-example/fifo-writer.c',
+        kind: 'pair',
+        sampleInput: 'hello through the FIFO\nexit',
       },
       {
         file: '03-mk-fifo-multi-writers/multi-writer.c',
         title: 'Multiple FIFO Writers',
         description: 'Multiple writer processes sending data to the same named pipe concurrently.',
         compileCmd: 'gcc -o multi_writer 03-mk-fifo-multi-writers/multi-writer.c',
+        kind: 'pair',
+        sampleInput: 'first message\nexit',
       },
       {
         file: '03-mk-fifo-multi-writers/reader.c',
         title: 'Multi-Writer Reader',
         description: 'A reader that receives interleaved data from multiple writers on one FIFO.',
         compileCmd: 'gcc -o mw_reader 03-mk-fifo-multi-writers/reader.c',
+        kind: 'pair',
+        pairWith: '03-mk-fifo-multi-writers/multi-writer.c',
+        startDelayMs: 1000,
+        stopAfterMs: 15000,
       },
       {
         file: '04-mk-fifo-two-way/process_a.c',
         title: 'Two-Way FIFO: Process A',
         description: 'First half of bidirectional FIFO communication — sends on one pipe, receives on another.',
         compileCmd: 'gcc -o proc_a 04-mk-fifo-two-way/process_a.c',
+        kind: 'pair',
+        sampleInput: 'hello B\nexit',
       },
       {
         file: '04-mk-fifo-two-way/process_b.c',
         title: 'Two-Way FIFO: Process B',
         description: 'Second half — mirrors process A for full-duplex named-pipe communication.',
         compileCmd: 'gcc -o proc_b 04-mk-fifo-two-way/process_b.c',
+        kind: 'pair',
+        pairWith: '04-mk-fifo-two-way/process_a.c',
+        startDelayMs: 1000,
+        stopAfterMs: 15000,
       },
       {
         file: '05-msg-que-basic/aba_yeled.c',
@@ -592,24 +720,36 @@ export const lessons: Lesson[] = [
         title: 'Message Queue Sender',
         description: 'A standalone sender program that pushes messages onto a System V message queue.',
         compileCmd: 'gcc -o msg_sender 07-msg-que-two-progs/sender.c',
+        kind: 'pair',
+        sampleInput: 'hello queue\nexit',
       },
       {
         file: '07-msg-que-two-progs/receiver.c',
         title: 'Message Queue Receiver',
         description: 'A standalone receiver that pulls messages from the queue — run alongside the sender.',
         compileCmd: 'gcc -o msg_receiver 07-msg-que-two-progs/receiver.c',
+        kind: 'pair',
+        pairWith: '07-msg-que-two-progs/sender.c',
+        startDelayMs: 1000,
+        stopAfterMs: 15000,
       },
       {
         file: '08-calc-que/calc_sender.c',
         title: 'Calculator Sender',
         description: 'Sends arithmetic expressions through a message queue to a calculator receiver process.',
         compileCmd: 'gcc -o calc_sender 08-calc-que/calc_sender.c',
+        kind: 'pair',
+        sampleInput: '+ 5 3\n* 4 6\ne',
       },
       {
         file: '08-calc-que/calc_receiver.c',
         title: 'Calculator Receiver',
         description: 'Receives expressions from the message queue, evaluates them, and sends results back.',
         compileCmd: 'gcc -o calc_receiver 08-calc-que/calc_receiver.c',
+        kind: 'pair',
+        pairWith: '08-calc-que/calc_sender.c',
+        startDelayMs: 1000,
+        stopAfterMs: 15000,
       },
     ],
   },
@@ -630,48 +770,70 @@ export const lessons: Lesson[] = [
         title: 'Shared Memory Creator',
         description: 'Creating a shared memory segment with shmget, attaching it with shmat, and writing initial data.',
         compileCmd: 'gcc -o shm_creator 02-basic-example/creator.c',
+        kind: 'pair',
+        pairWith: '02-basic-example/consumer.c',
+        sampleInput: 'hello shared memory\nexit',
+        startDelayMs: 1500,
       },
       {
         file: '02-basic-example/consumer.c',
         title: 'Shared Memory Consumer',
         description: 'Attaching to an existing shared memory segment and reading data written by the creator.',
         compileCmd: 'gcc -o shm_consumer 02-basic-example/consumer.c',
+        kind: 'pair',
+        stopAfterMs: 10000,
       },
       {
         file: '03-positions/position_creator.c',
         title: 'Position Creator',
         description: 'Creating a shared memory segment containing a Position struct with x/y coordinates.',
         compileCmd: 'gcc -o pos_creator 03-positions/position_creator.c',
+        kind: 'pair',
+        pairWith: '03-positions/position_updater.c',
+        stopAfterMs: 15000,
+        startDelayMs: 1500,
       },
       {
         file: '03-positions/position_updater.c',
         title: 'Position Updater',
         description: 'A process that continuously updates the position coordinates in shared memory.',
         compileCmd: 'gcc -o pos_updater 03-positions/position_updater.c',
+        kind: 'pair',
+        stopAfterMs: 10000,
       },
       {
         file: '03-positions/position_viewer.c',
         title: 'Position Viewer',
         description: 'Reads and displays the current position from shared memory — see live updates from the updater.',
         compileCmd: 'gcc -o pos_viewer 03-positions/position_viewer.c',
+        kind: 'long-running',
+        stopAfterMs: 8000,
       },
       {
         file: '04-array/creator.c',
         title: 'Shared Array Creator',
         description: 'Allocating shared memory large enough for an integer array and initializing it.',
         compileCmd: 'gcc -o arr_creator 04-array/creator.c',
+        kind: 'pair',
+        pairWith: '04-array/producer.c',
+        stopAfterMs: 15000,
+        startDelayMs: 1500,
       },
       {
         file: '04-array/producer.c',
         title: 'Shared Array Producer',
         description: 'Writing values into a shared array that other processes can read.',
         compileCmd: 'gcc -o arr_producer 04-array/producer.c',
+        kind: 'pair',
+        stopAfterMs: 10000,
       },
       {
         file: '04-array/consumer.c',
         title: 'Shared Array Consumer',
         description: 'Reading values from the shared array populated by the producer process.',
         compileCmd: 'gcc -o arr_consumer 04-array/consumer.c',
+        kind: 'long-running',
+        stopAfterMs: 8000,
       },
       {
         file: '05-scoreboard-struct/scoreboard_creator.c',
@@ -684,12 +846,18 @@ export const lessons: Lesson[] = [
         title: 'Scoreboard Updater',
         description: 'Updating scores in the shared scoreboard — demonstrates multi-program struct sharing.',
         compileCmd: 'gcc -o sb_updater 05-scoreboard-struct/scoreboard_updater.c',
+        runCmd: './sb_updater Alice',
       },
       {
         file: '05-scoreboard-struct/scoreboard_viewer.c',
         title: 'Scoreboard Viewer',
         description: 'Displaying the current scoreboard by reading from shared memory.',
-        compileCmd: 'gcc -o sb_viewer 05-scoreboard-struct/scoreboard_viewer.c',
+        compileCmd: 'gcc -o sb_creator 05-scoreboard-struct/scoreboard_creator.c && gcc -o sb_updater 05-scoreboard-struct/scoreboard_updater.c && gcc -o sb_viewer 05-scoreboard-struct/scoreboard_viewer.c',
+        kind: 'long-running',
+        stopAfterMs: 12000,
+        extraFiles: ['05-scoreboard-struct/scoreboard_creator.c', '05-scoreboard-struct/scoreboard_updater.c'],
+        runCmd: './sb_creator && ./sb_viewer',
+        companion: { label: 'two updaters: Alice and Bob', cmd: 'sleep 2; timeout 7 ./sb_updater Alice & sleep 3; timeout 5 ./sb_updater Bob; wait', startDelayMs: 500 },
       },
     ],
   },
@@ -710,24 +878,37 @@ export const lessons: Lesson[] = [
         title: 'Echo Server',
         description: 'A TCP echo server using select() for multiplexing — handles multiple clients and echoes back everything received.',
         compileCmd: 'gcc -o echo_server 01-example/echo-server.c',
+        kind: 'pair',
+        pairWith: '01-example/echo-client.c',
+        stopAfterMs: 15000,
+        startDelayMs: 1000,
       },
       {
         file: '01-example/echo-client.c',
         title: 'Echo Client',
         description: 'A TCP client that connects to the echo server and sends/receives messages.',
         compileCmd: 'gcc -o echo_client 01-example/echo-client.c',
+        kind: 'pair',
+        runCmd: './echo_client 127.0.0.1',
       },
       {
         file: '02-chat/chat-server.c',
         title: 'Chat Server',
         description: 'A multi-client chat server — messages from one client are broadcast to all connected clients.',
         compileCmd: 'gcc -o chat_server 02-chat/chat-server.c',
+        kind: 'pair',
+        pairWith: '02-chat/chat-client.c',
+        stopAfterMs: 15000,
+        startDelayMs: 1000,
       },
       {
         file: '02-chat/chat-client.c',
         title: 'Chat Client',
         description: 'A chat client that connects to the chat server for real-time group messaging.',
         compileCmd: 'gcc -o chat_client 02-chat/chat-client.c',
+        kind: 'pair',
+        runCmd: './chat_client 127.0.0.1',
+        sampleInput: 'hello everyone\nexit',
         needsInput: true,
       },
       {
@@ -735,12 +916,19 @@ export const lessons: Lesson[] = [
         title: 'Arithmetic Server',
         description: 'A TCP server that receives arithmetic expressions, evaluates them, and returns results — a practical client-server application.',
         compileCmd: 'gcc -o arith_server 03-arithmetic/server.c',
+        kind: 'pair',
+        pairWith: '03-arithmetic/client.c',
+        stopAfterMs: 15000,
+        startDelayMs: 1000,
       },
       {
         file: '03-arithmetic/client.c',
         title: 'Arithmetic Client',
         description: 'Sends arithmetic expressions to the server and displays the computed results.',
         compileCmd: 'gcc -o arith_client 03-arithmetic/client.c',
+        kind: 'pair',
+        runCmd: './arith_client 127.0.0.1',
+        sampleInput: '2 + 3\n10 * 4\nexit',
         needsInput: true,
       },
     ],
@@ -775,6 +963,7 @@ export const lessons: Lesson[] = [
         title: 'Cleanup Handlers',
         description: 'Registering cleanup handlers with pthread_cleanup_push/pop — they run when a thread is cancelled or exits.',
         compileCmd: 'gcc -o pt_cleanup 03-pthread_cleanup.c -lpthread',
+        intentional: 'Sometimes crashes on purpose: the thread may return from inside pthread_cleanup_push/pop (1 in 10 per second) — undefined behaviour, which musl punishes with SIGSEGV',
       },
       {
         file: '04-pthread_join.c',
@@ -805,6 +994,8 @@ export const lessons: Lesson[] = [
         title: 'Main Exits Before Threads',
         description: 'What happens when main() returns while threads are still running — demonstrating the need for join or pthread_exit in main.',
         compileCmd: 'gcc -o pt_exit2 08-pthread-exit.c -lpthread',
+        kind: 'long-running',
+        stopAfterMs: 15000,
       },
       {
         file: '09-countdown-race.c',
@@ -817,6 +1008,8 @@ export const lessons: Lesson[] = [
         title: 'Async Chat Simulator',
         description: 'A threaded chat simulator where one thread reads input and another displays messages asynchronously.',
         compileCmd: 'gcc -o pt_chat 10-async-chat.c -lpthread',
+        kind: 'long-running',
+        stopAfterMs: 25000,
       },
       {
         file: '11-pthreads-fifo.c',
@@ -843,6 +1036,8 @@ export const lessons: Lesson[] = [
         title: 'Named Semaphores',
         description: 'Using POSIX named semaphores (sem_open, sem_wait, sem_post) to synchronize access to a shared resource.',
         compileCmd: 'gcc -o named_sem 07-named-semaphore.c -lpthread',
+        kind: 'long-running',
+        stopAfterMs: 30000,
       },
       {
         file: '08-pthread-mutex.c',
@@ -855,6 +1050,8 @@ export const lessons: Lesson[] = [
         title: 'Producer-Consumer with Condition Variables',
         description: 'The classic producer-consumer pattern using a mutex and pthread_cond_wait/pthread_cond_signal.',
         compileCmd: 'gcc -o prod_cons 09-pthread-mutex-cond-wait.c -lpthread',
+        kind: 'long-running',
+        stopAfterMs: 8000,
       },
     ],
   },
@@ -881,6 +1078,9 @@ export const lessons: Lesson[] = [
         title: 'Advanced CLI Simulator',
         description: 'A 285-line advanced terminal UI with progress bars, spinners, and status indicators — all thread-driven.',
         compileCmd: 'gcc -o adv_cli 02-bit-more-cli/cli.c -lpthread',
+        stopAfterMs: 20000,
+        kind: 'interactive',
+        sampleInput: '1\n2\n3',
         needsInput: true,
       },
       {
@@ -924,18 +1124,25 @@ export const lessons: Lesson[] = [
         title: 'Shared Canvas',
         description: 'Multiple threads drawing on a shared 2D canvas, with mutex protection to prevent visual corruption.',
         compileCmd: 'gcc -o canvas 09-cool-canvas.c -lpthread',
+        kind: 'long-running',
+        stopAfterMs: 8000,
       },
       {
         file: '10-spinners.c',
         title: 'Spinner Animations',
         description: 'Multiple concurrent terminal spinner animations — each thread runs its own spinner pattern.',
         compileCmd: 'gcc -o spinners 10-spinners.c -lpthread',
+        kind: 'long-running',
+        stopAfterMs: 8000,
       },
       {
         file: '11-5-cond-waiting-bad.c',
         title: 'Condition Variable Pitfalls',
         description: 'What goes wrong when you use condition variables incorrectly — missed signals and spurious wakeups.',
         compileCmd: 'gcc -o cond_bad 11-5-cond-waiting-bad.c -lpthread',
+        kind: 'long-running',
+        stopAfterMs: 6000,
+        intentional: 'Hangs forever on purpose: the signal is sent before anyone waits (a lost wakeup)',
       },
       {
         file: '12-cond-simple.c',
@@ -964,4 +1171,62 @@ export const lessons: Lesson[] = [
     phase: 'Exam Prep',
     examples: [],
   },
+  {
+    number: '16',
+    slug: '16-how-this-site-works',
+    folder: 'lesson-16-how-this-site-works',
+    title: 'How This Site Runs Your Code',
+    description:
+      'Every Run button on this site uses the system calls from this course. A small C launcher forks, sets resource limits, creates private namespaces, gives up root with setuid() and execs bash. Read the real launcher, run it yourself, and watch the kernel enforce the rules.',
+    tags: ['setuid', 'setrlimit', 'namespaces', 'exec', 'process groups'],
+    difficulty: 'advanced',
+    prerequisites: ['02', '03', '04', '06', '08'],
+    phase: 'Behind the Scenes',
+    visualization: 'sandbox',
+    examples: [
+      {
+        file: 'sandbox-launch.c',
+        source: 'terminal-server/cloudflare/sandbox/sandbox-launch.c',
+        title: 'The Real Launcher',
+        description: 'The exact program that starts every terminal on this site. Run it as a student and it refuses twice. Directly, setsid() fails: bash made your program a process-group leader for job control, and a leader may not start a new session (that is why daemons fork first). Started through sh, it gets further — until setgroups() refuses: only root may change who it is. That refusal is the security model.',
+        compileCmd: 'gcc -Wall -o sandbox-launch sandbox-launch.c',
+        runCmd: "./sandbox-launch 1234 1234 . example; sh -c './sandbox-launch 1234 1234 . example; exit $?'",
+        intentional: 'Exits 1 on purpose: EPERM — you are not root',
+      },
+      {
+        file: 'whoami-sandbox.c',
+        title: 'Who Am I in Here?',
+        description: 'Prints what the launcher left behind: your user, zero capabilities, your process group and session, every resource limit, and the namespace ids that keep you apart from other students.',
+        compileCmd: 'gcc -Wall -o whoami-sandbox whoami-sandbox.c',
+      },
+      {
+        file: 'fork-until-eagain.c',
+        title: 'A Safe Fork Bomb',
+        description: 'Forks until the kernel refuses with EAGAIN (the RLIMIT_NPROC limit), then kills and reaps every child. This is why a runaway fork() loop from Lesson 02 cannot take the site down.',
+        compileCmd: 'gcc -Wall -o fork-until-eagain fork-until-eagain.c',
+      },
+      {
+        file: 'ctrl-c-path.c',
+        title: 'The Path of Ctrl+C',
+        description: 'A parent and its child wait in the same process group. The Ctrl+C button types ^C into the terminal, and the kernel delivers SIGINT to the whole foreground group — both handlers run.',
+        compileCmd: 'gcc -Wall -o ctrl-c-path ctrl-c-path.c',
+        kind: 'long-running',
+        stopAfterMs: 4000,
+      },
+    ],
+    exercises: [
+      { lesson: '02', title: 'Count the processes', text: 'Run fork-until-eagain.c, then open Two Terminals and run it in both at once. Why does the second one create fewer children? (Hint: the limit is per user, and both terminals are the same user.)' },
+      { lesson: '03', title: 'Ignore Ctrl+C', text: 'Change ctrl-c-path.c so only the child ignores SIGINT (SIG_IGN). Press Ctrl+C: who exits, who stays? How do you stop the survivor from the second terminal?' },
+      { lesson: '04', title: 'What survives exec()', text: 'whoami-sandbox.c prints limits that were set before bash was exec\'d. Add a line that runs execlp("sh", "sh", "-c", "ulimit -u", NULL) — does the limit survive one more exec?' },
+      { lesson: '06', title: 'A handler that tells you who sent it', text: 'Rewrite on_sigint() in ctrl-c-path.c with SA_SIGINFO and print info->si_pid. Who sends SIGINT when you press Ctrl+C — and who when you run kill -INT from the second terminal?' },
+      { lesson: '08', title: 'Run out of file descriptors', text: 'Write a loop that calls pipe() until it fails. Which errno do you get, and how many pipes did you make? Compare with the "open files" limit printed by whoami-sandbox.c.' },
+    ],
+  },
 ];
+
+// Headers an example includes with quotes (#include "position.h") live next to it and must be
+// uploaded with it. Returns paths relative to the lesson folder, e.g. "03-positions/position.h".
+export function localIncludes(file: string, code: string): string[] {
+  const dir = file.includes('/') ? file.slice(0, file.lastIndexOf('/') + 1) : '';
+  return [...code.matchAll(/^\s*#\s*include\s+"([^"]+)"/gm)].map((m) => dir + m[1]);
+}

@@ -173,6 +173,62 @@ await check('S15', 'System V IPC objects are removed when a session ends', async
   assert(after.trim() === '0', `${after.trim()} IPC object(s) still owned by uid ${uid} after disconnect`);
 });
 
+await check('S21', 'each session has private System V IPC keys, /tmp and ports; its second pane shares them', async () => {
+  const q = '#include <stdio.h>\\n#include <sys/msg.h>\\nint main(int c,char**v){int id=msgget(0x1234,c>1?IPC_CREAT|0600:0);printf(id<0?"Q_MISSING\\\\n":"Q_FOUND\\\\n");return 0;}\\n';
+  // 'PORT_'+'BOUND': the echoed command line must not match what we wait for
+  const bind = `python3 -c "import socket;s=socket.socket();s.bind(('127.0.0.1',3879));print('PORT_'+'BOUND')" 2>&1 | tail -1`;
+  const a = await openSession();
+  const b = await openSession();
+  try {
+    await a.run(`printf '${q}' > q.c && gcc -o q q.c && ./q create && touch /tmp/only_a`, 20000);
+    await a.run(`python3 -c "import socket,time;s=socket.socket();s.bind(('127.0.0.1',3879));s.listen();print('LISTEN'+'ING',flush=True);time.sleep(60)" &`);
+    await waitFor(() => stripAnsi(a.out).includes('LISTENING'), 20000, 'listener on port 3879'); // python starts slowly on small instances
+    await b.run(`printf '${q}' > q.c && gcc -o q q.c`, 20000);
+    const bQueue = await b.run('./q');
+    const bFile = await b.run('ls /tmp/only_a 2>&1');
+    const bPort = await b.run(bind);
+    // A's own second terminal must see A's queue and file (what "Run pair" relies on)
+    let pane1 = '';
+    a.ws.on('message', (d) => { const m = JSON.parse(d); if (m.type === 'output' && m.pane === 1) pane1 += m.data; });
+    a.ws.send(JSON.stringify({ type: 'open-pane', pane: 1, cols: 120, rows: 30 }));
+    await waitFor(() => /[$#] $/m.test(stripAnsi(pane1)), 15000, 'second pane prompt');
+    const nsA = await a.run('readlink /proc/self/ns/net; cat /proc/net/tcp | grep -c ":0F27 "');
+    a.ws.send(JSON.stringify({ type: 'input', pane: 1, data: `./q; ls /tmp/only_a && echo FILE_SEEN; readlink /proc/self/ns/net; ${bind}\r` }));
+    await waitFor(() => /PORT_BOUND|Address in use|Errno/.test(stripAnsi(pane1)), 15000, 'second pane checks');
+    const p1 = stripAnsi(pane1);
+    assert(bQueue.includes('Q_MISSING'), `another student sees queue key 0x1234 (${bQueue})`);
+    assert(/No such file/.test(bFile), `another student sees /tmp/only_a (${bFile})`);
+    assert(bPort.includes('PORT_BOUND'), `another student cannot use port 3879 (${bPort})`);
+    assert(p1.includes('Q_FOUND') && p1.includes('FILE_SEEN'), `second pane does not share IPC or /tmp: ${JSON.stringify(p1.slice(-200))}`);
+    assert(/in use/i.test(p1), `second pane is not on the same network (port 3879 was free); pane 0: ${JSON.stringify(nsA)} pane 1: ${JSON.stringify(p1.slice(-160))}`);
+  } finally { a.close(); b.close(); }
+});
+
+await check('S22', 'the student shell holds no capabilities (container root has all of them)', async () => {
+  const a = await openSession();
+  const caps = await a.run("grep -E '^Cap(Eff|Prm|Inh|Amb)' /proc/self/status | awk '{print $2}' | tr '\\n' ' '");
+  a.close();
+  const vals = caps.trim().split(/\s+/);
+  assert(vals.length >= 3 && vals.every((v) => /^0+$/.test(v)), `capabilities present: ${caps}`);
+  return caps.trim();
+});
+
+await check('S20', 'FIFOs in /tmp and POSIX semaphores in /dev/shm are removed when a session ends', async () => {
+  const a = await openSession();
+  const uid = await a.run('id -u');
+  await a.run(`printf '#include <semaphore.h>\\n#include <fcntl.h>\\nint main(void){return sem_open("/s20_sem",O_CREAT,0600,1)==SEM_FAILED;}\\n' > s.c && gcc -o s s.c -lpthread && ./s && mkfifo /tmp/s20_fifo && touch /tmp/s20_file`, 20000);
+  const count = `find /tmp /dev/shm /var/tmp -maxdepth 1 -user ${uid} 2>/dev/null | wc -l`;
+  const before = await a.run(count);
+  a.close();
+  await sleep(3000);
+  const b = await openSession();
+  const after = await b.run(count);
+  b.close();
+  assert(Number(before) >= 3, `test setup failed — only ${before} files created`);
+  assert(after.trim() === '0', `${after.trim()} file(s) of uid ${uid} left in /tmp or /dev/shm — the next user with that uid would inherit them`);
+  return `${before.trim()} created, 0 left`;
+});
+
 if (DESTRUCTIVE) {
   await check('S09', 'kill -9 -1 from one student does not kill other sessions', async () => {
     const a = await openSession();

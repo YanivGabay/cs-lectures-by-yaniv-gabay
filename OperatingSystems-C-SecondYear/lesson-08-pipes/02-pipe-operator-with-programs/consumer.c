@@ -22,7 +22,7 @@ int main(int argc, char const *argv[])
     printf("══════════════════════════════════════\n\n");
     fprintf(stderr, "[Consumer PID %d] Reading from stdin...\n", getpid());
     char buffer[100];
-    scanf("%s", buffer);
+    scanf("%99s", buffer); // at most 99 chars + '\0' — never overflow the buffer
     printf("[Consumer PID %d] Received via pipe: \"%s\"\n", getpid(), buffer);
     return 0;
 }

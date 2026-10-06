@@ -12,7 +12,12 @@
 #include <sys/shm.h>
 #include <sys/ipc.h>
 #include <signal.h>
-#include "position.h"
+
+typedef struct
+{
+    float x;
+    float y;
+} Position; // same layout as position_creator.c
 
 #define SHM_KEY 0x1234 // Must match creator's key
 #define SHM_SIZE sizeof(Position)

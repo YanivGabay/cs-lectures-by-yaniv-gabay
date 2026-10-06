@@ -98,6 +98,7 @@ int main() {
 
 
         //this will delete the FIFO file and its important to do it!!!
-     unlink(FIFO_NAME);
+    unlink(FIFO_A_TO_B);
+    unlink(FIFO_B_TO_A);
     return 0;
 }

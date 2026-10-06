@@ -6,6 +6,7 @@
  * In a few system calls it locks itself into a sandbox and then
  * *becomes* your bash shell — using only tools from this course:
  *
+ *   unshare() / setns()    — private System V IPC, /tmp, /dev/shm and network (Lessons 08-11)
  *   setrlimit()            — cap processes, CPU time, memory, file size, open files
  *   setsid()               — own session + process group (Lessons 03/06: Ctrl+C)
  *   setgid() / setuid()    — give up root, forever
@@ -16,12 +17,16 @@
  * fork() starts failing with EAGAIN once YOUR user has 64 processes.
  *
  * Compile: gcc -Wall -Wextra -O2 -o sandbox-launch sandbox-launch.c
- * Usage:   sandbox-launch <uid> <gid> <workdir> <lesson|example>
+ * Usage:   sandbox-launch <uid> <gid> <workdir> <lesson|example> [join-pid]
+ *          join-pid: a second terminal of the same session joins the first one's namespaces
  *
- * Try it yourself: compile and run it as a normal user, e.g.
+ * Try it yourself (Lesson 16 on the course site): compile and run it as a normal user, e.g.
  *     ./sandbox-launch 1234 1234 . example
- * setgid() fails with "Operation not permitted" — only root may change
- * who it is. That failure IS the security model.
+ * setsid() fails with EPERM: bash made it a process-group leader, and a leader may not
+ * start a new session (that is why daemons fork first). Run through `sh -c './sandbox-launch ...; exit $?'` it gets
+ * further — the namespaces are quietly skipped, the limits only lowered — until setgroups()
+ * fails with "Operation not permitted": only root may change who it is.
+ * That failure IS the security model.
  */
 
 #define _GNU_SOURCE
@@ -31,7 +36,14 @@
 #include <errno.h>
 #include <unistd.h>
 #include <grp.h>
+#include <fcntl.h>
+#include <sched.h>
+#include <net/if.h>
+#include <sys/ioctl.h>
+#include <sys/mount.h>
 #include <sys/resource.h>
+#include <sys/socket.h>
+#include <sys/stat.h>
 
 #define MAX_PROCESSES   64                 /* RLIMIT_NPROC  -> fork() fails with EAGAIN      */
 #define MAX_CPU_SECONDS 120                /* RLIMIT_CPU    -> SIGXCPU, then SIGKILL          */
@@ -53,10 +65,71 @@ static void set_limit(int resource, rlim_t value, const char *name)
         die(name);
 }
 
+/* A fresh network namespace has only a loopback device, and it starts DOWN.
+ * Same as `ip link set lo up`: read the interface flags, add IFF_UP, write them back. */
+static void loopback_up(void)
+{
+    int sock = socket(AF_INET, SOCK_DGRAM, 0);
+    if (sock == -1)
+        return;
+    struct ifreq ifr;
+    memset(&ifr, 0, sizeof ifr);
+    strncpy(ifr.ifr_name, "lo", IFNAMSIZ - 1);
+    if (ioctl(sock, SIOCGIFFLAGS, &ifr) == 0) {
+        ifr.ifr_flags |= IFF_UP | IFF_RUNNING;
+        ioctl(sock, SIOCSIFFLAGS, &ifr);
+    }
+    close(sock);
+}
+
+/* An empty, private tmpfs on top of a shared directory — visible only in our mount namespace */
+static void private_tmpfs(const char *dir)
+{
+    mkdir(dir, 01777);
+    mount("tmpfs", dir, "tmpfs", MS_NOSUID | MS_NODEV, "size=64m,mode=1777");
+}
+
+/* 0. Namespaces: the kernel gives this session its own copy of
+ *      IPC  — System V message queues, shared memory, semaphores (Lessons 09/10):
+ *             key 0x1234 here is not another student's key 0x1234
+ *      NET  — its own loopback: your echo server on port 3879 does not collide with
+ *             another student's, and there is no route to the internet
+ *      MNT  — its own /tmp and /dev/shm (FIFOs, named semaphores), gone when you leave
+ *    Each unshare() is tried on its own; without CAP_SYS_ADMIN they fail and the session
+ *    simply shares them (the server cleans up after it instead). */
+static void private_namespaces(void)
+{
+    if (unshare(CLONE_NEWIPC) == -1)
+        return;
+    if (unshare(CLONE_NEWNET) == 0)
+        loopback_up();
+    if (unshare(CLONE_NEWNS) == 0 &&
+        mount(NULL, "/", NULL, MS_REC | MS_PRIVATE, NULL) == 0) { /* our mounts stay ours */
+        private_tmpfs("/tmp");
+        private_tmpfs("/dev/shm");
+    }
+}
+
+/* A second terminal of the same session: enter the first terminal's namespaces with setns(),
+ * so both programs of a pair (server + client, reader + writer) see the same IPC, ports and /tmp */
+static void join_namespaces(const char *pid)
+{
+    const char *kinds[] = { "ipc", "net", "mnt" };
+    for (int i = 0; i < 3; i++) {
+        char path[64];
+        snprintf(path, sizeof path, "/proc/%s/ns/%s", pid, kinds[i]);
+        int fd = open(path, O_RDONLY | O_CLOEXEC);
+        if (fd == -1)
+            continue;
+        setns(fd, 0);
+        close(fd);
+    }
+}
+
 int main(int argc, char *argv[])
 {
-    if (argc != 5) {
-        fprintf(stderr, "usage: %s <uid> <gid> <workdir> <lesson|example>\n", argv[0]);
+    if (argc != 5 && argc != 6) {
+        fprintf(stderr, "usage: %s <uid> <gid> <workdir> <lesson|example> [join-pid]\n", argv[0]);
         return 2;
     }
 
@@ -69,6 +142,12 @@ int main(int argc, char *argv[])
         fprintf(stderr, "[sandbox] refusing to start a session as root\n");
         return 2;
     }
+
+    /* 0. Private namespaces (needs root — so it happens before we drop it) */
+    if (argc == 6)
+        join_namespaces(argv[5]);
+    else
+        private_namespaces();
 
     /* 1. Resource limits — set while we are still root; inherited by every child */
     set_limit(RLIMIT_NPROC, MAX_PROCESSES, "setrlimit(RLIMIT_NPROC)");

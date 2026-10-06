@@ -1,17 +1,47 @@
 ---
 import { Code } from 'astro:components';
+import type { ExampleKind } from '../data/os-lessons';
+
+interface Pair {
+  file?: string;          // partner program; omitted for a companion shell command
+  label: string;
+  code?: string;
+  compileCmd?: string;
+  runCmd?: string;
+  sampleInput?: string;
+  startDelayMs?: number;
+  stopAfterMs?: number;
+  supportFiles?: { name: string; content: string }[];
+}
 
 interface Props {
   code: string;
   filename: string;
   lang?: string;
   compileCmd?: string;
+  runCmd?: string;
   output?: string;
   collapsed?: boolean;
   needsInput?: boolean;
+  kind?: ExampleKind;
+  sampleInput?: string;
+  stopAfterMs?: number;
+  stopSignal?: 'SIGINT' | 'SIGQUIT';
+  interruptAfterMs?: number;
+  note?: string;
+  intentional?: string;
+  pair?: Pair;
+  partnerOf?: string; // this program is started by the "Run pair" button of that file
+  supportFiles?: { name: string; content: string }[]; // headers it includes
 }
 
-const { code, filename, lang = 'c', compileCmd, output, collapsed = false, needsInput = false } = Astro.props;
+const {
+  code, filename, lang = 'c', compileCmd, runCmd, output, collapsed = false, needsInput = false,
+  kind, sampleInput, stopAfterMs, stopSignal, interruptAfterMs, note, intentional, pair, partnerOf, supportFiles = [],
+} = Astro.props;
+const interactive = needsInput || kind === 'interactive';
+const readOnly = kind === 'reference' || kind === 'windows';
+const panePlan = { compile: compileCmd || `gcc -o prog ${filename}`, run: runCmd, sampleInput, stopAfterMs, stopSignal, interruptAfterMs };
 const lineCount = code.split('\n').length;
 const shouldCollapse = collapsed || lineCount > 80;
 const id = filename.replace(/[^a-zA-Z0-9]/g, '-');
@@ -101,38 +131,70 @@ const id = filename.replace(/[^a-zA-Z0-9]/g, '-');
         <span>Expected Output</span>
         <span class="text-[10px] normal-case opacity-60">click Run to execute live</span>
       </div>
-      <pre class="whitespace-pre-wrap text-emerald-300">{output}</pre>
+      <pre class="whitespace-pre-wrap [overflow-wrap:anywhere] text-emerald-300">{output}</pre>
     </div>
   )}
 
   {/* Action bar */}
-  <div class="flex items-center justify-between px-4 py-2.5 bg-surface-100 dark:bg-surface-850 border-t border-surface-200 dark:border-surface-700 rounded-b-xl">
-    <div class="flex items-center gap-3 min-w-0">
-      {needsInput && (
-        <span class="hidden sm:inline-flex items-center gap-1 text-[10px] text-yellow-600 dark:text-yellow-400 whitespace-nowrap">
-          <svg class="w-3 h-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+  <div class="flex flex-wrap items-center justify-between gap-2 px-4 py-2.5 bg-surface-100 dark:bg-surface-850 border-t border-surface-200 dark:border-surface-700 rounded-b-xl">
+    <div class="example-hints flex flex-wrap items-center gap-x-3 gap-y-1 min-w-0 text-xs text-surface-600 dark:text-surface-400">
+      {interactive && !readOnly && (
+        <span class="inline-flex items-center gap-1 text-amber-700 dark:text-amber-300 font-medium">
+          <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
           </svg>
-          Interactive
+          Asks for input{sampleInput ? ' — sample input is one click away' : ''}
         </span>
       )}
+      {kind === 'long-running' && stopAfterMs && (
+        <span class="long-running-hint">Runs until stopped — stops automatically after {Math.round(stopAfterMs / 1000)}s</span>
+      )}
+      {partnerOf && <span>Runs together with <code class="font-mono">{partnerOf.split('/').pop()}</code> — use Run pair there</span>}
+      {pair?.file && <span>Talks to <code class="font-mono">{pair.label}</code> — use Run pair</span>}
+      {pair && !pair.file && <span>Run pair also opens a second terminal: <code class="font-mono">{pair.label}</code></span>}
+      {intentional && <span class="intentional-hint text-red-700 dark:text-red-300">{intentional}</span>}
+      {readOnly && (
+        <span class="readonly-label inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-surface-200 dark:bg-surface-700 text-surface-700 dark:text-surface-200 font-medium">
+          {kind === 'windows' ? 'Windows only — read along' : 'Reference — not run on its own'}
+        </span>
+      )}
+      {readOnly && note && <span>{note}</span>}
     </div>
-    <button
-      class="open-terminal-btn inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold bg-primary-600 text-white hover:bg-primary-700 active:bg-primary-800 transition-colors shadow-sm hover:shadow disabled:opacity-60 disabled:cursor-wait"
-      data-filename={filename}
-      data-code={code}
-      data-compile={compileCmd || `gcc -o prog ${filename}`}
-      data-interactive={needsInput ? 'true' : 'false'}
-    >
-      <svg class="run-play w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z" />
-      </svg>
-      <svg class="run-spinner hidden w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-      </svg>
-      <span class="run-label">{needsInput ? 'Run (Interactive)' : 'Run'}</span>
-    </button>
+    {!readOnly && (
+      <div class="flex items-center gap-2 ml-auto">
+        {pair && (
+          <button
+            class="run-pair-btn inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold border border-primary-600 text-primary-700 dark:text-primary-300 hover:bg-primary-50 dark:hover:bg-primary-950 transition-colors"
+            data-plan={JSON.stringify({
+              files: [{ name: filename, content: code }, ...(pair.file ? [{ name: pair.file, content: pair.code || '' }] : []), ...supportFiles, ...(pair.supportFiles || [])]
+                .filter((f, i, all) => all.findIndex((g) => g.name === f.name) === i),
+              panes: [
+                { ...panePlan, label: filename.split('/').pop() },
+                { compile: pair.compileCmd, run: pair.runCmd, sampleInput: pair.sampleInput, stopAfterMs: pair.stopAfterMs, startAfterMs: pair.startDelayMs ?? 800, label: pair.label },
+              ],
+            })}
+          >
+            Run pair
+          </button>
+        )}
+        <button
+          class="open-terminal-btn inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold bg-primary-600 text-white hover:bg-primary-700 active:bg-primary-800 transition-colors shadow-sm hover:shadow disabled:opacity-60 disabled:cursor-wait"
+          data-filename={filename}
+          data-code={code}
+          data-plan={JSON.stringify(panePlan)}
+          data-support={JSON.stringify(supportFiles)}
+        >
+          <svg class="run-play w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z" />
+          </svg>
+          <svg class="run-spinner hidden w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <span class="run-label">Run</span>
+        </button>
+      </div>
+    )}
   </div>
 
   {/* Terminal will be injected here */}
@@ -191,11 +253,13 @@ const id = filename.replace(/[^a-zA-Z0-9]/g, '-');
     }
   }
 
+  (window as any).__setFullscreen = setFullscreen;
+
   document.addEventListener('click', (e) => {
     const btn = (e.target as HTMLElement).closest('.fs-btn, .terminal-fs');
     if (!btn) return;
     // Prefer the whole code block (code + terminal); fall back to a standalone terminal
-    const wrapper = (btn.closest('.code-block-wrapper') || btn.closest('.terminal-container')) as HTMLElement | null;
+    const wrapper = (btn.closest('.code-block-wrapper, .run-host') || btn.closest('.terminal-container')) as HTMLElement | null;
     if (wrapper) setFullscreen(wrapper, !wrapper.classList.contains('is-fullscreen'));
   });
 
@@ -309,188 +373,64 @@ const id = filename.replace(/[^a-zA-Z0-9]/g, '-');
     });
   });
 
-  // Terminal: import xterm directly here so it's guaranteed to be in the bundle
-  import { Terminal } from '@xterm/xterm';
-  import { FitAddon } from '@xterm/addon-fit';
+  import { openTerminal } from '../lib/terminal';
+  import type { PanePlan } from '../lib/terminal';
 
   // Syscall tooltips
   import { syscallReference } from '../data/syscall-reference';
 
-  function getTerminalUrl(): string {
-    const meta = document.querySelector('meta[name="terminal-url"]') as HTMLMetaElement | null;
-    const base = meta?.content || localStorage.getItem('terminal-url') || '';
-    let key: string | null = null;
-    try { key = localStorage.getItem('presenterKey'); } catch {}
-    // Presenter's browser goes to the reserved sandbox; everyone else to the student pool
-    return base && key ? `${base}${base.includes('?') ? '&' : '?'}presenter=${encodeURIComponent(key)}` : base;
+  // Expose globally so "Open Full Terminal" and the presenter view can use it
+  (window as any).__openTerminal = openTerminal;
+
+  function startInSlot(wrapper: Element, files: { name: string; content: string }[], panes: PanePlan[], onReady?: () => void) {
+    const slot = wrapper.querySelector('.terminal-slot') as HTMLElement;
+    // Always start fresh with the current code
+    slot.querySelectorAll('.terminal-container').forEach((old) => (old.querySelector('.terminal-close') as HTMLElement)?.click());
+    const termDiv = document.createElement('div');
+    slot.appendChild(termDiv);
+    openTerminal(termDiv, { files, mode: 'example', panes, onReady, height: panes.length > 1 ? 300 : 350 });
   }
-
-  function launchTerminal(container: HTMLElement, files: {name: string, content: string}[], autoRun: string, isInteractive: boolean, onReady?: () => void) {
-    const target = container.querySelector('.terminal-target') as HTMLElement;
-    const statusEl = container.querySelector('.terminal-status') as HTMLElement;
-    const killBtn = container.querySelector('.terminal-kill') as HTMLElement;
-    const closeBtn = container.querySelector('.terminal-close') as HTMLElement;
-
-    const term = new Terminal({
-      theme: {
-        background: '#0f172a',
-        foreground: '#e2e8f0',
-        cursor: '#22d3ee',
-        selectionBackground: '#334155',
-      },
-      fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
-      fontSize: 13,
-      lineHeight: 1.4,
-      cursorBlink: true,
-    });
-
-    const fitAddon = new FitAddon();
-    term.loadAddon(fitAddon);
-    term.open(target);
-
-    setTimeout(() => {
-      fitAddon.fit();
-
-      const url = getTerminalUrl();
-      if (!url) {
-        term.writeln('\x1b[1;31mTerminal server not configured.\x1b[0m');
-        term.writeln('Run: \x1b[33mlocalStorage.setItem("terminal-url","ws://localhost:8090")\x1b[0m then reload.');
-        return;
-      }
-
-      statusEl.textContent = 'Connecting...';
-      const ws = new WebSocket(url);
-
-      ws.onopen = () => {
-        statusEl.textContent = 'Starting...';
-        // example mode: quiet shell that auto-compiles; lesson mode: welcome banner + file list
-        ws.send(JSON.stringify({ type: 'start', files, cols: term.cols, rows: term.rows, mode: autoRun ? 'example' : 'lesson' }));
-      };
-
-      // States: 'waiting' -> 'compiling' -> 'compiled'
-      let state = autoRun ? 'waiting' : 'done';
-      let promptCount = 0;
-
-      ws.onmessage = (event) => {
-        const msg = JSON.parse(event.data);
-        if (msg.type === 'ready') {
-          statusEl.textContent = 'Connected';
-          killBtn.classList.remove('hidden');
-          if (onReady) onReady();
-        } else if (msg.type === 'output') {
-          term.write(msg.data);
-
-          if (msg.data.includes('$ ') || msg.data.includes('# ')) {
-            promptCount++;
-
-            if (state === 'waiting' && promptCount === 1) {
-              // First prompt: shell is ready, send compile command
-              state = 'compiling';
-              setTimeout(() => ws.send(JSON.stringify({ type: 'input', data: autoRun + '\n' })), 100);
-            } else if (state === 'compiling' && promptCount >= 2) {
-              // Second prompt: compile finished — run it
-              state = 'compiled';
-              const outputName = autoRun.match(/-o\s+(\S+)/)?.[1] || 'prog';
-              setTimeout(() => ws.send(JSON.stringify({ type: 'input', data: `./${outputName}\n` })), 50);
-            }
-          }
-        } else if (msg.type === 'exit') {
-          if (msg.data) term.write(msg.data);
-          statusEl.textContent = 'Disconnected';
-          killBtn.classList.add('hidden');
-        } else if (msg.type === 'error') {
-          term.writeln(`\x1b[1;31m${msg.data}\x1b[0m`);
-          statusEl.textContent = 'Error';
-        }
-      };
-
-      ws.onclose = () => { statusEl.textContent = 'Disconnected'; killBtn.classList.add('hidden'); };
-      ws.onerror = () => { term.writeln('\x1b[1;31mConnection failed.\x1b[0m'); statusEl.textContent = 'Error'; };
-
-      term.onData((data) => { if (ws.readyState === 1) ws.send(JSON.stringify({ type: 'input', data })); });
-      term.onResize(({ cols, rows }) => { if (ws.readyState === 1) ws.send(JSON.stringify({ type: 'resize', cols, rows })); });
-
-      let fitTimeout: ReturnType<typeof setTimeout>;
-      const ro = new ResizeObserver(() => {
-        clearTimeout(fitTimeout);
-        fitTimeout = setTimeout(() => {
-          const scrollY = window.scrollY;
-          fitAddon.fit();
-          window.scrollTo(0, scrollY);
-        }, 100);
-      });
-      ro.observe(target);
-
-      killBtn.addEventListener('click', () => { if (ws.readyState === 1) ws.send(JSON.stringify({ type: 'signal', signal: 'SIGINT' })); });
-      closeBtn.addEventListener('click', () => {
-        if (container.classList.contains('is-fullscreen')) document.body.classList.remove('fs-lock');
-        ws.close(); ro.disconnect(); term.dispose(); container.remove();
-      });
-    }, 150);
-  }
-
-  // Expose globally so "Open Full Terminal" on lesson pages can use it
-  (window as any).__launchTerminal = launchTerminal;
 
   document.querySelectorAll('.open-terminal-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const el = btn as HTMLButtonElement;
       const filename = el.dataset.filename || 'main.c';
-      const compileCmd = el.dataset.compile || `gcc -o prog ${filename}`;
-      const isInteractive = el.dataset.interactive === 'true';
-      const wrapper = el.closest('.code-block-wrapper')!;
-      const slot = wrapper.querySelector('.terminal-slot') as HTMLElement;
+      const wrapper = el.closest('.code-block-wrapper, .run-host')!;
+      const plan = JSON.parse(el.dataset.plan || '{}') as PanePlan;
 
       // Loading state
       const playIcon = el.querySelector('.run-play') as HTMLElement;
       const spinnerIcon = el.querySelector('.run-spinner') as HTMLElement;
       const label = el.querySelector('.run-label') as HTMLElement;
-      const origLabel = label.textContent;
       el.disabled = true;
       playIcon?.classList.add('hidden');
       spinnerIcon?.classList.remove('hidden');
+      const origLabel = label.textContent || 'Run';
       label.textContent = 'Starting...';
 
       // Always get the latest code — from CodeMirror editor if open, otherwise original
-      const editedCode = getEditorCode(wrapper);
+      const editedCode = getEditorCode(wrapper as HTMLElement);
       const code = editedCode !== null ? editedCode : (el.dataset.code || '');
 
-      // Destroy existing terminal — always start fresh with current code
-      const existing = slot.querySelector('.terminal-container');
-      if (existing) existing.remove();
-
-      const termDiv = document.createElement('div');
-      termDiv.className = 'terminal-container';
-      termDiv.innerHTML = `
-        <div class="flex items-center justify-between px-4 py-2 bg-surface-900 border-t border-surface-700">
-          <div class="flex items-center gap-2">
-            <div class="flex gap-1.5">
-              <div class="w-3 h-3 rounded-full bg-red-500"></div>
-              <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
-              <div class="w-3 h-3 rounded-full bg-green-500"></div>
-            </div>
-            <span class="text-sm font-mono text-surface-400">Terminal</span>
-            <span class="terminal-status text-xs text-surface-500"></span>
-          </div>
-          <div class="flex items-center gap-2">
-            <button class="terminal-kill text-xs px-2 py-1 rounded text-red-400 hover:bg-surface-800 transition-colors hidden">Ctrl+C</button>
-            <button class="terminal-fs text-xs px-2 py-1 rounded text-surface-400 hover:bg-surface-800 transition-colors"><span class="fs-enter">Fullscreen</span><span class="fs-exit hidden">Exit fullscreen</span></button>
-            <button class="terminal-close text-xs px-2 py-1 rounded text-surface-400 hover:bg-surface-800 transition-colors">Close</button>
-          </div>
-        </div>
-        <div class="terminal-target bg-surface-950" style="height:350px;"></div>
-      `;
-      slot.appendChild(termDiv);
-
-      // the compile command expects the file in the working directory, so drop any folder prefix
-      const baseName = filename.split('/').pop() || filename;
-      launchTerminal(termDiv, [{ name: baseName, content: code }], compileCmd, isInteractive, () => {
-        // Restore Run button
+      // Upload under the same relative path the compile command uses (e.g. 02-basic-example/creator.c)
+      const support = JSON.parse(el.dataset.support || '[]');
+      startInSlot(wrapper, [{ name: filename, content: code }, ...support], [plan], () => {
         el.disabled = false;
         playIcon?.classList.remove('hidden');
         spinnerIcon?.classList.add('hidden');
-        label.textContent = origLabel || 'Run';
+        label.textContent = origLabel;
       });
+    });
+  });
+
+  document.querySelectorAll('.run-pair-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const el = btn as HTMLButtonElement;
+      const wrapper = el.closest('.code-block-wrapper')!;
+      const { files, panes } = JSON.parse(el.dataset.plan || '{}');
+      const edited = getEditorCode(wrapper as HTMLElement);
+      if (edited !== null) files[0].content = edited;
+      startInSlot(wrapper, files, panes);
     });
   });
 
