@@ -102,7 +102,7 @@
       "title": "Dark mode that works, and readable contrast everywhere",
       "description": "global.css: @custom-variant dark (&:where(.dark, .dark *)) so dark: utilities follow the toggle (Tailwind v4 defaults to prefers-color-scheme); define --color-primary-950; fix the Next Lesson card (white text on near-white in dark) and every other V03 failure. Acceptance: V02 (toggle flips the visible background under both OS preferences and persists) and V03 (no text under 3:1 on /, /os/, a lesson, /status in both themes) pass against production. Also fix V09: /os/08-pipes/ overflows to 435px on a 390px phone.",
       "priority": 11,
-      "passes": false
+      "passes": true
     },
     {
       "id": "T12",
