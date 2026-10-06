@@ -147,9 +147,17 @@
     {
       "id": "T17",
       "phase": "5 — Presenter mode",
-      "title": "Presenter key, pre-warm, and status for the pool",
-      "description": "/presenter page stores the presenter key in localStorage; with a key, lesson pages call /warm on load and terminals connect with ?presenter=<key>; status page shows pool and presenter container state. New check V17: with a key, time from Run click to first prompt event is under 3s after warm. Acceptance: V17 passes in production.",
+      "title": "Presenter link that sticks per browser, plus background pre-warm",
+      "description": "Opening any page with ?presenter=<key> stores the key in localStorage and removes it from the address bar; ?presenter=off forgets it. Header shows a 'Presenter' badge (red 'Presenter key invalid' on a wrong key; click to turn off). Terminals connect with the key; the header wakes the presenter container via /warm at most every 4 minutes. Acceptance: V17 and V17b pass in production.",
       "priority": 17,
+      "passes": true
+    },
+    {
+      "id": "T17c",
+      "phase": "5 — Presenter mode",
+      "title": "Status page shows real pool and presenter state",
+      "description": "The status page currently only gets {status:'ok'} from the Worker (container stats were never wired). Add a Worker endpoint that reports each running container's /health WITHOUT waking sleeping ones, and show pool-0..2 + presenter (awake/asleep, sessions). Also measure time from Run click to first prompt for the presenter after warm (target < 3s). Acceptance: new check V19 passes in production.",
+      "priority": 17.5,
       "passes": false
     },
     {

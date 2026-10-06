@@ -318,7 +318,11 @@ const id = filename.replace(/[^a-zA-Z0-9]/g, '-');
 
   function getTerminalUrl(): string {
     const meta = document.querySelector('meta[name="terminal-url"]') as HTMLMetaElement | null;
-    return meta?.content || localStorage.getItem('terminal-url') || '';
+    const base = meta?.content || localStorage.getItem('terminal-url') || '';
+    let key: string | null = null;
+    try { key = localStorage.getItem('presenterKey'); } catch {}
+    // Presenter's browser goes to the reserved sandbox; everyone else to the student pool
+    return base && key ? `${base}${base.includes('?') ? '&' : '?'}presenter=${encodeURIComponent(key)}` : base;
   }
 
   function launchTerminal(container: HTMLElement, files: {name: string, content: string}[], autoRun: string, isInteractive: boolean, onReady?: () => void) {

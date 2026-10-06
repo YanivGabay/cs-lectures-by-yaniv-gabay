@@ -77,3 +77,9 @@ site.mjs against https://cs-lectures.pages.dev: 9/9 PASS (baseline was 3/9)
   V01 19 pages, no JS errors · V02 dark toggle works under both OS settings and persists
   V03 no text under 3:1 in either theme · V04 Run · V05 full terminal welcome + files + non-root
   V06 compile in full terminal · V07 Ctrl+C button · V08 Show all + fullscreen · V09 no sideways scroll at 390px
+
+## 2026-10-06 — T17 (presenter link + pre-warm) done; production site 11/11
+
+V17 key from ?presenter= sticks across pages and reloads, is stripped from the URL, terminals land on "presenter".
+V17b wrong key -> red "Presenter key invalid" badge + student pool; ?presenter=off removes it.
+Found: the status page never showed real container stats (the Worker answers /health itself) -> new task T17c.

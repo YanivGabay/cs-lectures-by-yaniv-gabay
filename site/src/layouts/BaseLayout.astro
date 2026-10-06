@@ -35,6 +35,17 @@ const { title, description = 'CS lecture materials from Hadassah Academic Colleg
       if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
         document.documentElement.classList.add('dark');
       }
+      // ?presenter=<key> once per browser: remember it, then remove it from the address bar.
+      // ?presenter=off forgets it.
+      try {
+        var u = new URL(location.href), k = u.searchParams.get('presenter');
+        if (k !== null) {
+          if (k === '' || k === 'off') localStorage.removeItem('presenterKey');
+          else localStorage.setItem('presenterKey', k);
+          u.searchParams.delete('presenter');
+          history.replaceState(null, '', u.pathname + u.search + u.hash);
+        }
+      } catch (e) {}
     </script>
   </head>
   <body class="min-h-screen flex flex-col">
