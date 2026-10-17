@@ -156,7 +156,7 @@ await check('V04', 'Run button compiles and runs an example (fork output appears
   await page.goto(`${BASE}/os/02-basic-forks/`);
   const block = page.locator('.code-block-wrapper', { has: page.locator('span', { hasText: /^01-basic-forking\.c$/ }) });
   await block.locator('.open-terminal-btn').click();
-  await waitTerm(page, /\[Child\][\s\S]*\[Parent\]|\[Parent\][\s\S]*\[Child\]/, 40000, 'parent and child output');
+  await waitTerm(page, /(?=[\s\S]*I am the parent)(?=[\s\S]*I am the child)/, 40000, 'parent and child output');
   await page.context().close();
 });
 
@@ -330,7 +330,7 @@ await check('V16', 'presenter view: arrows/PageDown step, Ctrl+Enter runs, font 
   await waitFor(async () => (await page.locator('#present-bar .pm-run').innerText()).includes('Nothing to run'), 3000, '"Nothing to run" hint');
   await page.keyboard.press('ArrowRight'); // 01-basic-forking.c
   await page.keyboard.press('Control+Enter');
-  await waitTerm(page, /\[Child\][\s\S]*\[Parent\]|\[Parent\][\s\S]*\[Child\]/, 60000, 'output after Ctrl+Enter');
+  await waitTerm(page, /(?=[\s\S]*I am the parent)(?=[\s\S]*I am the child)/, 60000, 'output after Ctrl+Enter');
   const before = await page.evaluate(() => getComputedStyle(document.querySelector('.is-fullscreen .code-scroll pre')).fontSize);
   await page.locator('#present-bar').click({ position: { x: 600, y: 20 } }); // keyboard focus back on the page
   await page.keyboard.press('+');

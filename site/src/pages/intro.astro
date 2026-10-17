@@ -468,7 +468,7 @@ int main(void)
       @media (min-width: 1000px) {
         .demo .code-block-wrapper:not(.is-fullscreen):has(.terminal-container) { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; }
         .demo .code-block-wrapper:not(.is-fullscreen):has(.terminal-container) > * { grid-column: 1; }
-        .demo .code-block-wrapper:not(.is-fullscreen):has(.terminal-container) > .terminal-slot { grid-column: 2; grid-row: 1 / span 3; align-self: start; border-left: 1px solid #1e293b; }
+        .demo .code-block-wrapper:not(.is-fullscreen):has(.terminal-container) > .terminal-slot { grid-column: 2; grid-row: 1 / span 4; align-self: start; border-left: 1px solid #1e293b; }
         /* a little shorter than the code, so the grid never stretches the code side */
         .demo .code-block-wrapper:not(.is-fullscreen) .terminal-slot .terminal-target { height: min(48vh, 470px) !important; }
       }
@@ -517,7 +517,8 @@ int main(void)
         .demo .kicker { margin-bottom: .4rem; }
         .demo .title { font-size: clamp(1.6rem, 3vw, 2.4rem); margin-bottom: .4rem; }
         .demo .lead { font-size: 1.05rem; margin-bottom: .6rem; }
-        .demo .code-block-wrapper pre, .demo .code-block-wrapper code { font-size: .92rem !important; line-height: 1.38 !important; }
+        .demo .code-block-wrapper pre, .demo .code-block-wrapper code { font-size: .88rem !important; line-height: 1.36 !important; }
+        .demo .build-cmds { padding-top: .35rem; padding-bottom: .35rem; }
         .demo .code-block-wrapper code .line { line-height: 1.38; }
         .demo .code-block-wrapper:not(.is-fullscreen) .terminal-slot .terminal-target { height: 330px !important; }
         .slide { padding-top: 3vh; padding-bottom: 7vh; }

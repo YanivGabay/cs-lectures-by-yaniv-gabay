@@ -42,6 +42,9 @@ const {
 const interactive = needsInput || kind === 'interactive';
 const readOnly = kind === 'reference' || kind === 'windows';
 const panePlan = { compile: compileCmd || `gcc -o prog ${filename}`, run: runCmd, sampleInput, stopAfterMs, stopSignal, interruptAfterMs };
+// Shown under the code: exactly what Run types, so students can do it themselves
+const runShown = runCmd || `./${panePlan.compile.match(/-o\s+(\S+)(?![\s\S]*-o\s)/)?.[1] || 'prog'}`;
+const buildLines = [panePlan.compile, runShown];
 const lineCount = code.split('\n').length;
 const shouldCollapse = collapsed || lineCount > 80;
 const id = filename.replace(/[^a-zA-Z0-9]/g, '-');
@@ -123,6 +126,25 @@ const id = filename.replace(/[^a-zA-Z0-9]/g, '-');
       </button>
     </div>
   </div>
+
+  {/* How to build and run it — the same commands the Run button types */}
+  {!readOnly && (
+    <div class="build-cmds flex items-start justify-between gap-3 px-4 py-2.5 bg-[#0d1117] border-t border-[#30363d] font-mono text-[13px]">
+      <div class="min-w-0 overflow-x-auto">
+        {buildLines.map((line) => (
+          <div class="whitespace-pre"><span class="text-emerald-400 select-none">$ </span><span class="text-surface-100">{line}</span></div>
+        ))}
+      </div>
+      <button
+        class="copy-btn flex-shrink-0 text-xs px-2 py-0.5 rounded-md border border-[#30363d] text-surface-300 hover:bg-[#21262d] transition-colors font-sans"
+        data-code={buildLines.join('\n')}
+        aria-label="Copy the compile and run commands"
+      >
+        <span class="copy-text">Copy</span>
+        <span class="copied-text hidden text-primary-400">Copied!</span>
+      </button>
+    </div>
+  )}
 
   {/* Output panel */}
   {output && (
