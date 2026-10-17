@@ -165,10 +165,17 @@
     overflow: auto !important;
   }
 
+  /* In fullscreen the code itself is the point: no "Show all" bar, no fade, and the Expected
+     Output panel steps aside (Run shows the real output). !important beats the elements' own
+     Tailwind display utilities (e.g. the bar's `flex`). */
   .is-fullscreen .code-fade,
   .is-fullscreen .expand-btn,
-  .is-fullscreen:has(.terminal-container) .terminal-output {
-    display: none;
+  .is-fullscreen .terminal-output {
+    display: none !important;
+  }
+
+  .is-fullscreen .code-scroll {
+    min-height: 40vh;
   }
 
   .is-fullscreen .code-editor:not(.hidden) {

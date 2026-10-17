@@ -187,9 +187,9 @@ const diffColors: Record<string, string> = {
           <h2 class="text-sm font-semibold text-surface-900 dark:text-white mb-3">
             {lesson.examples.length} Examples
           </h2>
-          <ol class="grid gap-1 sm:grid-cols-2">
+          <ol class="grid grid-cols-1 gap-1 sm:grid-cols-2">
             {lesson.examples.map((ex, i) => (
-              <li>
+              <li class="min-w-0">
                 <a
                   href={`#example-${i}`}
                   class="flex items-center gap-2 px-2 py-1.5 rounded-lg text-sm text-surface-700 dark:text-surface-300 hover:bg-surface-200 dark:hover:bg-surface-700 transition-colors"

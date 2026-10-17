@@ -432,7 +432,7 @@ await check('V20', 'intro deck: keys/clicker step slides, live fork() demo runs,
 await check('V08', 'long file "Show all" bar and fullscreen work (Esc exits)', async () => {
   const page = await newPage();
   await page.goto(`${BASE}/os/01-intro-to-c/`);
-  const first = page.locator('.code-block-wrapper').first();
+  const first = page.locator('.code-block-wrapper', { has: page.locator('.expand-btn') }).first(); // a long, collapsed file
   const h0 = (await first.locator('.code-scroll').boundingBox()).height;
   await first.locator('.expand-btn').click();
   await sleep(200);
@@ -442,6 +442,10 @@ await check('V08', 'long file "Show all" bar and fullscreen work (Esc exits)', a
   await sleep(200);
   const box = await first.boundingBox();
   assert(box.width >= 1390 && box.height >= 890, 'fullscreen does not fill the window');
+  // ...and the CODE fills it (a long file once showed only the "Show all" bar and Expected Output)
+  const codeH = (await first.locator('.code-scroll').boundingBox()).height;
+  assert(codeH > 600, `fullscreen shows only ${Math.round(codeH)}px of code`);
+  assert(!(await first.locator('.expand-btn').isVisible()), '"Show all" bar still visible in fullscreen');
   await page.keyboard.press('Escape');
   await sleep(200);
   assert(!(await first.getAttribute('class')).includes('is-fullscreen'), 'Esc did not exit fullscreen');

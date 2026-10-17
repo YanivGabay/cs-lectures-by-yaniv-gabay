@@ -198,7 +198,7 @@ int main(void)
             <h2 class="title a" style="--d:1">One process in, two out: <code>fork()</code></h2>
             <p class="lead a" style="--d:2">Before I press Run: how many lines will it print?</p>
           </div>
-          <div class="a" style="--d:3">
+          <div class="a-fade" style="--d:3">
             <CodeBlock code={demo} filename="hello_fork.c" compileCmd="gcc -o hello_fork hello_fork.c" />
           </div>
         </div>
@@ -380,6 +380,11 @@ int main(void)
       .slide .a { opacity: 0; transform: translateY(26px); }
       .slide.active .a { animation: rise .8s cubic-bezier(.2,.8,.2,1) forwards; animation-delay: calc(var(--d, 0) * 0.16s + .15s); }
       @keyframes rise { to { opacity: 1; transform: none; } }
+      /* Opacity only: an animated transform would trap the code block's Fullscreen (position: fixed)
+         inside this wrapper instead of the screen */
+      .slide .a-fade { opacity: 0; }
+      .slide.active .a-fade { animation: fadein .8s ease forwards; animation-delay: calc(var(--d, 0) * 0.16s + .15s); }
+      @keyframes fadein { to { opacity: 1; } }
       .slide .pop { opacity: 0; transform: scale(.4) rotate(-6deg); }
       .slide.active .pop { animation: pop .55s cubic-bezier(.3,1.6,.5,1) forwards; animation-delay: calc(var(--d, 0) * 0.16s); }
       @keyframes pop { to { opacity: 1; transform: none; } }
@@ -461,11 +466,11 @@ int main(void)
       .demo .code-block-wrapper pre, .demo .code-block-wrapper code { font-size: clamp(.85rem, 1.15vw, 1.1rem) !important; }
       /* After Run: code on the left, terminal on the right — both visible on a projector */
       @media (min-width: 1000px) {
-        .demo .code-block-wrapper:has(.terminal-container) { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; }
-        .demo .code-block-wrapper:has(.terminal-container) > * { grid-column: 1; }
-        .demo .code-block-wrapper:has(.terminal-container) > .terminal-slot { grid-column: 2; grid-row: 1 / span 3; align-self: start; border-left: 1px solid #1e293b; }
+        .demo .code-block-wrapper:not(.is-fullscreen):has(.terminal-container) { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; }
+        .demo .code-block-wrapper:not(.is-fullscreen):has(.terminal-container) > * { grid-column: 1; }
+        .demo .code-block-wrapper:not(.is-fullscreen):has(.terminal-container) > .terminal-slot { grid-column: 2; grid-row: 1 / span 3; align-self: start; border-left: 1px solid #1e293b; }
         /* a little shorter than the code, so the grid never stretches the code side */
-        .demo .terminal-slot .terminal-target { height: min(48vh, 470px) !important; }
+        .demo .code-block-wrapper:not(.is-fullscreen) .terminal-slot .terminal-target { height: min(48vh, 470px) !important; }
       }
 
       /* Tips */
@@ -495,6 +500,7 @@ int main(void)
       .deck-ui { position: fixed; right: 1.2rem; bottom: 1rem; z-index: 5; display: flex; align-items: center; gap: .5rem; font-family: var(--font-mono); color: #94a3b8; font-size: .95rem; }
       .deck-ui button { display: inline-flex; align-items: center; background: rgba(15,23,42,.8); color: #e2e8f0; border: 1px solid #334155; border-radius: 10px; padding: .35rem .7rem; cursor: pointer; }
       .deck-ui button:hover { background: #1e293b; }
+      body.fs-lock .deck-ui, body.fs-lock .d-progress { display: none; }
       .d-progress { position: fixed; left: 0; right: 0; bottom: 0; height: 4px; background: rgba(148,163,184,.15); z-index: 5; }
       .d-progress div { height: 100%; width: 0; background: linear-gradient(90deg, #10b981, #22d3ee); transition: width .5s ease; }
 
@@ -513,7 +519,7 @@ int main(void)
         .demo .lead { font-size: 1.05rem; margin-bottom: .6rem; }
         .demo .code-block-wrapper pre, .demo .code-block-wrapper code { font-size: .92rem !important; line-height: 1.38 !important; }
         .demo .code-block-wrapper code .line { line-height: 1.38; }
-        .demo .terminal-slot .terminal-target { height: 330px !important; }
+        .demo .code-block-wrapper:not(.is-fullscreen) .terminal-slot .terminal-target { height: 330px !important; }
         .slide { padding-top: 3vh; padding-bottom: 7vh; }
       }
       @media (prefers-reduced-motion: reduce) {

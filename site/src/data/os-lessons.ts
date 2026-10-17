@@ -79,6 +79,48 @@ export const lessons: Lesson[] = [
     phase: 'Foundation',
     examples: [
       {
+        file: '00a-hello-printf.c',
+        title: 'Hello, printf',
+        description: 'The first C program: #include <stdio.h>, int main(void), and printf with \\n instead of cout and endl — plus the escape sequences \\t, \\" and \\\\.',
+        compileCmd: 'gcc -o hello 00a-hello-printf.c',
+      },
+      {
+        file: '00b-printf-specifiers.c',
+        title: 'printf Format Specifiers',
+        description: 'One specifier per type — %d, %f, %.2f, %e, %c, %s, %x and %% — and how several arguments are matched to the format left to right.',
+        compileCmd: 'gcc -o specifiers 00b-printf-specifiers.c',
+      },
+      {
+        file: '00c-printf-width.c',
+        title: 'Width, Alignment and Padding',
+        description: 'Field widths in printf: %5d, %-5d, %05d and %8.2f, used to print a neatly aligned table.',
+        compileCmd: 'gcc -o width 00c-printf-width.c',
+      },
+      {
+        file: '00d-scanf-one-int.c',
+        title: 'Reading a Number with scanf',
+        description: 'scanf("%d", &n) instead of cin >> n: why the & is needed, and checking scanf\'s return value to catch input that is not a number.',
+        compileCmd: 'gcc -o read_int 00d-scanf-one-int.c',
+        kind: 'interactive',
+        sampleInput: '42',
+      },
+      {
+        file: '00e-scanf-many.c',
+        title: 'Several Values in One scanf',
+        description: 'Reading an int and a double together with "%d %lf" (%lf for double), and a literal comma in the format with "%d,%d".',
+        compileCmd: 'gcc -o read_many 00e-scanf-many.c',
+        kind: 'interactive',
+        sampleInput: '7 2.5\n3,4',
+      },
+      {
+        file: '00f-scanf-strings-chars.c',
+        title: 'Strings, Characters and the Leftover Newline',
+        description: '%s stops at the first space and needs no &, %19s limits the length, and " %c" with a cleared input line avoids the classic leftover-newline bug.',
+        compileCmd: 'gcc -o read_text 00f-scanf-strings-chars.c',
+        kind: 'interactive',
+        sampleInput: 'Yaniv Gabay\nA',
+      },
+      {
         file: '01-basic-input-output.c',
         title: 'Basic Input & Output',
         description: 'Side-by-side comparison of C scanf/printf versus C++ cin/cout, showing equivalent I/O operations.',
