@@ -97,7 +97,7 @@ const discover = await newPage();
 await discover.goto(`${BASE}/os/`);
 const lessonPaths = [...new Set(await discover.$$eval('a[href^="/os/"]', (as) => as.map((a) => new URL(a.getAttribute('href'), location.href).pathname)))].filter((p) => p !== '/os/');
 await discover.context().close();
-const PAGES = ['/', '/os/', '/status/', '/presenter/', ...lessonPaths];
+const PAGES = ['/', '/os/', '/status/', '/presenter/', '/intro/', ...lessonPaths];
 
 await check('V01', `all ${PAGES.length} pages load with no JS errors`, async () => {
   const page = await newPage();
@@ -388,6 +388,45 @@ await check('V18', 'challenges: the starter gets a hint, each reference solution
   }
   await page.context().close();
   return done.join(' · ');
+});
+
+await check('V20', 'intro deck: keys/clicker step slides, live fork() demo runs, fits a 1366x768 projector, hands off to Lesson 01', async () => {
+  const page = await newPage({ viewport: { width: 1366, height: 768 } });
+  await page.goto(`${BASE}/intro/`);
+  const n = await page.locator('.slide').count();
+  assert(n >= 10, `only ${n} slides`);
+  const pos = () => page.locator('.d-pos').innerText();
+  await page.keyboard.press('ArrowRight');
+  await page.keyboard.press('PageDown');
+  await waitFor(async () => (await pos()).startsWith('3 /'), 3000, 'slide 3');
+  await page.keyboard.press('PageUp');
+  await waitFor(async () => (await pos()).startsWith('2 /'), 3000, 'back to slide 2');
+  const overflow = [];
+  for (let i = 1; i <= n; i++) {
+    await page.evaluate((k) => { location.hash = `#${k}`; }, i);
+    await sleep(900);
+    const r = await page.evaluate(() => { const s = document.querySelector('.slide.active'); return s.scrollHeight - s.clientHeight; });
+    if (r > 4) overflow.push(`#${i} +${r}px`);
+  }
+  assert(!overflow.length, `slides taller than the projector: ${overflow.join(', ')}`);
+  const demo = await page.evaluate(() => [...document.querySelectorAll('.slide')].findIndex((s) => s.querySelector('.open-terminal-btn')) + 1);
+  await page.evaluate((k) => { location.hash = `#${k}`; }, demo);
+  await sleep(1200);
+  await page.locator('.slide.active .open-terminal-btn').click();
+  await waitTerm(page, /\[Child\][\s\S]*\[Parent\]/, 60000, 'fork demo output');
+  await waitFor(async () => (await page.locator('.slide.active .term-chip').allInnerTexts()).includes('Exited 0'), 15000, 'Exited 0 chip');
+  const out = await page.locator('.slide.active .terminal-container').boundingBox();
+  assert(out && out.y + 120 < 768, 'demo output is below the bottom of a 1366x768 screen');
+  await page.locator('.slide.active .xterm').click();
+  await page.keyboard.press('PageDown'); // clicker works even while the terminal has focus
+  await waitFor(async () => (await pos()).startsWith(`${demo + 1} /`), 3000, 'PageDown from the terminal');
+  await page.evaluate(() => document.activeElement?.blur()); // other keys belong to the terminal while it has focus
+  await page.keyboard.press('End');
+  await page.locator('.slide.active a.go').click();
+  await page.waitForURL(/01-intro-to-c\/\?present=1/, { timeout: 10000 });
+  assert(await page.locator('#present-bar').isVisible(), 'Lesson 01 did not open in the presenter view');
+  await page.context().close();
+  return `${n} slides`;
 });
 
 await check('V08', 'long file "Show all" bar and fullscreen work (Esc exits)', async () => {

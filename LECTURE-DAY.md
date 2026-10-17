@@ -7,6 +7,17 @@ optionally, re-running the validation from your own laptop.
 Site: https://cs-lectures.pages.dev · Presenter sign-in: https://cs-lectures.pages.dev/presenter/ ·
 Status: https://cs-lectures.pages.dev/status/
 
+## 0. First lecture: the intro deck
+
+https://cs-lectures.pages.dev/intro/ — 11 animated slides (about 10–15 minutes): who I am, the course,
+the semester roadmap, a **live `fork()` demo**, the website, how to succeed, contact, and C++ → C.
+
+- `→` / `←`, Space, or a clicker's PageDown / PageUp step slides (PageDown works even while the demo
+  terminal has focus); `F` = full screen; `Home` / `End`; `/intro/#7` opens a given slide.
+- Slide 7 has a real **Run** button — sign in on `/presenter/` first so it runs in your sandbox.
+- The last slide's **Start Lesson 01 →** opens Lesson 01 straight in the presenter view.
+- Checked at 1920×1080, 1366×768 and 1280×720 (nothing needs scrolling) and on phones (check V20).
+
 ## 1. On the lecture computer (every time, 1 minute)
 
 1. Open https://cs-lectures.pages.dev/presenter/ and type the presenter password. That browser stays
