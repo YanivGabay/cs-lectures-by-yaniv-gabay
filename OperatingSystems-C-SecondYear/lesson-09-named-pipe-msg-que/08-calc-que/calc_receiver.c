@@ -7,6 +7,7 @@
  */
 // calc_receiver.c
 
+#define _GNU_SOURCE   // for MSG_EXCEPT (Linux)
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/ipc.h>
@@ -67,8 +68,9 @@ int main() {
     printf("[Calc Server] Waiting for calculation requests...\n");
 
     while (1) {
-        // Receive any message type (mtype = 0)
-        if (msgrcv(msgid, &buf, sizeof(buf.data), 0, 0) == -1) {
+        // Receive any message EXCEPT our own replies (type 2). With type 0 ("any") the server
+        // could read back the response it just sent, and the client would wait forever.
+        if (msgrcv(msgid, &buf, sizeof(buf.data), MSG_TYPE_CALC_RESPONSE, MSG_EXCEPT) == -1) {
             perror("msgrcv");
             exit(EXIT_FAILURE);
         }

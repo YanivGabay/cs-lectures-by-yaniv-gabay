@@ -13,6 +13,7 @@ not do what their comments say. Each change is minimal; `git diff` shows the exa
 | `lesson-09-named-pipe-msg-que/04-mk-fifo-two-way/process_b.c` | `unlink(FIFO_NAME)` — `FIFO_NAME` does not exist in this file. | `unlink(FIFO_A_TO_B); unlink(FIFO_B_TO_A);` |
 | `lesson-10-shared-memory/03-positions/position_viewer.c` | `#include "position.h"` — the header is not in the repository. | Inlined the same `Position` typedef the creator and updater use. |
 | `lesson-10-shared-memory/04-array/{creator,producer,consumer}.c` | `const char* SHM_KEY = '0x2345';` — a multi-character **char** constant stored in a pointer, then passed to `shmget()` as the key. | `const key_t SHM_KEY = 0x2345;` (+ `<signal.h>` in creator.c, which calls `signal()`). |
+| `lesson-09-named-pipe-msg-que/08-calc-que/calc_receiver.c` | The server read "any" message type, so it sometimes read back its **own reply** (type 2) before the client did — both then waited forever (about 1 run in 4). | `msgrcv(..., MSG_TYPE_CALC_RESPONSE, MSG_EXCEPT)` + `#define _GNU_SOURCE`: take everything except replies. |
 | `lesson-12-pthreads/10-async-chat.c` | `strncpy` without `<string.h>`. | Added the include. |
 
 ## Not changed in the source (handled in the site's example data instead)
