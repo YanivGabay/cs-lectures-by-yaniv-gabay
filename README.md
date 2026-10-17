@@ -5,6 +5,9 @@ This repository contains the materials and examples we covered throughout the se
 
 Please see the [Hebrew version](#hebrew-version) below.
 
+> **Lecturer:** presenting from the live site, setting the presenter password and re-running the
+> validation are in [LECTURE-DAY.md](LECTURE-DAY.md).
+
 ## How to Get Started
 
 Feel free to clone this repo or explore the files directly on GitHub.

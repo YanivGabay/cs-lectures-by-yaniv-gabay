@@ -3,6 +3,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
 
+// CHROME_PATH wins; then the Linux cache layout; otherwise Playwright finds the browser it
+// installed itself (`npx playwright-core install --only-shell chromium`) on macOS and Windows too.
 export function chromePath() {
   if (process.env.CHROME_PATH) return process.env.CHROME_PATH;
   const base = path.join(os.homedir(), '.cache/ms-playwright');
@@ -13,10 +15,15 @@ export function chromePath() {
     const p = path.join(base, d, 'chrome-headless-shell-linux64/chrome-headless-shell');
     if (fs.existsSync(p)) return p;
   }
-  throw new Error('No headless Chrome found; set CHROME_PATH');
+  return null;
 }
 
-export const launch = () => chromium.launch({ executablePath: chromePath() });
+export const launch = () => {
+  const executablePath = chromePath();
+  return chromium.launch(executablePath ? { executablePath } : {}).catch((e) => {
+    throw new Error(`No headless Chrome — run: npx playwright-core install --only-shell chromium (${e.message.split('\n')[0]})`);
+  });
+};
 
 // ONLY=V02,S3 runs a subset
 const only = (process.env.ONLY || '').split(',').map((s) => s.trim()).filter(Boolean);
