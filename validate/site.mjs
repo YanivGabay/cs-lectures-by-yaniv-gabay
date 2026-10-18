@@ -401,6 +401,25 @@ await check('V20', 'intro deck: keys/clicker step slides, live fork() demo runs,
   await waitFor(async () => (await pos()).startsWith('3 /'), 3000, 'slide 3');
   await page.keyboard.press('PageUp');
   await waitFor(async () => (await pos()).startsWith('2 /'), 3000, 'back to slide 2');
+  // Card-by-card slide: each → reveals one card, ← hides it, and only then does the deck move on
+  const kitchen = await page.evaluate(() => [...document.querySelectorAll('.slide')].findIndex((s) => s.querySelector('.frag')) + 1);
+  if (kitchen > 0) {
+    await page.evaluate((k) => { location.hash = `#${k - 1}`; }, kitchen);
+    await sleep(700);
+    await page.keyboard.press('ArrowRight');
+    await waitFor(async () => (await pos()).startsWith(`${kitchen} /`), 3000, 'card slide');
+    const shown = () => page.locator('.slide.active .frag.shown').count();
+    const total = await page.locator('.slide.active .frag').count();
+    assert(await shown() === 0, 'cards visible before any click');
+    await page.keyboard.press('ArrowRight'); await page.keyboard.press('ArrowRight');
+    assert(await shown() === 2, `two clicks showed ${await shown()} cards`);
+    await page.keyboard.press('ArrowLeft');
+    assert(await shown() === 1, '← did not hide the last card');
+    for (let k = 1; k < total; k++) await page.keyboard.press('PageDown');
+    assert((await pos()).startsWith(`${kitchen} /`) && await shown() === total, 'deck moved on before all cards were shown');
+    await page.keyboard.press('PageDown');
+    await waitFor(async () => (await pos()).startsWith(`${kitchen + 1} /`), 3000, 'next slide after the last card');
+  }
   const overflow = [];
   for (let i = 1; i <= n; i++) {
     await page.evaluate((k) => { location.hash = `#${k}`; }, i);

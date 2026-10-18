@@ -191,6 +191,24 @@ int main(void)
         </div>
       </section>
 
+      {/* 4c — The terms in real life: one kitchen metaphor, revealed card by card */}
+      <section class="slide" data-title="In real life">
+        <div class="wide">
+          <p class="kicker a" style="--d:0">In real life</p>
+          <h2 class="title a" style="--d:1">An operating system is a busy restaurant kitchen</h2>
+          <div class="kitchen">
+            <div class="kcard frag"><span class="kico" aria-hidden="true">📖</span><b>Program → Process</b><p>A recipe in the book is a <b>program</b>. A cook actually cooking it right now is a <b>process</b>.</p></div>
+            <div class="kcard frag"><span class="kico" aria-hidden="true">👨‍🍳</span><b>Operating system</b><p>The head chef: decides who gets the stove, the fridge and the time — so cooks don't fight.</p></div>
+            <div class="kcard frag"><span class="kico" aria-hidden="true">👯</span><b>fork()</b><p>Clone the cook in the middle of a recipe: now two cooks continue from the same step.</p></div>
+            <div class="kcard frag"><span class="kico" aria-hidden="true">🔄</span><b>exec()</b><p>Same cook, same apron — throws away this recipe and starts a completely different one.</p></div>
+            <div class="kcard frag"><span class="kico" aria-hidden="true">👆</span><b>Signal</b><p>A tap on the shoulder: “Stop!” — that is Ctrl+C. The cook can stop, or say “one moment”.</p></div>
+            <div class="kcard frag"><span class="kico" aria-hidden="true">🍽</span><b>Pipe</b><p>The pass window: one cook puts plates in, the waiter takes them out — in the same order.</p></div>
+            <div class="kcard frag"><span class="kico" aria-hidden="true">🔪</span><b>Threads + mutex</b><p>Several cooks share one kitchen. There is one knife: take it, use it, put it back.</p></div>
+            <div class="kcard frag"><span class="kico" aria-hidden="true">🍳</span><b>Deadlock</b><p>Cook A holds the pan and waits for the oil. Cook B holds the oil and waits for the pan. Forever.</p></div>
+          </div>
+        </div>
+      </section>
+
       {/* 5 — Roadmap */}
       <section class="slide" data-title="Roadmap">
         <div class="wide">
@@ -327,9 +345,29 @@ int main(void)
         setTimeout(tick, 1400);
       }
 
+      // Slides with .frag elements reveal them one per "next" before moving on
+      const frags = (slide: HTMLElement) => [...slide.querySelectorAll<HTMLElement>('.frag')];
+      function markLatest(slide: HTMLElement) {
+        const shown = frags(slide).filter((f) => f.classList.contains('shown'));
+        frags(slide).forEach((f) => f.classList.toggle('latest', f === shown[shown.length - 1]));
+      }
+      function next() {
+        const hidden = current >= 0 ? frags(slides[current]).find((f) => !f.classList.contains('shown')) : undefined;
+        if (hidden) { hidden.classList.add('shown'); markLatest(slides[current]); return; }
+        go(current + 1);
+      }
+      function prev() {
+        const shown = current >= 0 ? frags(slides[current]).filter((f) => f.classList.contains('shown')) : [];
+        if (shown.length) { shown[shown.length - 1].classList.remove('shown'); markLatest(slides[current]); return; }
+        go(current - 1);
+      }
+
       function go(i: number) {
         const n = Math.max(0, Math.min(i, slides.length - 1));
         if (n === current) return;
+        // arriving forwards: cards start hidden; arriving backwards (or by link): all shown
+        frags(slides[n]).forEach((f) => f.classList.toggle('shown', n < current));
+        markLatest(slides[n]);
         slides.forEach((s, k) => {
           s.classList.toggle('active', k === n);
           s.classList.toggle('before', k < n);
@@ -354,8 +392,8 @@ int main(void)
           if (e.key !== 'PageDown' && e.key !== 'PageUp') return;
         }
         const k = e.key;
-        if (k === 'ArrowRight' || k === 'PageDown' || k === ' ') go(current + 1);
-        else if (k === 'ArrowLeft' || k === 'PageUp') go(current - 1);
+        if (k === 'ArrowRight' || k === 'PageDown' || k === ' ') next();
+        else if (k === 'ArrowLeft' || k === 'PageUp') prev();
         else if (k === 'Home') go(0);
         else if (k === 'End') go(slides.length - 1);
         else if (k === 'f' || k === 'F') fullscreen();
@@ -364,8 +402,8 @@ int main(void)
         e.stopImmediatePropagation();
       }, true); // capture phase: a clicker's PageDown must work even while the terminal has focus
 
-      document.querySelector('.d-next')!.addEventListener('click', () => go(current + 1));
-      document.querySelector('.d-prev')!.addEventListener('click', () => go(current - 1));
+      document.querySelector('.d-next')!.addEventListener('click', next);
+      document.querySelector('.d-prev')!.addEventListener('click', prev);
       document.querySelector('.d-fs')!.addEventListener('click', fullscreen);
 
       // Swipe on touch screens
@@ -373,11 +411,17 @@ int main(void)
       window.addEventListener('touchstart', (e) => { x0 = e.touches[0].clientX; }, { passive: true });
       window.addEventListener('touchend', (e) => {
         const dx = e.changedTouches[0].clientX - x0;
-        if (Math.abs(dx) > 60 && !(e.target as HTMLElement).closest('.xterm, pre, .code-scroll')) go(current + (dx < 0 ? 1 : -1));
+        if (Math.abs(dx) > 60 && !(e.target as HTMLElement).closest('.xterm, pre, .code-scroll')) (dx < 0 ? next() : prev());
       });
 
-      window.addEventListener('hashchange', () => go((Number(location.hash.slice(1)) || 1) - 1));
-      go((Number(location.hash.slice(1)) || 1) - 1);
+      const fromHash = () => {
+        const n = (Number(location.hash.slice(1)) || 1) - 1;
+        go(n);
+        if (n !== 0) frags(slides[current]).forEach((f) => f.classList.add('shown')); // a link shows the whole slide
+        markLatest(slides[current]);
+      };
+      window.addEventListener('hashchange', fromHash);
+      fromHash();
     </script>
 
     <style is:global>
@@ -487,6 +531,17 @@ int main(void)
       .why p { margin: 0; color: #cbd5e1; font-size: clamp(.95rem, 1.35vw, 1.15rem); line-height: 1.45; }
       .punch { margin-top: 1.6rem; font-size: clamp(1.3rem, 2.4vw, 2rem); font-weight: 800; background: linear-gradient(90deg, #34d399, #22d3ee, #a78bfa); -webkit-background-clip: text; background-clip: text; color: transparent; }
 
+      /* Kitchen metaphor cards — revealed one per click (.frag) */
+      .kitchen { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-top: .4rem; }
+      .kcard { background: rgba(15,23,42,.75); border: 1px solid #1e293b; border-radius: 16px; padding: 1rem 1.1rem; }
+      .kcard b { display: block; color: #34d399; font-family: var(--font-mono); font-size: clamp(1rem, 1.5vw, 1.3rem); margin: .35rem 0 .3rem; }
+      .kcard p { margin: 0; color: #cbd5e1; font-size: clamp(.88rem, 1.15vw, 1.05rem); line-height: 1.4; }
+      .kcard p b { display: inline; color: #fff; font-family: inherit; font-size: inherit; margin: 0; }
+      .kico { font-size: 1.8rem; line-height: 1; }
+      .frag { opacity: .08; transform: translateY(14px) scale(.97); filter: blur(2px); transition: opacity .45s ease, transform .55s cubic-bezier(.2,.8,.2,1), filter .45s; }
+      .frag.shown { opacity: 1; transform: none; filter: none; }
+      .frag.shown.latest { border-color: rgba(52,211,153,.7); box-shadow: 0 0 0 1px rgba(52,211,153,.4), 0 18px 40px -18px rgba(16,185,129,.6); }
+
       /* Roadmap */
       .road { list-style: none; padding: 0; margin: 1.5rem 0 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.2rem; }
       .road li { position: relative; background: rgba(15,23,42,.7); border: 1px solid #1e293b; border-top: 4px solid var(--c); border-radius: 16px; padding: 1.3rem 1.3rem 1.1rem 4.2rem; display: flex; flex-direction: column; gap: .2rem; }
@@ -548,6 +603,7 @@ int main(void)
 
       @media (max-width: 800px) {
         .cards3, .road, .why-grid { grid-template-columns: 1fr; }
+        .kitchen { grid-template-columns: 1fr 1fr; }
         .split, .morph { grid-template-columns: 1fr; }
         .arrow { transform: rotate(90deg); justify-self: center; }
         .tree { max-width: 300px; justify-self: center; }
@@ -567,7 +623,7 @@ int main(void)
       }
       @media (prefers-reduced-motion: reduce) {
         .blob, .grad, .dot.glow { animation: none !important; }
-        .slide, .slide .a, .slide .pop { transition: none !important; animation-duration: .01s !important; animation-delay: 0s !important; }
+        .slide, .slide .a, .slide .pop, .frag { transition: none !important; animation-duration: .01s !important; animation-delay: 0s !important; }
       }
     </style>
   </body>

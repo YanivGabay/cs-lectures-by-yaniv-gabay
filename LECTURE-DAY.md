@@ -9,12 +9,13 @@ Status: https://cs-lectures.pages.dev/status/
 
 ## 0. First lecture: the intro deck
 
-https://cs-lectures.pages.dev/intro/ — 12 animated slides (about 10–15 minutes): who I am, the course,
+https://cs-lectures.pages.dev/intro/ — 13 animated slides (about 10–15 minutes): who I am, the course,
 the semester roadmap, a **live `fork()` demo**, the website, how to succeed, contact, and C++ → C.
 
 - `→` / `←`, Space, or a clicker's PageDown / PageUp step slides (PageDown works even while the demo
-  terminal has focus); `F` = full screen; `Home` / `End`; `/intro/#8` opens a given slide.
-- Slide 8 has a real **Run** button — sign in on `/presenter/` first so it runs in your sandbox.
+  terminal has focus); `F` = full screen; `Home` / `End`; `/intro/#9` opens a given slide.
+- Slide 9 has a real **Run** button — sign in on `/presenter/` first so it runs in your sandbox.
+- Slide 6 (the kitchen) reveals one card per click — the deck moves on after the eighth.
 - The last slide's **Start Lesson 01 →** opens Lesson 01 straight in the presenter view.
 - Checked at 1920×1080, 1366×768 and 1280×720 (nothing needs scrolling) and on phones (check V20).
 
