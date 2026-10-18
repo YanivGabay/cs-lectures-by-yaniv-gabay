@@ -160,6 +160,37 @@ int main(void)
         </div>
       </section>
 
+      {/* 4b — Why it's important */}
+      <section class="slide" data-title="Why it's important">
+        <div class="wide">
+          <p class="kicker a" style="--d:0">Why it's important</p>
+          <h2 class="title a" style="--d:1">This is the layer everything else stands on</h2>
+          <div class="why-grid">
+            <div class="why a" style="--d:2">
+              <span class="why-ico">⚙</span>
+              <b>Everything runs on it</b>
+              <p>The Linux kernel, Android, and the Python and Node.js runtimes are written in C — and every program you run is a process managed by an OS.</p>
+            </div>
+            <div class="why a" style="--d:3">
+              <span class="why-ico">☁</span>
+              <b>The cloud is processes</b>
+              <p>A Docker container is just processes with limits and their own namespaces. Lesson 16 shows it on this very website.</p>
+            </div>
+            <div class="why a" style="--d:4">
+              <span class="why-ico">⚠</span>
+              <b>The bugs you'll meet at work</b>
+              <p>Deadlocks, race conditions, zombie processes, "too many open files" — after this course they have names, and fixes.</p>
+            </div>
+            <div class="why a" style="--d:5">
+              <span class="why-ico">?</span>
+              <b>Job interviews ask it</b>
+              <p>"Process or thread?" · "What is a deadlock?" · "What happens when you type ./prog and press Enter?"</p>
+            </div>
+          </div>
+          <p class="punch a" style="--d:7">After this course, the computer stops being magic.</p>
+        </div>
+      </section>
+
       {/* 5 — Roadmap */}
       <section class="slide" data-title="Roadmap">
         <div class="wide">
@@ -445,6 +476,17 @@ int main(void)
       .slide.active .tree .node-group g { animation: pop .5s cubic-bezier(.3,1.6,.5,1) forwards; animation-delay: calc(var(--d) * .25s); }
       @keyframes draw { to { stroke-dashoffset: 0; } }
 
+      /* Why it's important */
+      .why-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.2rem; margin-top: .5rem; }
+      .why { position: relative; background: rgba(15,23,42,.72); border: 1px solid #1e293b; border-radius: 18px; padding: 1.3rem 1.4rem 1.2rem 4.6rem; overflow: hidden; }
+      .why::after { content: ''; position: absolute; inset: 0; background: linear-gradient(110deg, transparent 30%, rgba(52,211,153,.12) 50%, transparent 70%); transform: translateX(-100%); }
+      .slide.active .why::after { animation: sweep 1.4s ease forwards; animation-delay: calc(var(--d, 0) * 0.16s + .7s); }
+      @keyframes sweep { to { transform: translateX(100%); } }
+      .why-ico { position: absolute; left: 1.2rem; top: 1.15rem; width: 2.4rem; height: 2.4rem; border-radius: 12px; display: grid; place-items: center; font-size: 1.3rem; font-weight: 800; color: #050816; background: linear-gradient(135deg, #34d399, #22d3ee); }
+      .why b { display: block; color: #fff; font-size: clamp(1.15rem, 1.8vw, 1.55rem); margin-bottom: .35rem; }
+      .why p { margin: 0; color: #cbd5e1; font-size: clamp(.95rem, 1.35vw, 1.15rem); line-height: 1.45; }
+      .punch { margin-top: 1.6rem; font-size: clamp(1.3rem, 2.4vw, 2rem); font-weight: 800; background: linear-gradient(90deg, #34d399, #22d3ee, #a78bfa); -webkit-background-clip: text; background-clip: text; color: transparent; }
+
       /* Roadmap */
       .road { list-style: none; padding: 0; margin: 1.5rem 0 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.2rem; }
       .road li { position: relative; background: rgba(15,23,42,.7); border: 1px solid #1e293b; border-top: 4px solid var(--c); border-radius: 16px; padding: 1.3rem 1.3rem 1.1rem 4.2rem; display: flex; flex-direction: column; gap: .2rem; }
@@ -505,7 +547,7 @@ int main(void)
       .d-progress div { height: 100%; width: 0; background: linear-gradient(90deg, #10b981, #22d3ee); transition: width .5s ease; }
 
       @media (max-width: 800px) {
-        .cards3, .road { grid-template-columns: 1fr; }
+        .cards3, .road, .why-grid { grid-template-columns: 1fr; }
         .split, .morph { grid-template-columns: 1fr; }
         .arrow { transform: rotate(90deg); justify-self: center; }
         .tree { max-width: 300px; justify-self: center; }
