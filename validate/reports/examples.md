@@ -1,15 +1,15 @@
-# Example readiness — 2026-10-31 15:53 UTC
+# Example readiness — 2026-10-31 18:22 UTC
 
-Terminal: `ws://localhost:8099` · run limit 8s · 124 examples
+Terminal: `wss://cs-lectures-terminal.yaniv242.workers.dev` · run limit 8s · 124 examples
 
 | Category | Count |
 |---|---|
-| crashes | 2 |
+| crashes | 1 |
 | long-running | 13 |
 | pair-partner | 12 |
 | pair-runs | 12 |
 | reference-only | 6 |
-| runs-and-exits | 64 |
+| runs-and-exits | 65 |
 | runs-with-input | 13 |
 | windows-only | 2 |
 
@@ -174,7 +174,7 @@ Unexplained problems: **0**
 |---|---|---|---|
 | `01-pthread_create.c` | runs-and-exits | status 0 |  |
 | `02-pthread_exit.c` | runs-and-exits | status 0 |  |
-| `03-pthread_cleanup.c` | crashes | status 139 | intentional |
+| `03-pthread_cleanup.c` | runs-and-exits | status 0 | intentional |
 | `04-pthread_join.c` | runs-and-exits | status 0 |  |
 | `05-pthread_ping_pong.c` | runs-and-exits | status 0 |  |
 | `06-pthread-once.c` | runs-and-exits | status 0 |  |
