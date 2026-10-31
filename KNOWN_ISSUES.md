@@ -40,6 +40,12 @@ for as long as the program runs.
 undefined behaviour that musl punishes with SIGSEGV. Labelled as intentional; see
 `docs/course-fixes-for-review.md`.
 
+### Usage numbers can be inflated on purpose
+The Usage section counts every terminal that really opens. Someone could open terminals in a loop to
+raise the numbers; the per-IP connection limit (150 per minute) slows that down but does not stop it.
+Read the numbers as "roughly how much the site is used", not as an exact headcount. Automated checks
+tag themselves (`test=1`) and are shown apart.
+
 ### Billing alert is a manual step
 PRD task T07b: the Wrangler token cannot create notifications. Set the $10 usage alert in the
 Cloudflare dashboard (Notifications → Add → Usage Based Billing).

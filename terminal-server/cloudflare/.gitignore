@@ -1,0 +1,4 @@
+# Local development secrets for `wrangler dev` — never commit
+.dev.vars
+.dev.vars.*
+.wrangler/

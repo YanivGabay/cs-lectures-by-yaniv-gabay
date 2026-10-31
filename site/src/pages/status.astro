@@ -1,5 +1,12 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { lessons } from '../data/os-lessons';
+// slug -> "Lesson 02 · Basic Forks", for the most-used lessons list
+const pageNames = Object.fromEntries([
+  ...lessons.map((l) => [l.slug, `Lesson ${l.number} · ${l.title}`]),
+  ['intro', 'Intro lecture (slides)'],
+  ['other', 'Other / unknown page'],
+]);
 ---
 
 <BaseLayout title="System Status" currentPath="">
@@ -78,6 +85,50 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         <div class="mt-4 text-xs text-surface-500 dark:text-surface-400" id="last-checked">Last checked: never</div>
       </div>
 
+      {/* Usage — anonymous counts of terminals opened */}
+      <div class="card p-6" id="usage">
+        <div class="flex items-center justify-between mb-1">
+          <h2 class="text-lg font-semibold text-surface-900 dark:text-white">Usage</h2>
+          <span class="text-xs text-surface-500 dark:text-surface-400" id="usage-day"></span>
+        </div>
+        <p class="text-sm text-surface-600 dark:text-surface-400 mb-4">
+          Terminals opened by students (Run, Run pair or the full terminal). Anonymous — no names, no IP addresses.
+        </p>
+        <div id="usage-empty" class="hidden text-sm text-surface-600 dark:text-surface-400"></div>
+        <div id="usage-body" class="hidden">
+          <div class="grid grid-cols-3 gap-4 mb-5">
+            <div class="bg-surface-50 dark:bg-surface-900 rounded-xl p-4 text-center border-t-2 border-primary-500">
+              <div class="text-2xl font-bold text-surface-900 dark:text-white" id="u-today">-</div>
+              <div class="text-xs text-surface-500 dark:text-surface-400 mt-1">Today</div>
+            </div>
+            <div class="bg-surface-50 dark:bg-surface-900 rounded-xl p-4 text-center border-t-2 border-primary-500">
+              <div class="text-2xl font-bold text-surface-900 dark:text-white" id="u-week">-</div>
+              <div class="text-xs text-surface-500 dark:text-surface-400 mt-1">Last 7 days</div>
+            </div>
+            <div class="bg-surface-50 dark:bg-surface-900 rounded-xl p-4 text-center border-t-2 border-primary-500">
+              <div class="text-2xl font-bold text-surface-900 dark:text-white" id="u-month">-</div>
+              <div class="text-xs text-surface-500 dark:text-surface-400 mt-1">Last 30 days</div>
+            </div>
+          </div>
+
+          <div class="text-xs text-surface-500 dark:text-surface-400 mb-1">Last 30 days, per day</div>
+          <div id="u-bars" class="flex items-end gap-[3px] h-24 mb-1 border-b border-surface-200 dark:border-surface-700" role="img" aria-label="Terminals opened per day"></div>
+          <div class="flex justify-between text-[11px] text-surface-500 dark:text-surface-400 mb-5"><span id="u-first"></span><span>today</span></div>
+
+          <div class="grid sm:grid-cols-2 gap-6">
+            <div>
+              <div class="text-sm font-medium text-surface-800 dark:text-surface-200 mb-2">Most used (30 days)</div>
+              <ol id="u-pages" class="space-y-1.5 text-sm"></ol>
+            </div>
+            <div class="text-sm text-surface-700 dark:text-surface-300 space-y-1.5">
+              <div class="font-medium text-surface-800 dark:text-surface-200 mb-2">Breakdown (30 days)</div>
+              <div id="u-kinds"></div>
+              <div>Your presenter runs: <span class="font-mono" id="u-presenter">-</span> <span class="text-surface-500 dark:text-surface-400">(not counted above)</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Cost Info */}
       <div class="card p-6">
         <h2 class="text-lg font-semibold text-surface-900 dark:text-white mb-3">Cost Structure</h2>
@@ -108,7 +159,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   </section>
 </BaseLayout>
 
-<script is:inline>
+<script is:inline define:vars={{ PAGE_NAMES: pageNames }}>
   (function() {
     var meta = document.querySelector('meta[name="terminal-url"]');
     var TERMINAL_URL = (meta && meta.content ? meta.content : 'wss://cs-lectures-terminal.yaniv242.workers.dev').replace(/^ws/, 'http').replace(/\/$/, '');
@@ -184,6 +235,59 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           document.getElementById('last-checked').textContent = 'Last checked: ' + new Date().toLocaleTimeString() + ' (could not reach the terminal service)';
         });
     }
+
+    // ---------- anonymous usage ----------
+    var KIND_NAMES = { example: 'Run on an example', pair: 'Run pair', lesson: 'Full lesson terminal', other: 'Other' };
+    function show(id, on) { document.getElementById(id).classList.toggle('hidden', !on); }
+    function updateUsage() {
+      fetch(TERMINAL_URL + '/usage')
+        .then(function(r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+        .then(function(u) {
+          show('usage-body', true); show('usage-empty', false);
+          document.getElementById('usage-day').textContent = 'Israel date ' + u.today;
+          document.getElementById('u-today').textContent = u.students.today;
+          document.getElementById('u-week').textContent = u.students.week;
+          document.getElementById('u-month').textContent = u.students.month;
+          document.getElementById('u-presenter').textContent = u.presenter.month;
+          // 30 bars, oldest first; days without use are 0
+          var perDay = {};
+          u.daily.forEach(function(d) { if (d.who === 'student') perDay[d.day] = (perDay[d.day] || 0) + d.n; });
+          var days = [];
+          for (var i = 29; i >= 0; i--) days.push(new Date(Date.now() - i * 86400000).toLocaleDateString('en-CA', { timeZone: 'Asia/Jerusalem' }));
+          var max = Math.max.apply(null, days.map(function(d) { return perDay[d] || 0; }).concat([1]));
+          var bars = document.getElementById('u-bars');
+          bars.replaceChildren.apply(bars, days.map(function(d) {
+            var b = document.createElement('div');
+            var n = perDay[d] || 0;
+            b.className = 'flex-1 rounded-t ' + (n ? 'bg-primary-500' : 'bg-surface-200 dark:bg-surface-700');
+            b.style.height = (n ? Math.max(6, Math.round(n / max * 100)) : 3) + '%';
+            b.title = d + ': ' + n;
+            return b;
+          }));
+          document.getElementById('u-first').textContent = days[0];
+          var pages = document.getElementById('u-pages');
+          pages.replaceChildren.apply(pages, u.topPages.length ? u.topPages.map(function(p) {
+            var li = document.createElement('li');
+            li.className = 'flex justify-between gap-3';
+            var name = document.createElement('span'); name.className = 'truncate text-surface-700 dark:text-surface-300';
+            name.textContent = PAGE_NAMES[p.page] || p.page;
+            var n = document.createElement('span'); n.className = 'font-mono text-surface-900 dark:text-white'; n.textContent = p.n;
+            li.appendChild(name); li.appendChild(n); return li;
+          }) : [Object.assign(document.createElement('li'), { className: 'text-surface-500 dark:text-surface-400', textContent: 'No student terminals yet' })]);
+          var kinds = document.getElementById('u-kinds');
+          kinds.replaceChildren.apply(kinds, u.kinds.map(function(k) {
+            var d = document.createElement('div');
+            d.textContent = (KIND_NAMES[k.kind] || k.kind) + ': ' + k.n;
+            return d;
+          }));
+        })
+        .catch(function() {
+          show('usage-body', false); show('usage-empty', true);
+          document.getElementById('usage-empty').textContent = 'Usage numbers are collected by the live terminal service (not available here).';
+        });
+    }
+    updateUsage();
+    setInterval(updateUsage, 60000);
 
     update();
     setInterval(update, 10000);

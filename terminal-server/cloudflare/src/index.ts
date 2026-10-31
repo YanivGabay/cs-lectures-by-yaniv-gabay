@@ -5,6 +5,7 @@ interface Env {
   TERMINAL: DurableObjectNamespace<TerminalContainer>;
   PRESENTER: DurableObjectNamespace<PresenterContainer>;
   IP_COUNTER: DurableObjectNamespace<IpCounter>;
+  USAGE: DurableObjectNamespace<UsageCounter>;
   PRESENTER_PASSWORD?: string; // chosen by the lecturer: wrangler secret put PRESENTER_PASSWORD
   TOKEN_SECRET?: string;       // random HMAC key that signs presenter passes
 }
@@ -33,6 +34,55 @@ export class IpCounter extends DurableObject {
     w.count++;
     return w.count <= limit;
   }
+}
+
+// ---------- anonymous usage counter ----------
+// One row per (day, who, page, kind) with a count — no IP, no browser details, nothing personal.
+// day: Israel date · who: student | presenter | test · page: lesson slug or "intro" · kind: example | lesson | pair
+const KEEP_DAYS = 180;
+const israelDay = (t = Date.now()) =>
+  new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Jerusalem", year: "numeric", month: "2-digit", day: "2-digit" }).format(t);
+
+export class UsageCounter extends DurableObject {
+  constructor(ctx: DurableObjectState, env: unknown) {
+    super(ctx, env as never);
+    ctx.storage.sql.exec(`CREATE TABLE IF NOT EXISTS usage (
+      day TEXT NOT NULL, who TEXT NOT NULL, page TEXT NOT NULL, kind TEXT NOT NULL, n INTEGER NOT NULL,
+      PRIMARY KEY (day, who, page, kind))`);
+  }
+
+  async record(who: string, page: string, kind: string): Promise<void> {
+    const day = israelDay();
+    this.ctx.storage.sql.exec(
+      "INSERT INTO usage (day, who, page, kind, n) VALUES (?, ?, ?, ?, 1) ON CONFLICT (day, who, page, kind) DO UPDATE SET n = n + 1",
+      day, who, page, kind);
+    this.ctx.storage.sql.exec("DELETE FROM usage WHERE day < ?", israelDay(Date.now() - KEEP_DAYS * 86_400_000));
+  }
+
+  async summary() {
+    const today = israelDay();
+    const since = (days: number) => israelDay(Date.now() - (days - 1) * 86_400_000);
+    const sum = (who: string, from: string) =>
+      Number(this.ctx.storage.sql.exec("SELECT COALESCE(SUM(n), 0) AS n FROM usage WHERE who = ? AND day >= ?", who, from).one().n);
+    const block = (who: string) => ({ today: sum(who, today), week: sum(who, since(7)), month: sum(who, since(30)) });
+    const daily = this.ctx.storage.sql.exec(
+      "SELECT day, who, SUM(n) AS n FROM usage WHERE day >= ? AND who != 'test' GROUP BY day, who ORDER BY day", since(30)).toArray();
+    const topPages = this.ctx.storage.sql.exec(
+      "SELECT page, SUM(n) AS n FROM usage WHERE day >= ? AND who = 'student' GROUP BY page ORDER BY n DESC LIMIT 8", since(30)).toArray();
+    const kinds = this.ctx.storage.sql.exec(
+      "SELECT kind, SUM(n) AS n FROM usage WHERE day >= ? AND who = 'student' GROUP BY kind", since(30)).toArray();
+    return { today, students: block("student"), presenter: block("presenter"), test: block("test"), daily, topPages, kinds };
+  }
+}
+
+// Only well-formed labels are stored; anything else becomes "other"
+const label = (v: string | null, allowed: RegExp, fallback = "other") => (v && allowed.test(v) ? v : fallback);
+
+function countSession(env: Env, ctx: ExecutionContext, url: URL, who: string) {
+  const page = label(url.searchParams.get("page"), /^(intro|[0-9]{2}(\.5)?-[a-z0-9-]{1,50})$/);
+  const kind = label(url.searchParams.get("kind"), /^(example|lesson|pair)$/);
+  const tagged = url.searchParams.get("test") === "1" ? "test" : who;
+  ctx.waitUntil(env.USAGE.getByName("usage").record(tagged, page, kind).catch(() => {}));
 }
 
 const allow = (env: Env, ip: string, kind: string, limit: number) =>
@@ -158,7 +208,7 @@ async function hasRoom(stub: any): Promise<boolean> {
 // ---------- routes ----------
 
 export default {
-  async fetch(request: Request, env: Env): Promise<Response> {
+  async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const url = new URL(request.url);
     const ip = request.headers.get("CF-Connecting-IP") || "unknown";
 
@@ -173,6 +223,11 @@ export default {
         try { return { name, ...(await stub.peek()) }; } catch (e) { return { name, state: "unknown", error: String(e) }; }
       }));
       return json(request, { containers, checkedAt: Date.now() });
+    }
+
+    // Anonymous usage totals for the status page (test traffic is reported separately)
+    if (url.pathname === "/usage") {
+      return json(request, await env.USAGE.getByName("usage").summary());
     }
 
     // Lecturer signs in on any computer: password -> 90-day presenter pass for that browser
@@ -207,7 +262,9 @@ export default {
     if (await validPass(env, url.searchParams.get("presenter"))) {
       const stub = env.PRESENTER.getByName("presenter");
       await start(stub, "presenter");
-      return stub.fetch(request);
+      const res = await stub.fetch(request);
+      if (res.status === 101) countSession(env, ctx, url, "presenter");
+      return res;
     }
 
     if (!(await allow(env, ip, "connect", CONNECTS_PER_MINUTE))) {
@@ -220,7 +277,11 @@ export default {
       const name = `pool-${(first + i) % POOL_SIZE}`;
       const stub = env.TERMINAL.getByName(name);
       await start(stub, name);
-      if (i === POOL_SIZE - 1 || (await hasRoom(stub))) return stub.fetch(request);
+      if (i === POOL_SIZE - 1 || (await hasRoom(stub))) {
+        const res = await stub.fetch(request);
+        if (res.status === 101) countSession(env, ctx, url, "student"); // counted only once the terminal really opened
+        return res;
+      }
     }
     return new Response("unreachable", { status: 500 });
   },

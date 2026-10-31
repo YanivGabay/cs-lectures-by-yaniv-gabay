@@ -66,13 +66,27 @@ const TONE: Record<string, string> = {
   info: 'bg-sky-900/60 text-sky-200 border-sky-700',
 };
 
-function getTerminalUrl(): string {
+// Which page a terminal was opened from, for the anonymous usage counter: "02-basic-forks", "intro"…
+function pageLabel(): string {
+  const m = location.pathname.match(/^\/os\/([^/]+)/);
+  return m ? m[1] : location.pathname.replace(/\//g, '') || 'home';
+}
+
+function getTerminalUrl(kind: 'example' | 'lesson' | 'pair'): string {
   const meta = document.querySelector('meta[name="terminal-url"]') as HTMLMetaElement | null;
   const base = meta?.content || localStorage.getItem('terminal-url') || '';
+  if (!base) return '';
+  const url = new URL(base);
   let key: string | null = null;
-  try { key = localStorage.getItem('presenterKey'); } catch {}
+  let test = false;
+  try { key = localStorage.getItem('presenterKey'); test = localStorage.getItem('usageTest') === '1'; } catch {}
   // The presenter's browser goes to the reserved sandbox; everyone else to the student pool
-  return base && key ? `${base}${base.includes('?') ? '&' : '?'}presenter=${encodeURIComponent(key)}` : base;
+  if (key) url.searchParams.set('presenter', key);
+  // Anonymous usage counting: the page and the kind of terminal — nothing about the person
+  url.searchParams.set('page', pageLabel());
+  url.searchParams.set('kind', kind);
+  if (test) url.searchParams.set('test', '1'); // automated checks are counted apart from real use
+  return url.toString();
 }
 
 export function fontSize(): number {
@@ -281,7 +295,7 @@ export function openTerminal(container: HTMLElement, opts: TerminalOptions) {
 
   setTimeout(() => {
     fitAll();
-    const url = getTerminalUrl();
+    const url = getTerminalUrl(opts.mode === 'lesson' ? 'lesson' : opts.panes.length > 1 ? 'pair' : 'example');
     if (!url) {
       panes[0].term.writeln('\x1b[1;31mTerminal server not configured.\x1b[0m');
       panes[0].term.writeln('Run: \x1b[33mlocalStorage.setItem("terminal-url","ws://localhost:8090")\x1b[0m then reload.');

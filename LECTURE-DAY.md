@@ -85,6 +85,13 @@ $env:PRESENTER_PASSWORD = Read-Host -MaskInput "Presenter password"; $env:ONLY =
 Run them one after another, not at the same time: `security.mjs` floods the connection limit on purpose
 (S13) and locks presenter logins for a minute (S19) — wait a minute before the next suite.
 
+## Who used the site?
+
+https://cs-lectures.pages.dev/status/ → **Usage**: terminals opened by students today, in the last
+7 and 30 days, a 30-day chart, the most-used lessons, and your own presenter runs (counted apart).
+It is anonymous (date, lesson and kind only) and automated checks are kept out of it. Page views
+(people who only read) need Cloudflare Web Analytics — steps in `docs/web-analytics.md`.
+
 ## Still to do
 
 - **Billing alert ($10)** — Cloudflare dashboard → Notifications → Add → *Usage Based Billing* →

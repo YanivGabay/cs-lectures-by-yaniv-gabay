@@ -28,7 +28,7 @@ const base = (f) => f.split('/').pop();
 
 // One sandbox session with any number of panes; resolves events as they arrive
 function session(files) {
-  const ws = new WebSocket(WS_URL, { headers: { Origin: ORIGIN } });
+  const ws = new WebSocket(`${WS_URL}?test=1`, { headers: { Origin: ORIGIN } }); // not counted as real use
   const panes = new Map();
   const pane = (i) => {
     if (!panes.has(i)) panes.set(i, { out: '', scanned: 0, statuses: [], waits: 0, waiting: false, lastOutput: Date.now() });

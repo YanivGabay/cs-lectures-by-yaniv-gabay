@@ -7,7 +7,7 @@ const WS = process.env.TERMINAL_URL || 'wss://cs-lectures-terminal.yaniv242.work
 const HTTP = WS.replace(/^ws/, 'http');
 const status = async () => (await (await fetch(`${HTTP}/status`)).json()).containers;
 
-const ws = new WebSocket(WS, { headers: { Origin: 'https://cs-lectures.pages.dev' } });
+const ws = new WebSocket(`${WS}?test=1`, { headers: { Origin: 'https://cs-lectures.pages.dev' } });
 const name = await new Promise((resolve) => {
   ws.on('open', () => ws.send(JSON.stringify({ type: 'start', mode: 'example', files: [] })));
   ws.on('message', (d) => { const m = JSON.parse(d); if (m.type === 'ready') resolve(m.container); });

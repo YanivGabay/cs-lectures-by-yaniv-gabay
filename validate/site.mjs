@@ -11,6 +11,8 @@ const browser = await launch();
 async function newPage({ scheme = 'light', theme = null, viewport = { width: 1400, height: 900 } } = {}) {
   const ctx = await browser.newContext({ colorScheme: scheme, viewport });
   if (theme) await ctx.addInitScript((t) => localStorage.setItem('theme', t), theme);
+  // keep automated runs out of the real usage numbers on the status page
+  await ctx.addInitScript(() => { try { localStorage.setItem('usageTest', '1'); } catch {} });
   const page = await ctx.newPage();
   page.errors = [];
   page.on('pageerror', (e) => page.errors.push(e.message));
@@ -524,6 +526,19 @@ await check('V19', 'status page lists every container without waking it; a warm 
   await page.context().close();
   assert(ms < 3000, `warm Run took ${ms}ms to reach the prompt on ${landed}`);
   return `${rows.join(' ')} · warm Run → prompt ${ms}ms on ${landed}`;
+});
+
+await check('V21', 'status page shows anonymous usage: today / 7 days / 30 days, a 30-day chart and the most-used lessons', async () => {
+  const page = await newPage();
+  await page.goto(`${BASE}/status/`);
+  await waitFor(async () => (await page.locator('#usage-body').isVisible()) || (await page.locator('#usage-empty').isVisible()), 20000, 'usage section');
+  if (await page.locator('#usage-empty').isVisible()) { await page.context().close(); throw new Skip('terminal service has no /usage here'); }
+  const nums = await Promise.all(['#u-today', '#u-week', '#u-month'].map((id) => page.locator(id).innerText()));
+  assert(nums.every((n) => /^\d+$/.test(n)), `counts are not numbers: ${nums}`);
+  assert(Number(nums[0]) <= Number(nums[1]) && Number(nums[1]) <= Number(nums[2]), `today/week/month not increasing: ${nums}`);
+  assert(await page.locator('#u-bars > div').count() === 30, 'chart does not have 30 days');
+  await page.context().close();
+  return `today ${nums[0]}, 7 days ${nums[1]}, 30 days ${nums[2]}`;
 });
 
 await check('V17', 'presenter sign-in on /presenter sticks across pages and reloads and reaches the reserved sandbox', async () => {

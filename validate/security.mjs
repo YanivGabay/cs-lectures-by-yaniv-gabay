@@ -26,7 +26,8 @@ function login(password, origin = ORIGIN) {
 const warmStatus = async (token) => (await fetch(`${HTTP_URL}/warm?presenter=${encodeURIComponent(token)}`)).status;
 
 function connect(origin = ORIGIN, query = '') {
-  const ws = new WebSocket(WS_URL + query, { headers: { Origin: origin } });
+  const sep = query ? '&' : '?';
+  const ws = new WebSocket(`${WS_URL}${query}${sep}test=1`, { headers: { Origin: origin } }); // test traffic is not counted as real use
   return new Promise((resolve, reject) => {
     ws.once('open', () => resolve(ws));
     ws.once('unexpected-response', (_req, res) => reject(new Error(`HTTP ${res.statusCode}`)));
@@ -227,6 +228,24 @@ await check('S20', 'FIFOs in /tmp and POSIX semaphores in /dev/shm are removed w
   assert(Number(before) >= 3, `test setup failed — only ${before} files created`);
   assert(after.trim() === '0', `${after.trim()} file(s) of uid ${uid} left in /tmp or /dev/shm — the next user with that uid would inherit them`);
   return `${before.trim()} created, 0 left`;
+});
+
+await check('S23', 'usage counter: test sessions are tagged apart, refused connections count nothing, nothing personal is exposed', async () => {
+  const get = async () => { const r = await fetch(`${HTTP_URL}/usage`); if (r.status === 404) throw new Skip('no /usage here (bare container, not the Worker)'); return r.json(); };
+  const before = await get();
+  const a = await openSession(undefined, 'example', '?page=02-basic-forks&kind=example');
+  a.close();
+  const refused = await connect('https://evil.example.com').then((ws) => { ws.close(); return 'opened'; }, (e) => e.message);
+  await sleep(2500);
+  const after = await get();
+  assert(/403/.test(refused), `foreign origin was not refused (${refused})`);
+  assert(after.test.today - before.test.today === 1, `test sessions today went ${before.test.today} -> ${after.test.today}, expected +1`);
+  const keys = Object.keys(after).sort().join(',');
+  assert(keys === 'daily,kinds,presenter,students,test,today,topPages', `unexpected fields in /usage: ${keys}`);
+  const rowKeys = new Set([...after.daily, ...after.topPages, ...after.kinds].flatMap((r) => Object.keys(r)));
+  assert([...rowKeys].every((k) => ['day', 'who', 'n', 'page', 'kind'].includes(k)), `unexpected row fields: ${[...rowKeys]}`);
+  assert(!/\b\d{1,3}(\.\d{1,3}){3}\b|:[0-9a-f]{1,4}:/i.test(JSON.stringify(after)), '/usage contains something that looks like an IP address');
+  return `test ${before.test.today} -> ${after.test.today}; students today ${after.students.today}`;
 });
 
 if (DESTRUCTIVE) {
