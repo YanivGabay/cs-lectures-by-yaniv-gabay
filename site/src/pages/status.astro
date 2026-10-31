@@ -243,6 +243,7 @@ const pageNames = Object.fromEntries([
       fetch(TERMINAL_URL + '/usage')
         .then(function(r) { if (!r.ok) throw new Error(r.status); return r.json(); })
         .then(function(u) {
+          if (u.local) throw new Error('local');
           show('usage-body', true); show('usage-empty', false);
           document.getElementById('usage-day').textContent = 'Israel date ' + u.today;
           document.getElementById('u-today').textContent = u.students.today;

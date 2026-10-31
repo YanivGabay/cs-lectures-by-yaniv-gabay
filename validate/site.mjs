@@ -541,6 +541,38 @@ await check('V21', 'status page shows anonymous usage: today / 7 days / 30 days,
   return `today ${nums[0]}, 7 days ${nums[1]}, 30 days ${nums[2]}`;
 });
 
+await check('V22', 'Files panel: files a program creates pop up after Run; input files are editable and "Save & run again" uses the edit', async () => {
+  const page = await newPage();
+  const block = (file) => page.locator('.code-block-wrapper', { has: page.locator('span', { hasText: new RegExp(`^${file.replace(/[.]/g, '\\.')}$`) }) });
+  const panel = (b) => b.locator('.term-files');
+
+  await page.goto(`${BASE}/os/01-intro-to-c/`);
+  const io = block('04-basic-files-ptrs.c');
+  await io.locator('.open-terminal-btn').click();
+  await panel(io).locator('.tf-row[data-name="example.txt"][data-status="new"]').waitFor({ timeout: 60000 });
+  await waitFor(async () => /Hello, this is a test file\./.test(await panel(io).locator('.tf-text').innerText().catch(() => '')), 15000, 'example.txt shown automatically');
+
+  await page.goto(`${BASE}/os/01.5-more-intro-to-c/`);
+  const argc = block('argc_argv_another_example.c');
+  page.termOut = '';
+  await argc.locator('.open-terminal-btn').click();
+  const edit = panel(argc).locator('textarea.tf-edit');
+  await edit.waitFor({ timeout: 60000 });
+  await waitTerm(page, /2 coffees/, 30000, 'program printing notes.txt');
+  await waitFor(async () => (await argc.locator('.term-chip').allInnerTexts()).some((t) => /Exited 0/.test(t)), 15000, 'first run finished');
+  await edit.fill('Edited by V22\n');
+  page.termOut = '';
+  await panel(argc).locator('.tf-save-run').click();
+  await waitTerm(page, /Edited by V22/, 30000, 'second run reading the edited input');
+
+  await page.goto(`${BASE}/os/14-cool-pthreads/`);
+  const sem = block('03-forks-mutex.c');
+  await sem.locator('.open-terminal-btn').click();
+  await panel(sem).locator('.tf-row[data-name="shared_output.txt"]').waitFor({ timeout: 60000 });
+  await waitFor(async () => /\S/.test(await panel(sem).locator('.tf-text').innerText().catch(() => '')), 15000, 'shared_output.txt contents');
+  await page.context().close();
+});
+
 await check('V17', 'presenter sign-in on /presenter sticks across pages and reloads and reaches the reserved sandbox', async () => {
   if (!PRESENTER_PASSWORD) throw new Skip('set PRESENTER_PASSWORD to run');
   const page = await newPage();

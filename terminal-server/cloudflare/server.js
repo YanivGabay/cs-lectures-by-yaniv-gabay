@@ -14,13 +14,16 @@ const IDLE_TIMEOUT_MS = parseInt(process.env.SESSION_TIMEOUT || '180000');
 const MAX_SESSION_MS = parseInt(process.env.MAX_SESSION_MS || String(20 * 60 * 1000));
 const CONTAINER_NAME = process.env.CONTAINER_NAME || 'local';
 // Bump when the image changes, so validation can tell when a gradual rollout has reached a container
-const IMAGE_VERSION = '2026-10-07.1';
+const IMAGE_VERSION = '2026-10-31.1';
 
 const LAUNCHER = '/usr/local/sbin/sandbox-launch';
 const WORK_ROOT = '/work';
 const MAX_FILES = 60;
 const MAX_TOTAL_BYTES = 1_000_000;
 const MAX_INPUT_CHARS = 64 * 1024;
+const MAX_LISTED_FILES = 200;
+const MAX_VIEW_BYTES = 64 * 1024;   // the Files panel shows at most this much of a file
+const MAX_SAVE_BYTES = 64 * 1024;   // an edited input file may be at most this big
 const SAFE_SEGMENT = /^[A-Za-z0-9_-][A-Za-z0-9._-]*$/; // no leading dot, no '..'
 // The terminal turns these control characters into signals for the foreground process group
 const SIGNAL_KEYS = { SIGINT: '\x03', SIGQUIT: '\x1c', SIGTSTP: '\x1a' };
@@ -125,8 +128,88 @@ function waitingForInput(shellPid, account) {
   } catch { return false; }
 }
 
+// ---------- Files panel: list, view and save files of ONE session ----------
+// Safety rules:
+//  * Only paths inside the session folder, written the same safe way as uploads (no '..', no '/x').
+//  * Root only *looks* (lstat): links, FIFOs and files the student does not own are listed but never opened.
+//  * Contents are read and written AS THE STUDENT (uid/gid), so the panel can never see or change
+//    more than the student's own shell could — even if a file is swapped for a link mid-request.
+function listFiles(account, uploaded) {
+  const files = [];
+  let programs = 0;
+  const walk = (rel, depth) => {
+    if (depth > 4 || files.length >= MAX_LISTED_FILES) return;
+    let names;
+    try { names = fs.readdirSync(path.join(account.dir, rel)); } catch { return; }
+    for (const name of names.sort()) {
+      if (name.startsWith('.') || files.length >= MAX_LISTED_FILES) continue;
+      const r = rel ? `${rel}/${name}` : name;
+      let st;
+      try { st = fs.lstatSync(path.join(account.dir, r)); } catch { continue; }
+      if (st.isDirectory() && !st.isSymbolicLink()) { walk(r, depth + 1); continue; }
+      if (!st.isFile() || st.uid !== account.uid) {
+        files.push({ name: r, size: 0, status: 'special', what: st.isFIFO() ? 'FIFO (named pipe)' : st.isSymbolicLink() ? 'link' : 'not a regular file' });
+        continue;
+      }
+      if ((st.mode & 0o111) && isProgram(account, r)) { programs++; continue; } // compiled programs: counted, not listed
+      const up = uploaded.get(r);
+      const status = !up ? 'new' : st.mtimeMs !== up.mtimeMs ? 'changed' : up.data ? 'input' : 'source';
+      files.push({ name: r, size: st.size, mtime: Math.round(st.mtimeMs), status });
+    }
+  };
+  walk('', 0);
+  return { files, programs };
+}
+
+// Compiled programs start with the ELF magic bytes; read 4 bytes as the student
+function isProgram(account, rel) {
+  try {
+    const head = execFileSync('head', ['-c', '4', '--', path.join(account.dir, rel)],
+      { uid: account.uid, gid: account.gid, stdio: ['ignore', 'pipe', 'ignore'], timeout: 2000 });
+    return head.length === 4 && head[0] === 0x7f && head.toString('latin1', 1, 4) === 'ELF';
+  } catch { return false; }
+}
+
+// A regular file owned by the student inside their folder — or null
+function ownFile(account, name) {
+  const rel = safeRelativePath(name);
+  if (!rel) return null;
+  const full = path.join(account.dir, rel);
+  try {
+    const st = fs.lstatSync(full);
+    return st.isFile() && st.uid === account.uid ? { rel, full, size: st.size } : null;
+  } catch { return null; }
+}
+
+function readOwnFile(account, name) {
+  const f = ownFile(account, name);
+  if (!f) return { error: 'Not a regular file in this sandbox.' };
+  const buf = execFileSync('head', ['-c', String(MAX_VIEW_BYTES + 1), '--', f.full],
+    { uid: account.uid, gid: account.gid, stdio: ['ignore', 'pipe', 'ignore'], timeout: 3000, maxBuffer: MAX_VIEW_BYTES + 2 });
+  const truncated = buf.length > MAX_VIEW_BYTES;
+  const body = buf.subarray(0, MAX_VIEW_BYTES);
+  if (body.includes(0)) return { name: f.rel, size: f.size, binary: true };
+  return { name: f.rel, size: f.size, text: body.toString('utf8'), truncated };
+}
+
+function saveOwnFile(account, name, content, uploaded) {
+  const f = ownFile(account, name);
+  if (!f || !uploaded.get(f.rel)?.data) return { error: 'Only the example\'s input files can be edited here.' };
+  if (typeof content !== 'string' || Buffer.byteLength(content) > MAX_SAVE_BYTES) return { error: 'File too big (max 64 KB).' };
+  // `cat > file` as the student: same rights as typing it in their own shell
+  execFileSync('sh', ['-c', 'cat > "$1"', 'sh', f.full],
+    { uid: account.uid, gid: account.gid, input: content, stdio: ['pipe', 'ignore', 'ignore'], timeout: 3000 });
+  return { name: f.rel };
+}
+
 const server = http.createServer((req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
+  if (req.url === '/usage') {
+    // Usage is counted by the Cloudflare Worker; a bare container (local development) has none
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ local: true }));
+    return;
+  }
   if (req.url === '/status') {
     // Same shape as the Worker's /status, for running this container on its own (local development)
     res.writeHead(200, { 'Content-Type': 'application/json' });
@@ -165,6 +248,8 @@ wss.on('connection', (ws) => {
 
   let sid = null;
   let account = null;
+  const uploaded = new Map(); // rel path -> { data, mtimeMs } as uploaded, to tell new/changed files apart
+  const pendingPanes = new Set(); // second/third panes waiting for pane 0's namespaces
   const panes = new Map(); // pane id -> { pty, waiting }
   let idleTimer = null;
   let hardTimer = null;
@@ -202,9 +287,11 @@ wss.on('connection', (ws) => {
       cwd: account.dir,
       env: { PATH: '/usr/bin:/bin' },
     });
-    const pane = { pty: p, waiting: false };
+    const pane = { pty: p, waiting: false, spoke: null, markSpoke: null };
+    // The first output means the launcher is done: its namespaces exist and bash is running
+    pane.spoke = new Promise((resolve) => { pane.markSpoke = resolve; });
     panes.set(id, pane);
-    p.onData((data) => send({ type: 'output', pane: id, data }));
+    p.onData((data) => { pane.markSpoke(); send({ type: 'output', pane: id, data }); });
     p.onExit(({ exitCode }) => {
       if (closed) return;
       send({ type: 'exit', pane: id, code: exitCode });
@@ -237,7 +324,7 @@ wss.on('connection', (ws) => {
       if (files.length > MAX_FILES || totalBytes > MAX_TOTAL_BYTES) {
         return refuse(`Too many files (${files.length}, max ${MAX_FILES}) or too much code (${totalBytes} bytes, max ${MAX_TOTAL_BYTES}).`);
       }
-      const named = files.map((f) => ({ rel: safeRelativePath(f?.name), content: String(f?.content ?? '') }));
+      const named = files.map((f) => ({ rel: safeRelativePath(f?.name), content: String(f?.content ?? ''), data: f?.role === 'data' }));
       const bad = named.find((f) => !f.rel);
       if (bad) return refuse('Invalid file name.');
 
@@ -253,6 +340,7 @@ wss.on('connection', (ws) => {
         // Hand the whole tree to the session user; 0700 keeps other students out
         execFileSync('chown', ['-R', `${account.uid}:${account.gid}`, account.dir]);
         fs.chmodSync(account.dir, 0o700);
+        for (const f of named) uploaded.set(f.rel, { data: f.data, mtimeMs: fs.statSync(path.join(account.dir, f.rel)).mtimeMs });
       } catch (e) {
         log(sid, `setup failed: ${e.message}`);
         send({ type: 'error', data: 'Could not prepare your sandbox. Please try again.\r\n' });
@@ -276,9 +364,17 @@ wss.on('connection', (ws) => {
     } else if (msg.type === 'open-pane') {
       // A second (or third) shell in the same sandbox, e.g. server + client side by side
       const id = msg.pane;
-      if (!account || closed || !Number.isInteger(id) || id < 1 || id >= MAX_PANES || panes.has(id)) return;
-      openPane(id, 'example', msg.cols, msg.rows);
-      send({ type: 'pane-ready', pane: id });
+      if (!account || closed || !Number.isInteger(id) || id < 1 || id >= MAX_PANES || panes.has(id) || pendingPanes.has(id)) return;
+      // Join pane 0's namespaces only once they exist — before that, pane 0's launcher has not
+      // unshared yet and the new pane would land in the shared container (other /tmp, IPC, ports)
+      pendingPanes.add(id);
+      const first = panes.get(0);
+      Promise.race([first ? first.spoke : Promise.resolve(), new Promise((res) => setTimeout(res, 5000))]).then(() => {
+        pendingPanes.delete(id);
+        if (closed || panes.has(id) || !panes.get(0)) return;
+        openPane(id, 'example', msg.cols, msg.rows);
+        send({ type: 'pane-ready', pane: id });
+      });
 
     } else if (msg.type === 'input') {
       if (pane && typeof msg.data === 'string' && msg.data.length <= MAX_INPUT_CHARS) pane.pty.write(msg.data);
@@ -288,6 +384,22 @@ wss.on('connection', (ws) => {
       if (pane && cols >= 20 && cols <= 400 && rows >= 5 && rows <= 200) {
         try { pane.pty.resize(cols, rows); } catch {}
       }
+
+    } else if (msg.type === 'list-files') {
+      if (account && !closed) send({ type: 'files', ...listFiles(account, uploaded) });
+
+    } else if (msg.type === 'read-file') {
+      if (!account || closed) return;
+      try { send({ type: 'file', ...readOwnFile(account, msg.name) }); }
+      catch { send({ type: 'file', name: String(msg.name || ''), error: 'Could not read this file.' }); }
+
+    } else if (msg.type === 'save-file') {
+      if (!account || closed) return;
+      try {
+        const res = saveOwnFile(account, msg.name, msg.content, uploaded);
+        send({ type: 'file-saved', ...res });
+        if (!res.error) uploaded.get(res.name).mtimeMs = fs.statSync(path.join(account.dir, res.name)).mtimeMs; // still "input", not "changed"
+      } catch { send({ type: 'file-saved', name: String(msg.name || ''), error: 'Could not save this file.' }); }
 
     } else if (msg.type === 'signal') {
       // Writing ^C to the terminal makes the kernel deliver SIGINT to the foreground

@@ -151,6 +151,7 @@ async function audit(lesson, ex) {
   const files = [{ name: ex.file, content: code }];
   if (partner) files.push({ name: partner.file, content: readCode(lesson, partner.file) });
   for (const extra of ex.extraFiles || []) files.push({ name: extra, content: readCode(lesson, extra) });
+  for (const data of ex.dataFiles || []) files.push({ name: data, content: readCode(lesson, data), role: 'data' });
   for (const f of [...files]) {
     for (const h of localIncludes(f.name, f.content || '')) {
       const c = readCode(lesson, h);

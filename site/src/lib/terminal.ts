@@ -20,7 +20,8 @@ export interface PanePlan {
 }
 
 export interface TerminalOptions {
-  files: { name: string; content: string }[];
+  // role 'data': an input file the program reads (shown editable in the Files panel)
+  files: { name: string; content: string; role?: 'data' }[];
   mode: 'example' | 'lesson';
   panes: PanePlan[];
   title?: string;
@@ -129,6 +130,16 @@ export function openTerminal(container: HTMLElement, opts: TerminalOptions) {
           <div class="terminal-target" style="height:${opts.height || 350}px;"></div>
           <div class="term-chips flex flex-wrap items-center gap-2 px-3 py-1.5 min-h-[34px] bg-surface-900 border-t border-surface-800"></div>
         </div>`).join('')}
+    </div>
+    <div class="term-files hidden text-left border-t border-surface-700 bg-surface-900">
+      <button class="tf-toggle w-full flex items-center justify-between gap-3 px-4 py-1.5 text-xs text-surface-300 hover:bg-surface-800" aria-expanded="false">
+        <span class="tf-title font-medium">Files</span>
+        <span class="tf-chev text-surface-400">▸ show</span>
+      </button>
+      <div class="tf-body hidden grid md:grid-cols-[minmax(0,15rem)_minmax(0,1fr)] gap-px bg-surface-800 border-t border-surface-800">
+        <ul class="tf-list bg-surface-900 max-h-72 overflow-auto py-1 text-xs font-mono"></ul>
+        <div class="tf-view bg-[#0d1117] min-w-0 text-sm"></div>
+      </div>
     </div>`;
 
   const $ = <T extends HTMLElement>(sel: string) => container.querySelector(sel) as T;
@@ -273,6 +284,120 @@ export function openTerminal(container: HTMLElement, opts: TerminalOptions) {
     killBtn.classList.add('hidden');
   }
 
+  // ---------- Files panel: what the program created or changed in its folder ----------
+  type FileInfo = { name: string; size: number; mtime?: number; status: 'new' | 'changed' | 'input' | 'source' | 'special'; what?: string };
+  const filesBox = $('.term-files');
+  const filesBody = $('.tf-body');
+  const filesList = $('.tf-list');
+  const filesView = $('.tf-view');
+  const seen = new Map<string, number>(); // name -> mtime already shown, so only fresh files pop open
+  let listTimer: ReturnType<typeof setTimeout>;
+  let viewing = '';
+  let runAfterSave = false;
+  let showSources = false;
+  let lastList: { files: FileInfo[]; programs: number } = { files: [], programs: 0 };
+  const isInput = (name: string) => opts.files.some((f) => f.name === name && f.role === 'data');
+  const fmtSize = (n: number) => (n < 1024 ? `${n} B` : `${(n / 1024).toFixed(n < 10240 ? 1 : 0)} KB`);
+  const el = (tag: string, cls: string, text?: string) => { const e = document.createElement(tag); e.className = cls; if (text !== undefined) e.textContent = text; return e; };
+
+  function setFilesOpen(open: boolean) {
+    filesBody.classList.toggle('hidden', !open);
+    $('.tf-toggle').setAttribute('aria-expanded', String(open));
+    $('.tf-chev').textContent = open ? '▾ hide' : '▸ show';
+  }
+  $('.tf-toggle').addEventListener('click', () => setFilesOpen(filesBody.classList.contains('hidden')));
+
+  const requestFiles = () => { clearTimeout(listTimer); listTimer = setTimeout(() => send({ type: 'list-files' }), 250); };
+
+  function renderFiles() {
+    const { files, programs } = lastList;
+    const order = { input: 0, new: 1, changed: 1, special: 2, source: 3 } as const;
+    const main = files.filter((f) => f.status !== 'source').sort((a, b) => order[a.status] - order[b.status] || (b.mtime || 0) - (a.mtime || 0));
+    const sources = files.filter((f) => f.status === 'source');
+    const fresh = files.filter((f) => f.status === 'new' || f.status === 'changed').length;
+    $('.tf-title').textContent = fresh ? `Files — ${fresh} created or changed by the program` : `Files (${files.length})`;
+    const row = (f: FileInfo) => {
+      const li = el('li', `tf-row flex items-center justify-between gap-2 px-3 py-1 cursor-pointer hover:bg-surface-800 ${f.name === viewing ? 'bg-surface-800' : ''}`);
+      li.dataset.name = f.name;
+      li.dataset.status = f.status;
+      const badge = { new: 'new', changed: 'changed', input: 'input', special: f.what || 'special', source: '' }[f.status];
+      const tone = { new: 'text-emerald-300', changed: 'text-amber-300', input: 'text-sky-300', special: 'text-surface-400', source: 'text-surface-400' }[f.status];
+      const name = el('span', `truncate ${f.status === 'source' ? 'text-surface-400' : 'text-surface-100'}`, f.name);
+      const meta = el('span', `flex-shrink-0 ${tone}`, f.status === 'special' ? badge : `${badge ? badge + ' · ' : ''}${fmtSize(f.size)}`);
+      li.append(name, meta);
+      if (f.status !== 'special') li.addEventListener('click', () => viewFile(f.name));
+      return li;
+    };
+    const items: HTMLElement[] = main.map(row);
+    if (sources.length) {
+      const t = el('li', 'tf-sources px-3 py-1 text-surface-400 hover:text-surface-200 cursor-pointer', `${showSources ? '−' : '+'} ${sources.length} source file${sources.length > 1 ? 's' : ''}`);
+      t.addEventListener('click', () => { showSources = !showSources; renderFiles(); });
+      items.push(t, ...(showSources ? sources.map(row) : []));
+    }
+    if (programs) items.push(el('li', 'px-3 py-1 text-surface-500', `${programs} compiled program${programs > 1 ? 's' : ''} (not shown)`));
+    if (!items.length) items.push(el('li', 'px-3 py-1 text-surface-500', 'No files yet'));
+    if (!viewing) filesView.replaceChildren(el('div', 'px-3 py-2 text-xs text-surface-400', 'Click a file to see what is inside. Files the program creates open here by themselves.'));
+    filesList.replaceChildren(...items);
+  }
+
+  function onFiles(list: { files: FileInfo[]; programs: number }) {
+    lastList = list;
+    filesBox.classList.remove('hidden');
+    renderFiles();
+    // Pop the panel open on files the program just created or changed (newest first), or on input files at the start
+    const fresh = list.files.filter((f) => (f.status === 'new' || f.status === 'changed') && seen.get(f.name) !== f.mtime)
+      .sort((a, b) => (b.mtime || 0) - (a.mtime || 0));
+    for (const f of list.files) seen.set(f.name, f.mtime || 0);
+    const firstInput = !viewing && list.files.find((f) => f.status === 'input');
+    const show = fresh[0] || firstInput;
+    if (show) { setFilesOpen(true); viewFile(show.name); }
+  }
+
+  function viewFile(name: string) {
+    viewing = name;
+    renderFiles();
+    filesView.replaceChildren(el('div', 'px-3 py-2 text-xs text-surface-400', `Opening ${name}…`));
+    send({ type: 'read-file', name });
+  }
+
+  function onFile(f: { name: string; size?: number; text?: string; binary?: boolean; truncated?: boolean; error?: string }) {
+    if (f.name !== viewing) return;
+    const head = el('div', 'flex flex-wrap items-center justify-between gap-2 px-3 py-1.5 border-b border-[#30363d] text-xs');
+    head.append(el('span', 'font-mono text-surface-200 truncate', `${f.name}${f.size !== undefined ? ` · ${fmtSize(f.size)}` : ''}`));
+    const body: HTMLElement[] = [head];
+    if (f.error) body.push(el('div', 'px-3 py-2 text-red-300 text-xs', f.error));
+    else if (f.binary) body.push(el('div', 'px-3 py-2 text-surface-400 text-xs', 'Binary file — not shown as text.'));
+    else if (isInput(f.name)) {
+      const ta = el('textarea', 'tf-edit block w-full h-48 p-3 bg-transparent text-surface-100 font-mono text-[13px] outline-none resize-y') as HTMLTextAreaElement;
+      ta.value = f.text || '';
+      ta.spellcheck = false;
+      const buttons = el('div', 'flex gap-2');
+      const save = el('button', 'tf-save px-2 py-0.5 rounded border border-[#30363d] text-surface-200 hover:bg-[#21262d]', 'Save');
+      const saveRun = el('button', 'tf-save-run px-2 py-0.5 rounded bg-primary-600 text-white hover:bg-primary-500', 'Save & run again');
+      save.addEventListener('click', () => { runAfterSave = false; send({ type: 'save-file', name: f.name, content: ta.value }); });
+      saveRun.addEventListener('click', () => { runAfterSave = true; send({ type: 'save-file', name: f.name, content: ta.value }); });
+      buttons.append(save, ...(panes[0].plan.compile || panes[0].plan.run ? [saveRun] : []));
+      head.append(buttons);
+      body.push(el('div', 'px-3 pt-1.5 text-[11px] text-sky-300', 'Input file — edit it, then save.'), ta);
+    } else {
+      body.push(el('pre', 'tf-text m-0 p-3 max-h-64 overflow-auto font-mono text-[13px] text-surface-100 whitespace-pre', f.text || '(empty file)'));
+      if (f.truncated) body.push(el('div', 'px-3 pb-2 text-[11px] text-amber-300', 'Showing the first 64 KB.'));
+    }
+    filesView.replaceChildren(...body);
+  }
+
+  function onSaved(res: { name: string; error?: string }) {
+    const note = el('span', `tf-note text-xs ${res.error ? 'text-red-300' : 'text-emerald-300'}`, res.error || 'Saved');
+    filesView.querySelector('.tf-note')?.remove();
+    filesView.firstElementChild?.append(note);
+    if (!res.error && runAfterSave) {
+      const p = panes[0];
+      if (p.phase === 'idle') { p.phase = 'running'; type(p, `${runOf(p.plan)}\n`); updateKill(); }
+      else note.textContent = 'Saved — the program is still running; run it again when it ends';
+    }
+    runAfterSave = false;
+  }
+
   function fitAll() { for (const p of panes) { try { p.fit.fit(); } catch {} } }
 
   let ro: ResizeObserver | null = null;
@@ -280,6 +405,7 @@ export function openTerminal(container: HTMLElement, opts: TerminalOptions) {
     userClosed = true;
     try { ws?.close(); } catch {}
     ro?.disconnect();
+    clearTimeout(listTimer);
     for (const p of panes) { clearTimeout(p.stopTimer); clearTimeout(p.interruptTimer); p.term.dispose(); }
   }
 
@@ -317,6 +443,7 @@ export function openTerminal(container: HTMLElement, opts: TerminalOptions) {
       if (msg.type === 'ready') {
         statusEl.textContent = 'Connected';
         for (const q of panes.slice(1)) send({ type: 'open-pane', pane: q.i, cols: q.term.cols, rows: q.term.rows });
+        requestFiles();
         opts.onReady?.();
       } else if (msg.type === 'output' && p) {
         p.term.write(msg.data);
@@ -325,9 +452,15 @@ export function openTerminal(container: HTMLElement, opts: TerminalOptions) {
         if (p.phase === 'running' && p.runOutput.length < 200_000) p.runOutput += complete.replace(OSC, '');
         for (const m of complete.matchAll(OSC)) {
           const [ev, arg] = m[1].split(';');
-          if (ev === 'prompt') onPrompt(p, Number(arg));
+          if (ev === 'prompt') { onPrompt(p, Number(arg)); requestFiles(); }
           else if (ev === 'exec') { p.ranCommand = true; clearChips(p, 'status'); clearChips(p, 'auto-stop'); if (p.phase === 'idle') { p.phase = 'running'; updateKill(); } }
         }
+      } else if (msg.type === 'files') {
+        onFiles(msg);
+      } else if (msg.type === 'file') {
+        onFile(msg);
+      } else if (msg.type === 'file-saved') {
+        onSaved(msg);
       } else if (msg.type === 'input-wait' && p) {
         onInputWait(p, msg.waiting);
       } else if (msg.type === 'exit') {

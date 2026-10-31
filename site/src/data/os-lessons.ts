@@ -22,6 +22,7 @@ export interface Example {
   // A shell command run in a second pane, e.g. sending this program a signal
   companion?: { label: string; cmd: string; startDelayMs?: number };
   extraFiles?: string[];   // other lesson files the compile/run command needs
+  dataFiles?: string[];    // input files the program reads — shown editable in the Files panel
   runCmd?: string;         // when the program needs arguments, e.g. "./prog 3"
   note?: string;           // shown instead of the Run button for reference/windows
   intentional?: string;    // a crash/hang that is the point of the example (shown as a hint)
@@ -226,7 +227,8 @@ export const lessons: Lesson[] = [
         title: 'File Open with Validation',
         description: 'Opening a file passed via command line, with perror for error messages and EXIT_FAILURE for clean exits.',
         compileCmd: 'gcc -o argc_file argc_argv_another_example.c',
-        runCmd: './argc_file argc_argv_another_example.c',
+        runCmd: './argc_file notes.txt',
+        dataFiles: ['notes.txt'],
       },
     ],
   },
@@ -665,6 +667,7 @@ export const lessons: Lesson[] = [
         title: 'Named Pipe Writer',
         description: 'Writing to a named pipe — run alongside the reader to see data flow between unrelated processes.',
         compileCmd: 'gcc -o fifo_writer 09-mkfifo/writer.c',
+        runCmd: 'mkfifo /tmp/my_fifo 2>/dev/null; ./fifo_writer', // either side may start first: mkfifo is a no-op if it exists
       },
     ],
   },
@@ -1044,6 +1047,7 @@ export const lessons: Lesson[] = [
         title: 'Countdown Race Condition',
         description: 'Multiple threads decrementing a shared counter without synchronization — observe the race condition in action.',
         compileCmd: 'gcc -o pt_race 09-countdown-race.c -lpthread',
+        stopAfterMs: 15000, // countdowns are random, 5-10 s: a run can take ~11 s
       },
       {
         file: '10-async-chat.c',

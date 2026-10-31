@@ -11,7 +11,7 @@ interface Pair {
   sampleInput?: string;
   startDelayMs?: number;
   stopAfterMs?: number;
-  supportFiles?: { name: string; content: string }[];
+  supportFiles?: { name: string; content: string; role?: 'data' }[];
 }
 
 interface Props {
@@ -32,7 +32,7 @@ interface Props {
   intentional?: string;
   pair?: Pair;
   partnerOf?: string; // this program is started by the "Run pair" button of that file
-  supportFiles?: { name: string; content: string }[]; // headers it includes
+  supportFiles?: { name: string; content: string; role?: 'data' }[]; // headers it includes, input data files
 }
 
 const {

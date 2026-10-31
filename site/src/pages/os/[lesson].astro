@@ -41,12 +41,15 @@ function readSource(file: string): string | null {
   try { return fs.readFileSync(path.join(repoBase, file), 'utf-8'); } catch { return null; }
 }
 
-// Local headers the example includes and other files its commands need, uploaded alongside it
-function supportFiles(example: Example) {
+// Local headers the example includes and other files its commands need, uploaded alongside it;
+// data files (input the program reads) are tagged so the Files panel shows them as editable
+type Upload = { name: string; content: string; role?: 'data' };
+function supportFiles(example: Example): Upload[] {
   const code = readSource(example.file) || '';
-  return [...localIncludes(example.file, code), ...(example.extraFiles || [])]
-    .map((name) => ({ name, content: readSource(name) }))
-    .filter((f): f is { name: string; content: string } => f.content !== null);
+  const support = [...localIncludes(example.file, code), ...(example.extraFiles || [])]
+    .map((name) => ({ name, content: readSource(name) }));
+  const data = (example.dataFiles || []).map((name) => ({ name, content: readSource(name), role: 'data' as const }));
+  return [...support, ...data].filter((f): f is Upload => f.content !== null);
 }
 
 function readExampleCode(example: { file: string; source?: string }): string {

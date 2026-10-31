@@ -38,9 +38,18 @@ function connect(origin = ORIGIN, query = '') {
 async function openSession(files = [{ name: 'hello.c', content: 'int main(){return 0;}\n' }], mode = 'lesson', query = '') {
   const ws = await connect(ORIGIN, query);
   const s = { ws, out: '', error: '', closed: false, container: null };
+  s.waiters = [];
+  // ask(msg, reply): send a control message and wait for the next reply of that type
+  s.ask = (msg, reply, ms = 8000) => new Promise((resolve, reject) => {
+    const t = setTimeout(() => reject(new Error(`no ${reply} reply`)), ms);
+    s.waiters.push({ reply, resolve: (m) => { clearTimeout(t); resolve(m); } });
+    ws.send(JSON.stringify(msg));
+  });
   ws.on('message', (d) => {
     try {
       const m = JSON.parse(d);
+      const w = s.waiters.findIndex((x) => x.reply === m.type);
+      if (w !== -1) s.waiters.splice(w, 1)[0].resolve(m);
       if (m.type === 'output') s.out += m.data;
       if (m.type === 'error') s.error += m.data;
       if (m.type === 'ready') s.container = m.container;
@@ -231,7 +240,12 @@ await check('S20', 'FIFOs in /tmp and POSIX semaphores in /dev/shm are removed w
 });
 
 await check('S23', 'usage counter: test sessions are tagged apart, refused connections count nothing, nothing personal is exposed', async () => {
-  const get = async () => { const r = await fetch(`${HTTP_URL}/usage`); if (r.status === 404) throw new Skip('no /usage here (bare container, not the Worker)'); return r.json(); };
+  const get = async () => {
+    const r = await fetch(`${HTTP_URL}/usage`);
+    const u = r.status === 404 ? { local: true } : await r.json();
+    if (u.local) throw new Skip('no usage counting here (bare container, not the Worker)');
+    return u;
+  };
   const before = await get();
   const a = await openSession(undefined, 'example', '?page=02-basic-forks&kind=example');
   a.close();
@@ -246,6 +260,62 @@ await check('S23', 'usage counter: test sessions are tagged apart, refused conne
   assert([...rowKeys].every((k) => ['day', 'who', 'n', 'page', 'kind'].includes(k)), `unexpected row fields: ${[...rowKeys]}`);
   assert(!/\b\d{1,3}(\.\d{1,3}){3}\b|:[0-9a-f]{1,4}:/i.test(JSON.stringify(after)), '/usage contains something that looks like an IP address');
   return `test ${before.test.today} -> ${after.test.today}; students today ${after.students.today}`;
+});
+
+await check('S25', 'a second pane opened the instant the session is ready still joins the first pane\'s namespaces (5 tries)', async () => {
+  const strip = (x) => stripAnsi(x).replace(/\r/g, '');
+  for (let i = 0; i < 5; i++) {
+    const ws = await connect(ORIGIN, '?page=09-named-pipes-msg-queues&kind=pair');
+    const out = { 0: '', 1: '' };
+    ws.on('message', (d) => {
+      const m = JSON.parse(d);
+      if (m.type === 'ready') ws.send(JSON.stringify({ type: 'open-pane', pane: 1, cols: 100, rows: 30 })); // no waiting — like Run pair
+      if (m.type === 'output') out[m.pane ?? 0] += m.data;
+    });
+    ws.send(JSON.stringify({ type: 'start', files: [], cols: 100, rows: 30, mode: 'example' }));
+    try {
+      await waitFor(() => /[$#] $/m.test(strip(out[0])) && /[$#] $/m.test(strip(out[1])), 20000, 'both prompts');
+      for (const k of [0, 1]) ws.send(JSON.stringify({ type: 'input', pane: k, data: 'echo NS_$(readlink /proc/self/ns/mnt)_$(readlink /proc/self/ns/net)_END\r' }));
+      await waitFor(() => [0, 1].every((k) => /NS_\S+_END/.test(strip(out[k]))), 10000, 'namespace ids');
+      const ids = [0, 1].map((k) => strip(out[k]).match(/NS_(\S+)_END/)[1]);
+      assert(ids[0] === ids[1], `try ${i + 1}: panes in different namespaces (${ids[0]} vs ${ids[1]})`);
+    } finally { ws.close(); }
+  }
+  return '5/5 pairs shared /tmp and network';
+});
+
+await check('S24', 'Files panel: links, FIFOs, ../ and absolute paths are never opened; only input files can be saved; server code untouched', async () => {
+  const a = await openSession([{ name: 'main.c', content: 'int main(){return 0;}\n' }, { name: 'in.txt', content: 'original\n', role: 'data' }], 'example');
+  try {
+    const before = await a.run('md5sum /app/server.js | cut -c1-32');
+    await a.run('echo made_by_program > made.txt && ln -s /etc/shadow shadow_link && ln -s /app/server.js srv && mkfifo ff');
+    const list = await a.ask({ type: 'list-files' }, 'files');
+    const by = Object.fromEntries(list.files.map((f) => [f.name, f]));
+    assert(by['made.txt']?.status === 'new', `made.txt listed as ${JSON.stringify(by['made.txt'])}`);
+    assert(by['in.txt']?.status === 'input' && by['main.c']?.status === 'source', 'input/source files not recognised');
+    for (const n of ['shadow_link', 'srv', 'ff']) assert(by[n]?.status === 'special', `${n} not listed as special: ${JSON.stringify(by[n])}`);
+
+    const read = async (name) => a.ask({ type: 'read-file', name }, 'file');
+    assert((await read('made.txt')).text === 'made_by_program\n', 'could not read the file the program made');
+    for (const name of ['shadow_link', 'srv', 'ff', '../../etc/passwd', '/etc/passwd', 'missing.txt']) {
+      const r = await read(name);
+      assert(r.error && r.text === undefined, `read-file ${name} was not refused: ${JSON.stringify(r).slice(0, 120)}`);
+    }
+
+    const save = async (name, content) => a.ask({ type: 'save-file', name, content }, 'file-saved');
+    assert((await save('made.txt', 'x')).error, 'a non-input file could be overwritten');
+    assert((await save('../escape.txt', 'x')).error, 'save outside the folder was not refused');
+    assert(!(await save('in.txt', 'edited\n')).error, 'saving the input file failed');
+    assert((await read('in.txt')).text === 'edited\n', 'saved input was not written');
+    const relisted = await a.ask({ type: 'list-files' }, 'files');
+    assert(relisted.files.find((f) => f.name === 'in.txt')?.status === 'input', 'an edited input should still be an input');
+    // swap the input for a link to the server's code, then try to save through it
+    await a.run('rm in.txt && ln -s /app/server.js in.txt');
+    assert((await save('in.txt', 'PWNED')).error, 'save followed a link');
+    const after = await a.run('md5sum /app/server.js | cut -c1-32');
+    assert(before === after, 'server code changed');
+    return 'links/FIFO/paths refused; only inputs saved; server code unchanged';
+  } finally { a.close(); }
 });
 
 if (DESTRUCTIVE) {

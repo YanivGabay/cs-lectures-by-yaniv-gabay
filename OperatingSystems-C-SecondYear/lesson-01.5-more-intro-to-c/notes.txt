@@ -1,0 +1,4 @@
+Shopping list for the lab:
+- 2 coffees
+- 1 working Makefile
+- patience for segmentation faults
