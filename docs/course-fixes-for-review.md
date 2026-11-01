@@ -33,3 +33,19 @@ not do what their comments say. Each change is minimal; `git diff` shows the exa
 Lessons 09–11 use fixed System V keys (`0x1234`, `ftok("/tmp", 65)`) and fixed ports (3879…).
 On a shared machine two students would collide. The sandbox now gives each terminal session its
 own IPC, network and `/tmp` namespaces (see Lesson 16), so the examples work unchanged.
+
+## New in Lesson 01.5 (prepared for the next lecture — please review)
+
+New files in `lesson-01.5-more-intro-to-c/`, each one idea, in teaching order on the lesson page:
+
+| File | Teaches | Run on the site |
+|---|---|---|
+| `args-sum.c` | arguments are strings; `atoi` vs `strtol` with validation | `./sum 5 7 30; ./sum 5 seven 3` |
+| `args-flags.c` | options like `-n 3 -u`, `strcmp`, usage message, exit status 1 | `./greet -n 3 -u Dana; ./greet -n` |
+| `args-wc.c` | mini `wc` over several files, `perror` and keep going | `./mini_wc poem.txt notes.txt missing.txt` |
+| `args-copy.c` | your own `cp`: two files open, `"r"`/`"w"`, check every call | `./mycp notes.txt copy.txt` |
+| `poem.txt` | input for `args-wc.c` (editable in the Files panel) | — |
+
+Existing files are unchanged; `argc_argv.c` now runs with arguments (`./argc_argv hello world 42 "two words"`).
+New challenge "Check argc first" (`site/src/data/challenges/args-check.c`): the starter crashes with
+SIGSEGV when run without arguments; the fix checks `argc`, prints a usage line and exits 1.

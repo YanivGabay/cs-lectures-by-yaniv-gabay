@@ -23,6 +23,20 @@ export interface Challenge {
 
 export const challenges: Challenge[] = [
   {
+    id: 'args-check',
+    lesson: '01.5',
+    title: 'Check argc first',
+    goal: 'The site runs this greeter with no arguments, so argv[1] is NULL and strlen() crashes it. Check argc: if it is not 2, print a usage line containing "Usage" to stderr and return EXIT_FAILURE.',
+    starter: 'args-check.c',
+    compileCmd: 'gcc -Wall -o greet args-check.c',
+    pass: { exitCode: 1, output: 'Usage' },
+    hints: [
+      { exitCode: 139, text: 'Killed by SIGSEGV — the program used argv[1] while it was NULL. Check argc before touching argv[1].' },
+      { exitCode: 1, text: 'It exits 1 — now print a usage line that contains the word "Usage".' },
+      { exitCode: 0, text: 'It exited 0 without a name. With the wrong number of arguments it should return EXIT_FAILURE (1).' },
+    ],
+  },
+  {
     id: 'fork-limit',
     lesson: '02',
     title: 'The fork() that fails',

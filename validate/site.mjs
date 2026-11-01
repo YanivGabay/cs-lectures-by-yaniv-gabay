@@ -378,7 +378,7 @@ await check('V18', 'challenges: the starter gets a hint, each reference solution
   const hint = await runChallenge(pipe, null);
   assert(/Exited 0/.test(hint) && /Close fd\[0\]/.test(hint), `starter verdict: ${hint}`);
   const done = [];
-  const cases = [['/os/08-pipes/', 'sigpipe', 'sigpipe.c'], ['/os/02-basic-forks/', 'fork-limit', 'fork-limit.c'],
+  const cases = [['/os/01.5-more-intro-to-c/', 'args-check', 'args-check.c'], ['/os/08-pipes/', 'sigpipe', 'sigpipe.c'], ['/os/02-basic-forks/', 'fork-limit', 'fork-limit.c'],
     ['/os/06-sigaction/', 'survive-ctrl-c', 'survive-ctrl-c.c'], ['/os/14-cool-pthreads/', 'deadlock', 'deadlock.c']];
   for (const [url, id, file] of cases) {
     if (!page.url().endsWith(url)) await page.goto(`${BASE}${url}`);
@@ -570,6 +570,36 @@ await check('V22', 'Files panel: files a program creates pop up after Run; input
   await sem.locator('.open-terminal-btn').click();
   await panel(sem).locator('.tf-row[data-name="shared_output.txt"]').waitFor({ timeout: 60000 });
   await waitFor(async () => /\S/.test(await panel(sem).locator('.tf-text').innerText().catch(() => '')), 15000, 'shared_output.txt contents');
+  await page.context().close();
+});
+
+await check('V23', 'Lesson 01.5: arguments shown, bad number refused (Exited 1), mini wc reads editable inputs, copy.txt appears in Files', async () => {
+  const page = await newPage();
+  const block = (file) => page.locator('.code-block-wrapper', { has: page.locator('span', { hasText: new RegExp(`^${file.replace(/[.]/g, '\\.')}$`) }) });
+  const chips = (b) => b.locator('.term-chip').allInnerTexts().then((t) => t.join(' | '));
+  await page.goto(`${BASE}/os/01.5-more-intro-to-c/`);
+
+  page.termOut = '';
+  await block('argc_argv.c').locator('.open-terminal-btn').click();
+  await waitTerm(page, /argv\[4\] \| "two words"/, 60000, 'argv[4] = "two words"');
+
+  const sum = block('args-sum.c');
+  page.termOut = '';
+  await sum.locator('.open-terminal-btn').click();
+  await waitTerm(page, /Sum of 3 numbers = 42[\s\S]*"seven" is not a whole number/, 60000, 'sum, then the refused "seven"');
+  await waitFor(async () => /Exited 1/.test(await chips(sum)), 15000, 'Exited 1 chip');
+
+  const wc = block('args-wc.c');
+  page.termOut = '';
+  await wc.locator('.open-terminal-btn').click();
+  await waitTerm(page, /missing\.txt: No such file or directory/, 60000, 'perror for the missing file');
+  await waitTerm(page, /\s4\s+12\s+71\s+poem\.txt/, 15000, 'poem.txt counted');
+  for (const f of ['poem.txt', 'notes.txt']) await wc.locator(`.tf-row[data-name="${f}"][data-status="input"]`).waitFor({ timeout: 15000 });
+
+  const cp = block('args-copy.c');
+  await cp.locator('.open-terminal-btn').click();
+  await cp.locator('.tf-row[data-name="copy.txt"][data-status="new"]').waitFor({ timeout: 60000 });
+  await waitFor(async () => /2 coffees/.test(await cp.locator('.tf-text').innerText().catch(() => '')), 15000, 'copy.txt shown with the copied text');
   await page.context().close();
 });
 

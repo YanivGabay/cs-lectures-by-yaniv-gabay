@@ -1,0 +1,4 @@
+Roses are red,
+segfaults are blue,
+check argc first,
+and perror() too.
