@@ -49,3 +49,19 @@ New files in `lesson-01.5-more-intro-to-c/`, each one idea, in teaching order on
 Existing files are unchanged; `argc_argv.c` now runs with arguments (`./argc_argv hello world 42 "two words"`).
 New challenge "Check argc first" (`site/src/data/challenges/args-check.c`): the starter crashes with
 SIGSEGV when run without arguments; the fix checks `argc`, prints a usage line and exits 1.
+
+## New in Lesson 02 (prepared for the lecture after 01.5 — please review)
+
+New files in `lesson-02-basic-forks/`, one idea each, placed in teaching order on the lesson page:
+
+| File | Teaches | Run on the site |
+|---|---|---|
+| `01a-fork-copy.c` | the child gets a *copy* of memory: same `&x`, different values | `./fork_copy` |
+| `01b-fork-buffer.c` | `fork()` copies the unflushed stdout buffer; to a file even whole lines double (`out.txt` in the Files panel); fix: `fflush` | `./fork_buffer; echo; ./fork_buffer > out.txt` |
+| `03a-wait-status.c` | `waitpid` + `WIFEXITED`/`WEXITSTATUS`/`WIFSIGNALED`/`WTERMSIG` for exit 0, exit 42, SIGSEGV | `./wait_status` |
+| `03b-zombie-live.c` | a real zombie: `ps` shows `Z <defunct>` until `wait()` | `./zombie` |
+| `03c-orphan.c` | parent exits first; child reports adoption by PID 1 (its last line comes after the prompt) | `./orphan` |
+
+Existing files are unchanged. The reference text `01.5-forking-zombies.c` now sits right after the live zombie.
+Note on `01b-fork-buffer.c`: in this sandbox (musl) the very first line is flushed before `fork()` even when
+redirected; the comment explains it, and on a glibc laptop that line doubles too.

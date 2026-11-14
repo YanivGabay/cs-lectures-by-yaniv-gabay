@@ -344,9 +344,11 @@ await check('V16', 'presenter view: arrows/PageDown step, Ctrl+Enter runs, font 
   await waitFor(async () => (await pos.innerText()).startsWith('2 /'), 5000, 'presenter restored from the link');
   const after = await page.evaluate(() => getComputedStyle(document.querySelector('.is-fullscreen .code-scroll pre')).fontSize);
   assert(after === bigger, `font size after reload ${after}, expected ${bigger}`);
-  // The Bug vs Fix comparison is a slide too, and runs
-  await page.keyboard.press('ArrowRight');
-  await page.keyboard.press('ArrowRight');
+  // The Bug vs Fix comparison is a slide too, and runs — step forward until it is on screen
+  for (let k = 0; k < 15 && (await page.locator('.diff-view.is-fullscreen').count()) === 0; k++) {
+    await page.keyboard.press('ArrowRight');
+    await sleep(150);
+  }
   await waitFor(async () => (await page.locator('.diff-view.is-fullscreen').count()) === 1, 3000, 'Bug vs Fix slide');
   page.termOut = '';
   await page.keyboard.press('Control+Enter');
@@ -600,6 +602,30 @@ await check('V23', 'Lesson 01.5: arguments shown, bad number refused (Exited 1),
   await cp.locator('.open-terminal-btn').click();
   await cp.locator('.tf-row[data-name="copy.txt"][data-status="new"]').waitFor({ timeout: 60000 });
   await waitFor(async () => /2 coffees/.test(await cp.locator('.tf-text').innerText().catch(() => '')), 15000, 'copy.txt shown with the copied text');
+  await page.context().close();
+});
+
+await check('V24', 'Lesson 02: a live zombie (Z <defunct>, gone after wait), decoded exit statuses, doubled buffer in out.txt, adopted orphan', async () => {
+  const page = await newPage();
+  const block = (file) => page.locator('.code-block-wrapper', { has: page.locator('span', { hasText: new RegExp(`^${file.replace(/[.]/g, '\\.')}$`) }) });
+  await page.goto(`${BASE}/os/02-basic-forks/`);
+
+  page.termOut = '';
+  await block('03b-zombie-live.c').locator('.open-terminal-btn').click();
+  await waitTerm(page, /\sZ\S*\s+\S+\s+<defunct>[\s\S]*After wait\(\)[\s\S]*is gone from the process table/, 60000, 'zombie, then gone');
+
+  page.termOut = '';
+  await block('03a-wait-status.c').locator('.open-terminal-btn').click();
+  await waitTerm(page, /exited with status 0[\s\S]*exited with status 42[\s\S]*killed by signal 11/, 60000, 'three decoded statuses');
+
+  const buf = block('01b-fork-buffer.c');
+  await buf.locator('.open-terminal-btn').click();
+  await buf.locator('.tf-row[data-name="out.txt"][data-status="new"]').waitFor({ timeout: 60000 });
+  await waitFor(async () => ((await buf.locator('.tf-text').innerText().catch(() => '')).match(/2\. Another line ending with newline/g) || []).length === 2, 15000, 'line 2 doubled in out.txt');
+
+  page.termOut = '';
+  await block('03c-orphan.c').locator('.open-terminal-btn').click();
+  await waitTerm(page, /my parent is now 1 — adopted/, 60000, 'orphan adopted by PID 1');
   await page.context().close();
 });
 

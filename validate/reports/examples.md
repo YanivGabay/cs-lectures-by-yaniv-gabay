@@ -1,6 +1,6 @@
-# Example readiness — 2026-11-01 23:16 UTC
+# Example readiness — 2026-11-14 00:22 UTC
 
-Terminal: `ws://localhost:8099` · run limit 8s · 128 examples
+Terminal: `ws://localhost:8099` · run limit 8s · 133 examples
 
 | Category | Count |
 |---|---|
@@ -9,7 +9,7 @@ Terminal: `ws://localhost:8099` · run limit 8s · 128 examples
 | pair-partner | 12 |
 | pair-runs | 12 |
 | reference-only | 6 |
-| runs-and-exits | 68 |
+| runs-and-exits | 73 |
 | runs-with-input | 13 |
 | windows-only | 2 |
 
@@ -54,8 +54,13 @@ Unexplained problems: **0**
 | `00-some-includes.c` | reference-only | marked in data (not run) | reference |
 | `01-basic-forking.c` | runs-and-exits | status 0 |  |
 | `01.5-forking-zombies.c` | reference-only | marked in data (not run) | reference |
+| `01a-fork-copy.c` | runs-and-exits | status 0 |  |
+| `01b-fork-buffer.c` | runs-and-exits | status 0 |  |
 | `02-basic-fork-mistake.c` | runs-and-exits | status 0 |  |
 | `03-basic-fork-thefix.c` | runs-and-exits | status 0 |  |
+| `03a-wait-status.c` | runs-and-exits | status 0 |  |
+| `03b-zombie-live.c` | runs-and-exits | status 0 |  |
+| `03c-orphan.c` | runs-and-exits | status 0 |  |
 | `04-forks-gettimeday.c` | runs-and-exits | status 0 |  |
 
 ## 03 — Introduction to Signals

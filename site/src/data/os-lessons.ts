@@ -269,13 +269,13 @@ export const lessons: Lesson[] = [
     folder: 'lesson-02-basic-forks',
     title: 'Process Creation with fork()',
     description:
-      'Introduction to process creation using fork(). Demonstrates parent/child relationships, zombie processes, the classic fork-in-a-loop mistake, the fix with wait/exit, and process timing with gettimeofday.',
-    tags: ['fork', 'wait', 'zombie', 'process', 'pid'],
+      'Process creation with fork(): the child gets a copy of memory (and of the output buffer), the classic fork-in-a-loop mistake and its fix, decoding how a child ended with waitpid(), a live zombie and an orphan, and timing with gettimeofday.',
+    tags: ['fork', 'wait', 'waitpid', 'zombie', 'orphan'],
     difficulty: 'intermediate',
     prerequisites: ['01', '01.5'],
     phase: 'Processes',
     visualization: 'fork-tree',
-    diffPairs: [{ mistakeIndex: 3, fixIndex: 4 }],
+    diffPairs: [{ mistakeIndex: 4, fixIndex: 5 }],
     examples: [
       {
         file: '00-some-includes.c',
@@ -292,12 +292,17 @@ export const lessons: Lesson[] = [
         compileCmd: 'gcc -o basic_fork 01-basic-forking.c',
       },
       {
-        file: '01.5-forking-zombies.c',
-        title: 'Zombie Processes',
-        description: 'What happens when a child exits before the parent calls wait — creating and observing zombie processes, with an explanation of orphan adoption by init.',
-        compileCmd: 'gcc -o zombies 01.5-forking-zombies.c',
-        kind: 'reference',
-        note: 'Explains zombies and orphans in comments — there is no main() to run.',
+        file: '01a-fork-copy.c',
+        title: 'The Child Gets a Copy',
+        description: 'The child changes x, the parent\'s x stays 10 — and both print the same address &x. After fork() each process has its own copy of memory.',
+        compileCmd: 'gcc -o fork_copy 01a-fork-copy.c',
+      },
+      {
+        file: '01b-fork-buffer.c',
+        title: 'Why Does It Print Twice?',
+        description: 'fork() also copies the unwritten output buffer, so text printed without a newline comes out twice — and redirected to a file even whole lines double. Open out.txt in the Files panel. The fix: fflush(stdout) before fork().',
+        compileCmd: 'gcc -o fork_buffer 01b-fork-buffer.c',
+        runCmd: './fork_buffer; echo; ./fork_buffer > out.txt',
       },
       {
         file: '02-basic-fork-mistake.c',
@@ -310,6 +315,32 @@ export const lessons: Lesson[] = [
         title: 'The Fix: wait + exit',
         description: 'Fixing the fork-in-loop mistake by having the child call exit() and the parent call wait(), ensuring proper process lifecycle.',
         compileCmd: 'gcc -o fork_fix 03-basic-fork-thefix.c',
+      },
+      {
+        file: '03a-wait-status.c',
+        title: 'How Did My Child End?',
+        description: 'Three children exit 0, exit 42 and crash; the parent decodes each status with WIFEXITED/WEXITSTATUS and WIFSIGNALED/WTERMSIG — the same information the site shows as "Exited 42" or "Killed by SIGSEGV".',
+        compileCmd: 'gcc -o wait_status 03a-wait-status.c',
+      },
+      {
+        file: '03b-zombie-live.c',
+        title: 'A Live Zombie',
+        description: 'The child exits but the parent has not called wait(): ps shows it as Z <defunct>. After wait() collects the exit status, the zombie is gone from the process table.',
+        compileCmd: 'gcc -o zombie 03b-zombie-live.c',
+      },
+      {
+        file: '01.5-forking-zombies.c',
+        title: 'Zombie Processes',
+        description: 'What happens when a child exits before the parent calls wait — creating and observing zombie processes, with an explanation of orphan adoption by init.',
+        compileCmd: 'gcc -o zombies 01.5-forking-zombies.c',
+        kind: 'reference',
+        note: 'Explains zombies and orphans in comments — there is no main() to run.',
+      },
+      {
+        file: '03c-orphan.c',
+        title: 'An Orphan Gets Adopted',
+        description: 'The parent exits first; the still-running child reports its new parent, PID 1. Its last line appears after the prompt — the shell only waited for the parent.',
+        compileCmd: 'gcc -o orphan 03c-orphan.c',
       },
       {
         file: '04-forks-gettimeday.c',
