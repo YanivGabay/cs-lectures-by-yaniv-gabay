@@ -629,6 +629,43 @@ await check('V24', 'Lesson 02: a live zombie (Z <defunct>, gone after wait), dec
   await page.context().close();
 });
 
+await check('V25', 'Lesson 03: auto Ctrl+C reaches the handler, default action kills (SIGUSR1), kill() child, kill command from the second terminal, graceful work.log', async () => {
+  const page = await newPage();
+  const block = (file) => page.locator('.code-block-wrapper', { has: page.locator('span', { hasText: new RegExp(`^${file.replace(/[.]/g, '\\.')}$`) }) });
+  const chips = (b) => b.locator('.term-chip').allInnerTexts().then((t) => t.join(' | '));
+  await page.goto(`${BASE}/os/03-signals-intro/`);
+
+  const basic = block('01-basic_signals.c');
+  page.termOut = '';
+  await basic.locator('.open-terminal-btn').click();
+  await waitTerm(page, /Caught signal 2 \(SIGINT\)[\s\S]*Still running/, 60000, 'handler ran, program kept going');
+  await waitFor(async () => /Killed by SIGQUIT/.test(await chips(basic)), 20000, 'stopped with Ctrl+\\ (SIGQUIT)');
+
+  const def = block('01a-default-action.c');
+  await def.locator('.open-terminal-btn').click();
+  await waitFor(async () => /Killed by SIGUSR1 \(10\)/.test(await chips(def)), 60000, '"Killed by SIGUSR1 (10)" chip');
+
+  page.termOut = '';
+  await block('02a-kill-child.c').locator('.open-terminal-btn').click();
+  await waitTerm(page, /child ended by signal 15/, 60000, 'parent decoded SIGTERM');
+
+  const usr = block('02b-signals-from-terminal.c');
+  await usr.locator('.run-pair-btn').click();
+  const panes = usr.locator('.term-pane');
+  await waitFor(async () => (await panes.count()) === 2, 10000, 'two terminals');
+  const text = async (i) => (await panes.nth(i).locator('.xterm-rows').innerText()).replace(/\n(?!\s*(got|sent|\[|student))/g, '');
+  await waitFor(async () => /got SIGUSR1[\s\S]*got SIGUSR2[\s\S]*got SIGTERM/.test(await text(0)), 60000, 'program received all three').catch(async (e) => {
+    throw new Error(`${e.message}; left: ${JSON.stringify((await text(0)).slice(-200))} right: ${JSON.stringify((await text(1)).slice(-200))}`);
+  });
+  assert(/sent SIGTERM/.test(await text(1)), 'second terminal did not report sending');
+
+  const gr = block('04a-graceful-shutdown.c');
+  await gr.locator('.open-terminal-btn').click();
+  await gr.locator('.tf-row[data-name="work.log"]').waitFor({ timeout: 60000 });
+  await waitFor(async () => /stopped by Ctrl\+C after \d+ items, file closed cleanly/.test(await gr.locator('.tf-text').innerText().catch(() => '')), 20000, 'work.log ends cleanly');
+  await page.context().close();
+});
+
 await check('V17', 'presenter sign-in on /presenter sticks across pages and reloads and reaches the reserved sandbox', async () => {
   if (!PRESENTER_PASSWORD) throw new Skip('set PRESENTER_PASSWORD to run');
   const page = await newPage();

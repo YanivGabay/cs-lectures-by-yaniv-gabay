@@ -81,11 +81,14 @@ async function run(s, i, ex, ms = RUN_MS) {
   const outStart = p.out.length;
   s.type(i, `${runOf(ex)}\n`);
   let fed = false;
+  let interrupted = false;
   const started = Date.now();
   const end = Date.now() + ms;
   while (Date.now() < end && p.statuses.length === n) {
     const quiet = Date.now() - p.lastOutput > 1500 && Date.now() - started > 1500;
     if ((p.waiting || quiet) && ex.sampleInput && !fed) { fed = true; s.type(i, ex.sampleInput.endsWith('\n') ? ex.sampleInput : `${ex.sampleInput}\n`); }
+    // like the site: one Ctrl+C after interruptAfterMs (signal demos)
+    if (ex.interruptAfterMs && !interrupted && Date.now() - started >= ex.interruptAfterMs) { interrupted = true; s.send({ type: 'signal', pane: i, signal: 'SIGINT' }); }
     await sleep(100);
   }
   const finished = p.statuses.length > n;

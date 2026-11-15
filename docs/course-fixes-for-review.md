@@ -65,3 +65,18 @@ New files in `lesson-02-basic-forks/`, one idea each, placed in teaching order o
 Existing files are unchanged. The reference text `01.5-forking-zombies.c` now sits right after the live zombie.
 Note on `01b-fork-buffer.c`: in this sandbox (musl) the very first line is flushed before `fork()` even when
 redirected; the comment explains it, and on a glibc laptop that line doubles too.
+
+## New in Lesson 03 (prepared for the lecture after 02 — please review)
+
+New files in `lesson-03-little-signals/`, one idea each, placed in teaching order:
+
+| File | Teaches | On the site |
+|---|---|---|
+| `01a-default-action.c` | no handler → the default action terminates (`raise(SIGUSR1)`) | exit chip "Killed by SIGUSR1 (10)" |
+| `02a-kill-child.c` | `kill()` from parent to child; `waitpid` shows signal 15 | `./kill_child` |
+| `02b-signals-from-terminal.c` | SIGUSR1/SIGUSR2/SIGTERM from the `kill` command; `pause()` | Run pair: the right terminal sends the three signals |
+| `04a-graceful-shutdown.c` | handler only sets a `volatile sig_atomic_t` flag; main finishes and closes the file | auto Ctrl+C at 2.5 s; `work.log` in the Files panel |
+
+Existing files are unchanged. New on the site: the existing Ctrl+C demos no longer wait for someone to press
+Ctrl+C — the site presses it once after 2.5 s (`interruptAfterMs`): `01-basic_signals` (handler runs, keeps
+going), `02-ignore_signal` (nothing happens), `04-sig_init_once` (first handled, a second Ctrl+C at 6 s kills it).

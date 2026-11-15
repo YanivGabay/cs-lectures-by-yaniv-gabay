@@ -19,6 +19,7 @@ export interface Example {
   startDelayMs?: number;   // how long after this program the partner starts
   stopAfterMs?: number;
   stopSignal?: 'SIGINT' | 'SIGQUIT'; // SIGQUIT (Ctrl+\) for programs that ignore Ctrl+C
+  interruptAfterMs?: number; // the site presses Ctrl+C once after this long (signal demos)
   // A shell command run in a second pane, e.g. sending this program a signal
   companion?: { label: string; cmd: string; startDelayMs?: number };
   extraFiles?: string[];   // other lesson files the compile/run command needs
@@ -356,8 +357,8 @@ export const lessons: Lesson[] = [
     folder: 'lesson-03-little-signals',
     title: 'Introduction to Signals',
     description:
-      'Basic signal handling using the signal() function. Covers catching SIGINT, ignoring signals with SIG_IGN, setting alarms with SIGALRM, one-shot handlers, and the differences between signal() and sigaction() behavior.',
-    tags: ['signal', 'SIGINT', 'SIGALRM', 'SIG_IGN', 'handler'],
+      'Signals with signal(): default actions, catching and ignoring SIGINT, kill() between processes and the kill command from another terminal, SIGALRM timers, one-shot handlers, the safe flag pattern for a graceful shutdown, and signal() vs sigaction().',
+    tags: ['signal', 'kill', 'SIGINT', 'SIGALRM', 'sig_atomic_t'],
     difficulty: 'intermediate',
     prerequisites: ['02'],
     phase: 'Processes',
@@ -368,9 +369,17 @@ export const lessons: Lesson[] = [
         description: 'Registering a handler for SIGINT (Ctrl+C) using the signal() function.',
         compileCmd: 'gcc -o basic_sig 01-basic_signals.c',
         kind: 'long-running',
-        stopAfterMs: 8000,
         stopSignal: 'SIGQUIT',
-        intentional: 'Ctrl+C is caught and ignored on purpose — stop it with Ctrl+\\ (SIGQUIT)',
+        interruptAfterMs: 2500,
+        stopAfterMs: 7000,
+        intentional: 'The site presses Ctrl+C after 2.5 s: the handler runs and the program keeps going. Ctrl+\\ (SIGQUIT) stops it.',
+      },
+      {
+        file: '01a-default-action.c',
+        title: 'No Handler: the Default Action',
+        description: 'raise(SIGUSR1) with no handler installed: the default action terminates the program — the exit chip shows "Killed by SIGUSR1 (10)" and the last line is never printed.',
+        compileCmd: 'gcc -o default_action 01a-default-action.c',
+        intentional: 'Killed by SIGUSR1 on purpose: that is the default action',
       },
       {
         file: '02-ignore_signal.c',
@@ -378,9 +387,24 @@ export const lessons: Lesson[] = [
         description: 'Using SIG_IGN to make a process immune to specific signals like SIGINT.',
         compileCmd: 'gcc -o ignore_sig 02-ignore_signal.c',
         kind: 'long-running',
-        stopAfterMs: 8000,
         stopSignal: 'SIGQUIT',
-        intentional: 'SIGINT is ignored on purpose — stop it with Ctrl+\\ (SIGQUIT)',
+        interruptAfterMs: 2500,
+        stopAfterMs: 7000,
+        intentional: 'The site presses Ctrl+C after 2.5 s and nothing happens — SIGINT is ignored. Ctrl+\\ (SIGQUIT) stops it.',
+      },
+      {
+        file: '02a-kill-child.c',
+        title: 'kill(): the Parent Signals Its Child',
+        description: 'The parent lets its child work for 3 seconds, sends SIGTERM with kill(), and waitpid() reports which signal ended it — kill() only sends a signal; the default action does the killing.',
+        compileCmd: 'gcc -o kill_child 02a-kill-child.c',
+      },
+      {
+        file: '02b-signals-from-terminal.c',
+        title: 'Signals from Another Terminal',
+        description: 'The program waits in pause() and reacts to SIGUSR1, SIGUSR2 and SIGTERM. Run pair opens a second terminal that sends them with the kill command, one by one.',
+        compileCmd: 'gcc -o sigusr 02b-signals-from-terminal.c',
+        stopAfterMs: 12000,
+        companion: { label: 'kill -USR1, -USR2, -TERM', cmd: 'sleep 2; pkill -USR1 -x sigusr && echo sent SIGUSR1; sleep 1.5; pkill -USR2 -x sigusr && echo sent SIGUSR2; sleep 1.5; pkill -TERM -x sigusr && echo sent SIGTERM', startDelayMs: 500 },
       },
       {
         file: '03-sig_alarm.c',
@@ -394,9 +418,17 @@ export const lessons: Lesson[] = [
         description: 'A handler that resets itself to SIG_DFL after the first catch, so the second signal terminates the process.',
         compileCmd: 'gcc -o sig_once 04-sig_init_once.c',
         kind: 'long-running',
-        stopAfterMs: 8000,
-        stopSignal: 'SIGQUIT',
-        intentional: 'The first Ctrl+C is handled, the second one kills it',
+        interruptAfterMs: 2500,
+        stopAfterMs: 6000,
+        stopSignal: 'SIGINT',
+        intentional: 'Ctrl+C at 2.5 s is handled and resets the handler; the second Ctrl+C at 6 s kills it (Killed by SIGINT).',
+      },
+      {
+        file: '04a-graceful-shutdown.c',
+        title: 'Graceful Shutdown with a Flag',
+        description: 'The handler only sets a volatile sig_atomic_t flag; main() finishes the current item, writes a last line and closes work.log. The site presses Ctrl+C after 2.5 s — open work.log in the Files panel.',
+        compileCmd: 'gcc -o graceful 04a-graceful-shutdown.c',
+        interruptAfterMs: 2500,
       },
       {
         file: '05-sighandler_behaviour.c',

@@ -1,6 +1,6 @@
-# Example readiness — 2026-11-14 00:22 UTC
+# Example readiness — 2026-11-15 14:41 UTC
 
-Terminal: `ws://localhost:8099` · run limit 8s · 133 examples
+Terminal: `ws://localhost:8099` · run limit 8s · 137 examples
 
 | Category | Count |
 |---|---|
@@ -9,7 +9,7 @@ Terminal: `ws://localhost:8099` · run limit 8s · 133 examples
 | pair-partner | 12 |
 | pair-runs | 12 |
 | reference-only | 6 |
-| runs-and-exits | 73 |
+| runs-and-exits | 77 |
 | runs-with-input | 13 |
 | windows-only | 2 |
 
@@ -67,10 +67,14 @@ Unexplained problems: **0**
 
 | File | Category | Detail | Data |
 |---|---|---|---|
-| `01-basic_signals.c` | long-running | stopped after 8000ms as configured | long-running, intentional |
-| `02-ignore_signal.c` | long-running | stopped after 8000ms as configured | long-running, intentional |
+| `01-basic_signals.c` | long-running | stopped after 7000ms as configured | long-running, intentional |
+| `01a-default-action.c` | crashes | status 138 | intentional |
+| `02-ignore_signal.c` | long-running | stopped after 7000ms as configured | long-running, intentional |
+| `02a-kill-child.c` | runs-and-exits | status 0 |  |
+| `02b-signals-from-terminal.c` | runs-and-exits | status 0; companion status 0 |  |
 | `03-sig_alarm.c` | runs-and-exits | status 0 |  |
-| `04-sig_init_once.c` | long-running | stopped after 8000ms as configured | long-running, intentional |
+| `04-sig_init_once.c` | long-running | stopped after 6000ms as configured | long-running, intentional |
+| `04a-graceful-shutdown.c` | runs-and-exits | status 0 |  |
 | `05-sighandler_behaviour.c` | runs-with-input | status 0, fed sampleInput | interactive, intentional |
 | `06-sigaction_behaviour.c` | runs-with-input | status 0, fed sampleInput | interactive, intentional |
 
@@ -183,7 +187,7 @@ Unexplained problems: **0**
 |---|---|---|---|
 | `01-pthread_create.c` | runs-and-exits | status 0 |  |
 | `02-pthread_exit.c` | runs-and-exits | status 0 |  |
-| `03-pthread_cleanup.c` | crashes | status 139 | intentional |
+| `03-pthread_cleanup.c` | runs-and-exits | status 0 | intentional |
 | `04-pthread_join.c` | runs-and-exits | status 0 |  |
 | `05-pthread_ping_pong.c` | runs-and-exits | status 0 |  |
 | `06-pthread-once.c` | runs-and-exits | status 0 |  |
