@@ -555,7 +555,7 @@ export const lessons: Lesson[] = [
       {
         file: '01-posix-spawn.c',
         title: 'posix_spawn: the Linux Spawn',
-        description: 'The runnable counterpart of the Windows example above: posix_spawn runs the calculator and waits right away (like _P_WAIT) or keeps working and waits later (like _P_NOWAIT); posix_spawnp searches PATH like _spawnlp.',
+        description: 'The runnable counterpart of the Windows example above: posix_spawn runs the calculator and waits right away (like _P_WAIT) or keeps working and waits later (like _P_NOWAIT) — then the parent\'s line and the child\'s result can appear in either order. posix_spawnp searches PATH like _spawnlp.',
         compileCmd: 'gcc -o calculator calculator.c && gcc -o posix_spawn 01-posix-spawn.c',
         runCmd: './posix_spawn',
         extraFiles: ['calculator.c'],

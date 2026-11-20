@@ -710,7 +710,8 @@ await check('V27', 'Lesson 05: posix_spawn wait/no-wait, shell splits words and 
 
   page.termOut = '';
   await block('01-posix-spawn.c').locator('.open-terminal-btn').click();
-  await waitTerm(page, /5 \+ 3 = 8[\s\S]*kept going without waiting[\s\S]*8 X 4 = 32[\s\S]*found via PATH/, 60000, 'spawn: wait, no-wait, spawnp');
+  // with "wait later" the parent's line and the child's result may come in either order — that is the point
+  await waitTerm(page, /5 \+ 3 = 8[\s\S]*(kept going without waiting[\s\S]*8 X 4 = 32|8 X 4 = 32[\s\S]*kept going without waiting)[\s\S]*found via PATH/, 60000, 'spawn: wait, no-wait, spawnp');
 
   page.termOut = '';
   await block('02-args-shell-vs-spawn.c').locator('.open-terminal-btn').click();
