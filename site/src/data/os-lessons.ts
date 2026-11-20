@@ -458,8 +458,8 @@ export const lessons: Lesson[] = [
     folder: 'lesson-04-exec',
     title: 'Program Execution with exec()',
     description:
-      'Replacing a process image with exec(). Covers the exec family (execl, execlp, execv, execvp), the fork+exec pattern for running child programs, and a practical calculator example split across parent and child.',
-    tags: ['exec', 'execl', 'execvp', 'fork-exec', 'process-image'],
+      'Replacing a process image with exec(): same PID, never returns on success, -1 and errno when it fails. The exec family (execl, execlp, execv, execvp, execle), the fork+exec pattern with a calculator, open files and environment across exec, and a tiny shell that runs your commands.',
+    tags: ['exec', 'execvp', 'fork-exec', 'errno', 'mini shell'],
     difficulty: 'intermediate',
     prerequisites: ['02'],
     phase: 'Processes',
@@ -471,6 +471,18 @@ export const lessons: Lesson[] = [
         compileCmd: 'gcc -o basic_exec basic_exec.c',
       },
       {
+        file: '01-exec-replaces.c',
+        title: 'exec Replaces, It Doesn\'t Return',
+        description: 'The PID printed before exec and by the new program after it is the same number: exec keeps the process and swaps the program. The printf after a successful exec never runs.',
+        compileCmd: 'gcc -o exec_replaces 01-exec-replaces.c',
+      },
+      {
+        file: '02-exec-fails.c',
+        title: 'When exec Fails',
+        description: 'exec returns only on failure: -1 with errno set. A missing program gives ENOENT, a file that is not executable (a .c source) gives EACCES — the child then exits 127, like the shell does.',
+        compileCmd: 'gcc -o exec_fails 02-exec-fails.c',
+      },
+      {
         file: 'calculator.c',
         title: 'Calculator (Child Program)',
         description: 'A standalone calculator that reads operands and an operator from argv — designed to be launched via exec.',
@@ -480,8 +492,30 @@ export const lessons: Lesson[] = [
       {
         file: 'calculator_exec.c',
         title: 'Calculator Launcher (Parent)',
-        description: 'Parent program that forks a child and uses exec to launch the calculator program, passing arguments through argv.',
-        compileCmd: 'gcc -o calc_exec calculator_exec.c',
+        description: 'Parent program that forks a child and uses exec to launch the calculator program, passing arguments through argv. Run builds ./calculator first, because the child execs it.',
+        compileCmd: 'gcc -o calculator calculator.c && gcc -o calc_exec calculator_exec.c',
+        runCmd: './calc_exec',
+        extraFiles: ['calculator.c'],
+      },
+      {
+        file: '03-exec-env.c',
+        title: 'Choosing the Environment',
+        description: 'execle() hands the new program an environment of your choice: `env` then prints only GREETING and COURSE — no HOME, no PATH.',
+        compileCmd: 'gcc -o exec_env 03-exec-env.c',
+      },
+      {
+        file: '04-exec-redirect.c',
+        title: 'Open Files Survive exec',
+        description: 'The child points stdout at listing.txt with dup2(), then execs `ls -l`. ls just writes to stdout — the listing lands in the file (see the Files panel). This is how `ls -l > listing.txt` works.',
+        compileCmd: 'gcc -o exec_redirect 04-exec-redirect.c',
+      },
+      {
+        file: '05-mini-shell.c',
+        title: 'A Tiny Shell',
+        description: 'Read a command, split it into an argv array, fork + execvp + waitpid, and report how it ended — what bash does for every command. A missing command exits 127.',
+        compileCmd: 'gcc -o mini_shell 05-mini-shell.c',
+        kind: 'interactive',
+        sampleInput: 'echo hello\nls -l\nwc -l 05-mini-shell.c\nnosuchcmd\nexit',
       },
       {
         file: 'binary_search_dupes.c',

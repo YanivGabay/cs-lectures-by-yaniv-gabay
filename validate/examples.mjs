@@ -127,8 +127,12 @@ function classify(ex, c, r, pr) {
     return ['compile-error', c];
   }
   const res = pr ? [r, pr] : [r];
+  // A program that execs a helper which was never built prints e.g. "exec failed: No such file or directory"
+  // and may still exit 0 — that is a broken example, not a pass
+  if (!ex.intentional && res.some((x) => /(exec\w* failed|exec\w*): No such file or directory/.test(x.output || ''))) return ['exec-failed', 'a program it execs was not found (not built or not uploaded?)'];
   // 127 = "command not found": typically sample input typed into bash after the program ended
-  if (res.some((x) => x.status === 127 || /command not found/.test(x.output || ''))) return ['command-not-found', 'something was typed into the shell instead of the program'];
+  // (bash's own message — a program may print "command not found" itself, like the mini shell)
+  if (res.some((x) => x.status === 127 || /(^|\n)(bash|sh): [^\n]*command not found/.test(x.output || ''))) return ['command-not-found', 'something was typed into the shell instead of the program'];
   const crashed = res.find((x) => x.finished && x.status > 128 && x.status !== 130);
   if (crashed) return ['crashes', `status ${crashed.status}`];
   if (res.every((x) => x.finished)) {
@@ -223,7 +227,7 @@ await Promise.all(Array.from({ length: PARALLEL }, async () => {
 }));
 
 // Anything in these buckets must be explained by the data (kind / intentional) — see T13
-const PROBLEM = ['command-not-found', 'ignores-stop', 'crashes', 'hangs', 'compile-error', 'needs-input', 'pair-hangs', 'missing-file', 'session-error'];
+const PROBLEM = ['exec-failed', 'command-not-found', 'ignores-stop', 'crashes', 'hangs', 'compile-error', 'needs-input', 'pair-hangs', 'missing-file', 'session-error'];
 // An intentional note may excuse a crash (the point of the example) — never a hang or a compile error
 const unexplained = results.filter((r) => PROBLEM.includes(r.category) && !(r.intentional && r.category === 'crashes'));
 const counts = results.reduce((m, r) => ({ ...m, [r.category]: (m[r.category] || 0) + 1 }), {});

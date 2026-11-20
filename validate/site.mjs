@@ -666,6 +666,43 @@ await check('V25', 'Lesson 03: auto Ctrl+C reaches the handler, default action k
   await page.context().close();
 });
 
+await check('V26', 'Lesson 04: same PID after exec, ENOENT/EACCES failures, launcher reaches the calculator, custom env, listing.txt in Files, mini shell', async () => {
+  const page = await newPage();
+  const block = (file) => page.locator('.code-block-wrapper', { has: page.locator('span', { hasText: new RegExp(`^${file.replace(/[.]/g, '\\.')}$`) }) });
+  await page.goto(`${BASE}/os/04-exec/`);
+
+  page.termOut = '';
+  await block('01-exec-replaces.c').locator('.open-terminal-btn').click();
+  await waitTerm(page, /\[After exec\]\s+I am PID \d+/, 60000, 'output after exec');
+  const pids = [...termText(page).matchAll(/I am PID (\d+)/g)].map((m) => m[1]);
+  assert(pids.length >= 2 && pids[0] === pids[1], `PIDs before/after exec differ: ${pids}`);
+
+  page.termOut = '';
+  await block('02-exec-fails.c').locator('.open-terminal-btn').click();
+  await waitTerm(page, /No such file or directory[\s\S]*Permission denied/, 60000, 'ENOENT then EACCES');
+
+  page.termOut = '';
+  await block('calculator_exec.c').locator('.open-terminal-btn').click();
+  await waitTerm(page, /\[Calculator\] 5 \+ 3 = 8/, 60000, 'the launcher reached the calculator');
+  assert(!/exec failed/.test(termText(page)), 'the launcher could not exec the calculator');
+
+  page.termOut = '';
+  await block('03-exec-env.c').locator('.open-terminal-btn').click();
+  await waitTerm(page, /GREETING=hello from the parent\s+COURSE=OS\s+\[Parent\] env printed only/, 60000, 'only two variables');
+
+  const red = block('04-exec-redirect.c');
+  await red.locator('.open-terminal-btn').click();
+  await red.locator('.tf-row[data-name="listing.txt"][data-status="new"]').waitFor({ timeout: 60000 });
+  await waitFor(async () => /04-exec-redirect\.c/.test(await red.locator('.tf-text').innerText().catch(() => '')), 15000, 'ls -l output inside listing.txt');
+
+  const sh = block('05-mini-shell.c');
+  page.termOut = '';
+  await sh.locator('.open-terminal-btn').click();
+  await sh.locator('.term-sample').click({ timeout: 60000 });
+  await waitTerm(page, /\[mini\] echo exited with status 0[\s\S]*\[mini\] nosuchcmd exited with status 127[\s\S]*bye/, 30000, 'mini shell ran the sample commands');
+  await page.context().close();
+});
+
 await check('V17', 'presenter sign-in on /presenter sticks across pages and reloads and reaches the reserved sandbox', async () => {
   if (!PRESENTER_PASSWORD) throw new Skip('set PRESENTER_PASSWORD to run');
   const page = await newPage();

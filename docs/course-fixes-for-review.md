@@ -80,3 +80,22 @@ New files in `lesson-03-little-signals/`, one idea each, placed in teaching orde
 Existing files are unchanged. New on the site: the existing Ctrl+C demos no longer wait for someone to press
 Ctrl+C — the site presses it once after 2.5 s (`interruptAfterMs`): `01-basic_signals` (handler runs, keeps
 going), `02-ignore_signal` (nothing happens), `04-sig_init_once` (first handled, a second Ctrl+C at 6 s kills it).
+
+## Lesson 04 (prepared for the lecture after 03 — please review)
+
+**Fixed:** `calculator_exec.c` failed on the site with "exec failed: No such file or directory" — the
+child execs `./calculator`, which was never built (only the launcher was uploaded). Run now builds
+`calculator` first. The audit used to call it a pass because the parent still exits 0; it now flags
+any "exec … failed: No such file or directory" (`exec-failed`).
+
+New files in `lesson-04-exec/`, one idea each, in teaching order:
+
+| File | Teaches | On the site |
+|---|---|---|
+| `01-exec-replaces.c` | same PID before and after exec; the line after exec never runs | `./exec_replaces` |
+| `02-exec-fails.c` | exec returns -1 only on failure: ENOENT vs EACCES, exit 127 | `./exec_fails` |
+| `03-exec-env.c` | `execle` with a chosen environment; `env` shows only those variables | `./exec_env` |
+| `04-exec-redirect.c` | open files survive exec: `dup2` + `execlp("ls")` → `listing.txt` | Files panel shows `listing.txt` |
+| `05-mini-shell.c` | a tiny shell: `fgets` → `strtok` argv → fork + `execvp` + `waitpid` | sample input: echo, ls, wc, a missing command, exit |
+
+Existing files are unchanged.
