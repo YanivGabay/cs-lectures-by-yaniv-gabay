@@ -1,15 +1,15 @@
-# Example readiness — 2026-11-20 08:39 UTC
+# Example readiness — 2026-11-20 19:39 UTC
 
-Terminal: `ws://localhost:8099` · run limit 8s · 142 examples
+Terminal: `ws://localhost:8099` · run limit 8s · 146 examples
 
 | Category | Count |
 |---|---|
 | crashes | 3 |
-| long-running | 14 |
+| long-running | 13 |
 | pair-partner | 12 |
 | pair-runs | 12 |
 | reference-only | 6 |
-| runs-and-exits | 79 |
+| runs-and-exits | 84 |
 | runs-with-input | 14 |
 | windows-only | 2 |
 
@@ -92,12 +92,16 @@ Unexplained problems: **0**
 | `calculator_exec.c` | runs-and-exits | status 0 |  |
 | `calculator.c` | runs-and-exits | status 0 |  |
 
-## 05 — Windows Process Spawning
+## 05 — Process Spawning: Windows and Linux
 
 | File | Category | Detail | Data |
 |---|---|---|---|
+| `01-posix-spawn.c` | runs-and-exits | status 0 |  |
+| `02-args-shell-vs-spawn.c` | runs-and-exits | status 0 |  |
+| `03-spawn-redirect.c` | runs-and-exits | status 0 |  |
 | `calculator.c` | runs-and-exits | status 0 |  |
 | `main.c` | windows-only | marked in data (not run) | windows |
+| `show_args.c` | runs-and-exits | status 0 |  |
 | `weird_behaviours/shell.c` | windows-only | marked in data (not run) | windows |
 | `weird_behaviours/unique_str.c` | runs-and-exits | status 0 |  |
 
@@ -190,7 +194,7 @@ Unexplained problems: **0**
 
 | File | Category | Detail | Data |
 |---|---|---|---|
-| `01-pthread_create.c` | long-running | still printing when stopped |  |
+| `01-pthread_create.c` | runs-and-exits | status 0 |  |
 | `02-pthread_exit.c` | runs-and-exits | status 0 |  |
 | `03-pthread_cleanup.c` | crashes | status 139 | intentional |
 | `04-pthread_join.c` | runs-and-exits | status 0 |  |

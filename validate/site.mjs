@@ -703,6 +703,37 @@ await check('V26', 'Lesson 04: same PID after exec, ENOENT/EACCES failures, laun
   await page.context().close();
 });
 
+await check('V27', 'Lesson 05: posix_spawn wait/no-wait, shell splits words and expands * while spawn does not, result.txt in Files, Windows files read-only', async () => {
+  const page = await newPage();
+  const block = (file) => page.locator('.code-block-wrapper', { has: page.locator('span', { hasText: new RegExp(`^${file.replace(/[.]/g, '\\.')}$`) }) });
+  await page.goto(`${BASE}/os/05-spawn-windows/`);
+
+  page.termOut = '';
+  await block('01-posix-spawn.c').locator('.open-terminal-btn').click();
+  await waitTerm(page, /5 \+ 3 = 8[\s\S]*kept going without waiting[\s\S]*8 X 4 = 32[\s\S]*found via PATH/, 60000, 'spawn: wait, no-wait, spawnp');
+
+  page.termOut = '';
+  await block('02-args-shell-vs-spawn.c').locator('.open-terminal-btn').click();
+  await waitTerm(page, /3\) Same through the shell[\s\S]*argc=2/, 60000, 'all three runs');
+  const counts = [...termText(page).matchAll(/show_args got argc=(\d+): ([^\n]*)/g)].map((m) => [Number(m[1]), m[2]]);
+  assert(counts.length === 3, `expected 3 runs, got ${counts.length}`);
+  assert(counts[0][0] === 2 && counts[0][1].includes('[aa bb cc] [*]'), `spawn changed the arguments: ${counts[0]}`);
+  assert(counts[1][0] > 3 && counts[1][1].includes('[show_args.c]') && !counts[1][1].includes('[*]'), `shell did not split/expand: ${counts[1]}`);
+  assert(counts[2][0] === 2, `quoting did not keep 2 arguments: ${counts[2]}`);
+
+  const red = block('03-spawn-redirect.c');
+  await red.locator('.open-terminal-btn').click();
+  await red.locator('.tf-row[data-name="result.txt"][data-status="new"]').waitFor({ timeout: 60000 });
+  await waitFor(async () => /6 X 7 = 42/.test(await red.locator('.tf-text').innerText().catch(() => '')), 15000, 'calculator output inside result.txt');
+
+  for (const f of ['main.c', 'weird_behaviours/shell.c']) {
+    assert(await block(f).locator('.readonly-label').isVisible(), `${f} has no Windows-only label`);
+    assert(await block(f).locator('.open-terminal-btn').count() === 0, `${f} offers a Run button`);
+  }
+  await page.context().close();
+  return `argument counts: spawn ${counts[0][0]}, shell ${counts[1][0]}, quoted ${counts[2][0]}`;
+});
+
 await check('V17', 'presenter sign-in on /presenter sticks across pages and reloads and reaches the reserved sandbox', async () => {
   if (!PRESENTER_PASSWORD) throw new Skip('set PRESENTER_PASSWORD to run');
   const page = await newPage();

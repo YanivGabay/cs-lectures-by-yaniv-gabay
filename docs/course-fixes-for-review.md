@@ -99,3 +99,19 @@ New files in `lesson-04-exec/`, one idea each, in teaching order:
 | `05-mini-shell.c` | a tiny shell: `fgets` → `strtok` argv → fork + `execvp` + `waitpid` | sample input: echo, ls, wc, a missing command, exit |
 
 Existing files are unchanged.
+
+## Lesson 05 (prepared for the lecture after 04 — please review)
+
+The two central examples (`main.c`, `weird_behaviours/shell.c`) use Windows `process.h`, so on the site they
+stay read-only. New runnable Linux counterparts in `lesson-05-spawn-windows/`, each placed right after the
+Windows file it mirrors:
+
+| File | Mirrors | On the site |
+|---|---|---|
+| `01-posix-spawn.c` | `_spawnl` / `_spawnlp` / `_P_WAIT` / `_P_NOWAIT` in `main.c` | `posix_spawn` + waitpid now or later; `posix_spawnp` searches PATH |
+| `show_args.c` | — (helper) | prints each argument in brackets: `./show_args one "two words" "*"` |
+| `02-args-shell-vs-spawn.c` | the spaces and `*` quirks in `shell.c` / `main.c` | spawn keeps `{"aa bb cc", "*"}` (2 args); `system()` → `/bin/sh` splits and expands `*` into file names; quoting fixes it |
+| `03-spawn-redirect.c` | — | `posix_spawn_file_actions_addopen` → calculator output in `result.txt` (Files panel) |
+
+Lesson title on the site: "Process Spawning: Windows and Linux" (slug unchanged). Existing files are unchanged;
+the Windows files' notes now point to their Linux counterparts.
